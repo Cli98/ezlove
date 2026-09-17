@@ -1,0 +1,306 @@
+@import "@/styles/variables.scss";
+
+view, picker, input, textarea, button {
+  box-sizing: border-box;
+}
+
+page {
+  background-color: $c-bg;
+  color: $c-text;
+  font-size: $fs-body;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+  line-height: $lh-normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ── Page Layout ──
+.page {
+  min-height: 100vh;
+  padding: 0 $sp-24;
+  padding-bottom: calc(180rpx + env(safe-area-inset-bottom));
+  overscroll-behavior: contain;
+  background: $gradient-page;
+}
+
+.page-gradient {
+  min-height: 100vh;
+  background: $gradient-page;
+}
+
+// ── Card System ──
+.card {
+  background: $c-surface;
+  border-radius: $r-lg;
+  padding: $sp-24;
+  box-shadow: $shadow-md;
+  border: $border-subtle;
+  transition: transform $duration-normal $ease-out, box-shadow $duration-normal $ease-out;
+}
+
+.card-interactive {
+  @extend .card;
+  &:active {
+    transform: scale(0.98);
+    box-shadow: $shadow-xs;
+  }
+}
+
+.card-elevated {
+  background: $c-surface;
+  border-radius: $r-xl;
+  padding: $sp-32;
+  box-shadow: $shadow-md;
+  border: none;
+}
+
+.card-warm {
+  background: $c-surface-warm;
+  border-radius: $r-lg;
+  padding: $sp-24;
+  border: 1rpx solid $c-border;
+}
+
+// ── Buttons ──
+.btn-primary {
+  background: $gradient-warm;
+  color: $c-text-inverse;
+  border-radius: $r-full;
+  padding: $sp-16 $sp-40;
+  font-size: $fs-subtitle;
+  font-weight: $fw-semibold;
+  text-align: center;
+  border: none;
+  box-shadow: $shadow-glow;
+  letter-spacing: 2rpx;
+  transition: all $duration-normal $ease-out;
+  &:active {
+    transform: scale(0.95);
+    box-shadow: 0 2rpx 8rpx rgba($c-primary, 0.2);
+    transition-timing-function: $ease-spring;
+  }
+  &::after { border: none; }
+}
+
+.btn-secondary {
+  background: $c-surface;
+  color: $c-primary;
+  border-radius: $r-full;
+  padding: $sp-16 $sp-40;
+  font-size: $fs-subtitle;
+  font-weight: $fw-semibold;
+  text-align: center;
+  border: 2rpx solid $c-primary-soft;
+  transition: all $duration-normal $ease-out;
+  &:active {
+    background: $c-primary-bg;
+    transform: scale(0.97);
+  }
+  &::after { border: none; }
+}
+
+.btn-ghost {
+  background: transparent;
+  color: $c-text-sub;
+  border-radius: $r-full;
+  padding: $sp-12 $sp-24;
+  font-size: $fs-body;
+  text-align: center;
+  border: none;
+  &:active { opacity: 0.6; }
+  &::after { border: none; }
+}
+
+.btn-elder {
+  background: $gradient-warm;
+  color: $c-text-inverse;
+  border-radius: $r-xl;
+  padding: $sp-24 $sp-48;
+  font-size: $fs-elder-body;
+  font-weight: $fw-bold;
+  text-align: center;
+  min-height: 112rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6rpx 24rpx rgba($c-primary, 0.3);
+  letter-spacing: 4rpx;
+}
+
+// ── Status ──
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: $sp-4 $sp-12;
+  border-radius: $r-full;
+  font-size: $fs-caption;
+  font-weight: $fw-medium;
+  letter-spacing: 1rpx;
+}
+
+.badge-safe {
+  @extend .badge;
+  background: $c-safe-bg;
+  color: $c-safe;
+  box-shadow: 0 0 0 6rpx rgba($c-safe-bg, 0.6);
+}
+
+.badge-warn {
+  @extend .badge;
+  background: $c-warn-bg;
+  color: $c-warn;
+  box-shadow: 0 0 0 6rpx rgba($c-warn-bg, 0.6);
+}
+
+.badge-neutral {
+  @extend .badge;
+  background: $c-bg-warm;
+  color: $c-text-sub;
+}
+
+// ── Section ──
+.section-label {
+  font-size: $fs-caption;
+  font-weight: $fw-semibold;
+  color: $c-text-hint;
+  letter-spacing: 4rpx;
+  text-transform: uppercase;
+  margin-bottom: $sp-12;
+  display: block;
+}
+
+// ── Divider ──
+.divider {
+  height: 1rpx;
+  background: $c-border-light;
+  margin: $sp-20 0;
+}
+
+// ── Animation utilities ──
+.fade-in {
+  animation: fadeIn $duration-slow $ease-out both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 120ms; }
+.stagger-3 { animation-delay: 190ms; }
+.stagger-4 { animation-delay: 260ms; }
+
+// ── Decorative ──
+.deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba($c-primary, 0.04);
+  pointer-events: none;
+}
+
+// ── Frosted glass header ──
+.glass-header {
+  backdrop-filter: blur($blur-header);
+  -webkit-backdrop-filter: blur($blur-header);
+  background: $glass-bg;
+  border-bottom: 1rpx solid $glass-border;
+}
+
+// ── Fade-in on scroll (for Intersection Observer) ──
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(16rpx);
+  transition: opacity $duration-normal $ease-smooth, transform $duration-normal $ease-smooth;
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ── Shared loading dots ──
+.loading-dots {
+  display: flex;
+  gap: 8rpx;
+  justify-content: center;
+  align-items: center;
+  padding: $sp-24 0;
+
+  &__dot {
+    width: 12rpx;
+    height: 12rpx;
+    border-radius: 50%;
+    background: $c-primary-soft;
+    animation: dotBounce 1.4s infinite ease-in-out both;
+
+    &:nth-child(1) { animation-delay: -0.32s; }
+    &:nth-child(2) { animation-delay: -0.16s; }
+  }
+}
+
+@keyframes dotBounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+// ── Shared empty state ──
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $sp-64 $sp-32;
+  text-align: center;
+
+  &__icon {
+    width: 160rpx;
+    height: 160rpx;
+    border-radius: 50%;
+    background: linear-gradient(135deg, $c-primary-soft, $c-surface-warm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: $sp-24;
+    font-size: 72rpx;
+  }
+
+  &__title {
+    font-size: $fs-subtitle;
+    font-weight: 600;
+    color: $c-text;
+    margin-bottom: $sp-8;
+  }
+
+  &__desc {
+    font-size: $fs-body;
+    color: $c-text-sub;
+    line-height: 1.6;
+    max-width: 480rpx;
+  }
+
+  &__action {
+    margin-top: $sp-32;
+  }
+}
+
+// ── Unified nav back button ──
+.nav-back {
+  width: 72rpx;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8rpx);
+
+  &:active {
+    background: rgba(255, 255, 255, 0.9);
+    transform: scale(0.92);
+  }
+
+  &__icon {
+    width: 36rpx;
+    height: 36rpx;
+    color: $c-text;
+  }
+}

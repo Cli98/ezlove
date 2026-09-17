@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700&amp;family=Noto+Serif+SC:wght@600;700&amp;family=Noto+Sans+SC:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#C75C3A",
+                        "on-primary": "#FFFFFF",
+                        surface: "#FBF7F2",
+                        "on-surface": "#2D2926",
+                        "on-surface-variant": "#7A746E",
+                        "surface-variant": "#EFE9E1",
+                        "terracotta": "#C75C3A",
+                        "sage": "#5E8F5A",
+                        "amber": "#C4943E",
+                        "clay": "#C44D3E"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "16px",
+                        "xl": "24px",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Noto Serif SC", "serif"],
+                        display: ["Noto Serif SC", "serif"],
+                        body: ["Noto Sans SC", "sans-serif"],
+                        label: ["Public Sans", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #FBF7F2;
+            font-family: 'Noto Sans SC', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-nav-pill {
+            background-color: rgba(199, 92, 58, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface">
+<!-- Top AppBar (JSON Source) -->
+<header class="fixed top-0 left-0 w-full z-50 bg-[#FBF7F2] dark:bg-surface flex justify-between items-center px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant">
+<img class="w-full h-full object-cover" data-alt="A soft, warm-toned profile portrait of an elegant elderly woman with graying hair and a gentle smile, shot in natural window lighting. The background is a clean, minimalist interior with cream-colored walls, reflecting a sense of peace and modern simplicity. The photography style is high-end, clean, and human-centric." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCrIva6BpJLoWG-kCAzTiHj2KQM7yrN0OvYstEt8jXYeSALgS4tTt408_yG8i5VOsXmfeJYNgO1Ict_mZTIhvi9Unsg827teyj7WkOo_C7QcX7wTD7Zx5JvY71LjvX7N_fXIeBr43lUMDTJbO5XHS1NvaoZAbwsuGv8JII-OfHoHMC422WSvUu9sUe53_uwdSZwX7RpMwiluzXUlCgbDH0byKvMBVXEs01mRiyFlgik0kSAp40eX08dZM9IJ9WIXX_8rq27yHkzzzHo"/>
+</div>
+<h1 class="font-body text-body-md font-medium text-[#C75C3A]">你好，张奶奶</h1>
+</div>
+<div class="p-2 transition-opacity duration-200 hover:opacity-80">
+<span class="material-symbols-outlined text-[#C75C3A]" data-icon="notifications">notifications</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-md mx-auto min-h-screen">
+<!-- Greeting Section -->
+<section class="mb-10">
+<h2 class="text-[36px] font-display font-bold text-on-surface mb-2 tracking-tight">下午好</h2>
+<p class="text-lg font-body text-on-surface-variant flex items-center gap-2">
+                今日牵挂状态
+                <span class="w-1.5 h-1.5 rounded-full bg-terracotta animate-pulse"></span>
+</p>
+</section>
+<!-- Elderly Status List -->
+<section class="space-y-6">
+<!-- Card 1 -->
+<div class="bg-white p-5 rounded-lg shadow-sm flex items-center justify-between transition-transform active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-full bg-[#FBEAE8] flex items-center justify-center">
+<span class="text-xl font-headline font-bold text-[#C44D3E]">张</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-bold text-lg">张大爷</span>
+<span class="text-xs px-2 py-0.5 rounded-full bg-[#FBEAE8] text-[#C44D3E]">今日未读</span>
+</div>
+<span class="text-sm text-on-surface-variant">2小时前</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-surface-variant/80">chevron_right</span>
+</div>
+<!-- Card 2 -->
+<div class="bg-white p-5 rounded-lg shadow-sm flex items-center justify-between transition-transform active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-full bg-[#FBF3E8] flex items-center justify-center">
+<span class="text-xl font-headline font-bold text-[#C4943E]">李</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-bold text-lg">李奶奶</span>
+<span class="text-xs px-2 py-0.5 rounded-full bg-[#E8F3E7] text-[#5E8F5A]">今日已读</span>
+</div>
+<span class="text-sm text-on-surface-variant">刚刚</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-surface-variant/80">chevron_right</span>
+</div>
+<!-- Card 3 -->
+<div class="bg-white p-5 rounded-lg shadow-sm flex items-center justify-between transition-transform active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-full bg-[#E8F3E7] flex items-center justify-center">
+<span class="text-xl font-headline font-bold text-[#5E8F5A]">王</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-bold text-lg">王大爷</span>
+<span class="text-xs px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant">今日未读</span>
+</div>
+<span class="text-sm text-on-surface-variant">昨天</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-surface-variant/80">chevron_right</span>
+</div>
+</section>
+<!-- Visual Decorative Element (Atmospheric) -->
+<div class="mt-12 flex justify-center">
+<div class="w-24 h-1 bg-surface-variant/30 rounded-full"></div>
+</div>
+</main>
+<!-- Contextual FAB -->
+<div class="fixed bottom-24 right-6 z-40">
+<button class="bg-[#C75C3A] text-white flex items-center gap-2 px-6 py-4 rounded-full shadow-lg transition-all active:scale-90 hover:opacity-90">
+<span class="material-symbols-outlined" data-icon="favorite" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="font-body font-medium tracking-wide">发送牵挂</span>
+</button>
+</div>
+<!-- Bottom Navigation Bar (JSON Source) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 bg-[#FBF7F2] dark:bg-surface border-t border-surface-variant/20 shadow-md flex justify-around items-center px-4 py-3 pb-safe rounded-t-xl">
+<!-- Tab: 首页 (Active) -->
+<a class="flex flex-col items-center justify-center text-[#C75C3A] dark:text-primary bg-[#C75C3A]/10 rounded-xl px-3 py-1 Active: scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="home" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-label text-label-sm mt-0.5">首页</span>
+</a>
+<!-- Tab: 记录 -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/10 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+<span class="font-label text-label-sm mt-0.5">记录</span>
+</a>
+<!-- Tab: 提醒 -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/10 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="alarm">alarm</span>
+<span class="font-label text-label-sm mt-0.5">提醒</span>
+</a>
+<!-- Tab: 我的 -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant/10 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label text-label-sm mt-0.5">我的</span>
+</a>
+</nav>
+<script>
+        // Simple micro-interaction for cards
+        document.querySelectorAll('.rounded-lg').forEach(card => {
+            card.addEventListener('click', () => {
+                console.log('Navigating to elderly detail view...');
+            });
+        });
+    </script>
+</body></html>

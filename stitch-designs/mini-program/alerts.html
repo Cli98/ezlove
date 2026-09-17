@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>易挂念 - 提醒</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&amp;family=Public+Sans:wght@300;400;600&amp;family=Noto+Sans+SC:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#C75C3A", // Terracotta
+                        "on-primary": "#FFFFFF",
+                        "primary-container": "#F4E3DE",
+                        "on-primary-container": "#3D0F04",
+                        surface: "#FBF7F2", // Cream
+                        "on-surface": "#201A18",
+                        "surface-variant": "#F4E0D8",
+                        "on-surface-variant": "#53433E",
+                        outline: "#85736E",
+                        error: "#BA1A1A",
+                        caution: "#D97706",
+                        info: "#717171"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Noto Serif SC", "serif"],
+                        display: ["Noto Serif SC", "serif"],
+                        body: ["Noto Sans SC", "sans-serif"],
+                        label: ["Public Sans", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #FBF7F2;
+            color: #201A18;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .font-lxgw {
+            font-family: 'Noto Serif SC', serif;
+            font-weight: 500;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 20px -2px rgba(199, 92, 58, 0.05);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-col min-h-screen">
+<!-- TopAppBar Section -->
+<!-- Content & Identity from JSON: headline="易挂念", leading_icon="elderly", trailing_icon="settings" -->
+<header class="w-full top-0 sticky z-40 bg-surface dark:bg-surface flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="elderly">elderly</span>
+<h1 class="font-headline text-2xl font-bold text-primary dark:text-primary">提醒</h1>
+</div>
+<button class="hover:bg-surface-container-low transition-colors p-2 rounded-full active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="settings">settings</span>
+</button>
+</header>
+<main class="flex-grow px-6 pt-2 pb-24 max-w-2xl mx-auto w-full">
+<!-- Header Text -->
+<div class="mb-8 mt-2">
+<p class="text-on-surface-variant text-sm font-label tracking-wide opacity-80">实时关注家人动态</p>
+</div>
+<!-- Reminders List -->
+<div class="space-y-4">
+<!-- Card 1: Urgent -->
+<div class="bg-white rounded-xl p-5 card-shadow border border-primary/5 relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+<div class="flex justify-between items-start mb-3">
+<span class="px-2 py-0.5 bg-error/10 text-error text-xs font-bold rounded">紧急</span>
+<span class="text-on-surface-variant/60 text-xs font-label">10:30</span>
+</div>
+<p class="text-on-surface font-medium text-lg leading-relaxed mb-4">
+                    张大爷已超过12小时未查看消息
+                </p>
+<div class="flex justify-end">
+<button class="bg-primary text-white px-5 py-2 rounded-full text-sm font-medium hover:opacity-90 active:scale-95 transition-all shadow-md shadow-primary/20">
+                        已确认安好
+                    </button>
+</div>
+</div>
+<!-- Card 2: Caution -->
+<div class="bg-white rounded-xl p-5 card-shadow border border-primary/5 relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-caution"></div>
+<div class="flex justify-between items-start mb-3">
+<span class="px-2 py-0.5 bg-caution/10 text-caution text-xs font-bold rounded">注意</span>
+<span class="text-on-surface-variant/60 text-xs font-label">09:15</span>
+</div>
+<p class="text-on-surface font-medium text-lg leading-relaxed mb-4">
+                    李奶奶的血压测量提醒已超时
+                </p>
+<div class="flex justify-end">
+<button class="bg-primary text-white px-5 py-2 rounded-full text-sm font-medium hover:opacity-90 active:scale-95 transition-all shadow-md shadow-primary/20">
+                        已确认安好
+                    </button>
+</div>
+</div>
+<!-- Card 3: Notice/Handled -->
+<div class="bg-white/60 rounded-xl p-5 card-shadow border border-primary/5 opacity-60">
+<div class="flex justify-between items-start mb-3">
+<span class="px-2 py-0.5 bg-info/10 text-info text-xs font-bold rounded">提示</span>
+<span class="text-on-surface-variant/60 text-xs font-label">昨天</span>
+</div>
+<p class="text-on-surface font-medium text-lg leading-relaxed">
+                    王大爷已完成今日健康打卡
+                </p>
+</div>
+</div>
+<!-- Empty State / Footer Section -->
+<div class="mt-16 flex flex-col items-center justify-center text-center px-10">
+<div class="w-16 h-16 bg-primary-container/30 rounded-full flex items-center justify-center mb-4">
+<span class="material-symbols-outlined text-primary/40 text-3xl" data-icon="cloud_done">cloud_done</span>
+</div>
+<h3 class="text-on-surface/50 font-lxgw text-lg">暂无提醒，一切安好</h3>
+<div class="mt-10 h-px w-24 bg-gradient-to-r from-transparent via-primary/10 to-transparent"></div>
+</div>
+<!-- Atmospheric Image -->
+<div class="mt-12 rounded-2xl overflow-hidden aspect-[16/9] relative grayscale-[0.2] opacity-80 border border-primary/5">
+<div class="bg-cover bg-center w-full h-full" data-alt="A peaceful and warm high-end photography of a cozy minimalist living room corner. Soft morning sunlight streams through sheer white curtains onto a light wooden chair and a small table with a steaming ceramic cup. The color palette is composed of soft creams, warm terracotta accents, and natural textures, creating a serene and safe atmosphere. High-end lifestyle photography, 8k resolution, quiet and calm mood." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAicahIG069UsTS3zpLG3OY85MxjDLn3ZjkleWI7HTZoyw3My2s1MmwcbaedbHZQUfilzqJK4voKh3MuHD4INNuWqwAy2iUyW_UNGs4V2BHP5hhVaVi1PNyDQqgdLPzspKSpojlSlMAIgScxSGp5NrRFhJvntAZxlS10Lzot2tSWGfuU6zQPWEyJwPpayCKCCrD-6BA9yPRWjbe9R0z-wtDhmNWT_sX8u21i2vcUF9vpx8DmExF2fSKrq4HWvOOpclSIYqiYu3vVJRT')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface/80 to-transparent"></div>
+</div>
+</main>
+<!-- BottomNavBar Section -->
+<!-- Active State Logic: Mapping "提醒" (Reminders) to index 2 (alarm icon) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-surface border-t border-surface-variant/30 shadow-lg rounded-t-xl">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label text-xs mt-1">首页</span>
+</a>
+<!-- Records -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="font-label text-xs mt-1">记录</span>
+</a>
+<!-- Reminders (ACTIVE) -->
+<a class="flex flex-col items-center justify-center text-primary bg-primary-container/20 rounded-xl px-3 py-1 active:scale-90 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="alarm" style="font-variation-settings: 'FILL' 1;">alarm</span>
+<span class="font-label text-xs mt-0.5 font-bold">提醒</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label text-xs mt-1">我的</span>
+</a>
+</nav>
+<script>
+        // Micro-interactions for buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('mousedown', () => {
+                button.classList.add('scale-95');
+            });
+            button.addEventListener('mouseup', () => {
+                button.classList.remove('scale-95');
+            });
+            button.addEventListener('mouseleave', () => {
+                button.classList.remove('scale-95');
+            });
+        });
+
+        // Simple visibility observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100', 'translate-y-0');
+                    entry.target.classList.remove('opacity-0', 'translate-y-4');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.card-shadow').forEach(card => {
+            card.classList.add('transition-all', 'duration-700', 'opacity-0', 'translate-y-4');
+            observer.observe(card);
+        });
+    </script>
+</body></html>

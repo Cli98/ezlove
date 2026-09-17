@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&amp;family=Public+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#C75C3A", // Terra Cotta
+                        "on-primary": "#FFFFFF",
+                        surface: "#FBF7F2", // Cream White
+                        "on-surface": "#2D2926",
+                        "on-surface-variant": "#7A746E",
+                        "surface-container": "#FFFFFF",
+                        "surface-container-highest": "#E6E1DC",
+                        "primary-container": "#F4E6E1",
+                        "accent-gold": "#D4AF37", // Amber Gold
+                        "sage-green": "#8A9A5B"  // Sage Green
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "1.5rem", // Increased for senior accessibility
+                        "xl": "2rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Noto Serif SC", "serif"],
+                        display: ["Noto Serif SC", "serif"],
+                        body: ["Public Sans", "sans-serif"],
+                        label: ["Public Sans", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #FBF7F2;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .reaction-btn:active {
+            transform: scale(0.9);
+            transition: transform 0.1s ease-out;
+        }
+    </style>
+</head>
+<body class="font-body text-on-surface antialiased">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-20 bg-surface">
+<div class="flex items-center gap-4">
+<button class="w-12 h-12 flex items-center justify-center rounded-full hover:bg-surface-container-highest transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-on-surface text-3xl">arrow_back</span>
+</button>
+<h1 class="font-headline text-2xl font-bold text-primary tracking-tight">牵挂</h1>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-primary-container flex items-center justify-center border-2 border-white shadow-sm">
+<img class="w-full h-full object-cover" data-alt="A warm, soft-focus profile portrait of a smiling elderly man with white hair, wearing a clean linen shirt. The background is a bright, sun-drenched garden with soft sage green foliage. The lighting is high-key and natural, emphasizing a peaceful and high-end retirement lifestyle with a warm terracotta color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwzeqv6xUnwVTkzmvLskFAIyQTlzUMums5S4X3ae2tfRYlS8t852_xa7E2Kq0WUZmEmS1dM2AVpsU3dmoQVe6vvXTUHLhkTnP5sLAgCNFlVZrmIN6RN5rMp8G8gIoujc3EpXyjTXbBza5lX1FpBNbj2bSvCSgZmRvcHqlvJwDmqy2p9Oc30dVkHeuT5LWImbwxlSwihDn7VTv__z8bGU9pWx51BmGc5TGLOfvQdl92ejAbf2oq4ZoSnWb-XoGwXpH51g7pam-m3ubT"/>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto">
+<!-- Message Card -->
+<section class="bg-surface-container rounded-lg shadow-sm p-8 mb-8 border border-surface-container-highest/50">
+<!-- Header: Sender & Time -->
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 bg-primary-container rounded-full flex items-center justify-center">
+<span class="text-primary font-bold text-lg">明</span>
+</div>
+<div>
+<p class="text-on-surface-variant text-sm font-medium">小明</p>
+<p class="text-on-surface-variant text-xs opacity-75">今天 14:30</p>
+</div>
+</div>
+<div class="px-3 py-1 bg-primary/10 rounded-full">
+<span class="text-primary text-xs font-bold">家人留言</span>
+</div>
+</div>
+<!-- Body Text -->
+<div class="mb-8">
+<p class="text-on-surface text-xl md:text-2xl leading-relaxed font-medium">
+                    爸，今天天气不错，记得出去走走。晚上我给您打电话。
+                </p>
+</div>
+<!-- Image Content -->
+<div class="relative w-full aspect-[4/3] rounded-xl overflow-hidden mb-2 shadow-inner">
+<img alt="Family Moment" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLuTA-wO4YovDuR95GTE03bsGw7VaOWdIa2iE7nKEEzOOnjKuSPQcVyxgalZ-0GGkm3b-2Eh6vC914ex96TudKLcH7AANe3bo0slUfL2rAnM4Kpx7me5gYkpC04xrPc0Uvl3G4UOEV1xF21BcESwntr49F-f6Mt3cqgGxDgc2vZY1m2Td0_T4xXzTqraO5lXkUrVgrOf9OPdTnzKk-toltMA_yX_1jO-LcBo172JjguEB6vHsVz930b49_oz"/>
+</div>
+<p class="text-center text-on-surface-variant text-xs mt-4 italic opacity-60">
+                — 来自家人的温馨分享 —
+            </p>
+</section>
+<!-- Response Area -->
+<section class="flex flex-col items-center">
+<p class="text-on-surface-variant text-sm font-medium mb-6 flex items-center gap-2">
+<span class="w-8 h-[1px] bg-surface-container-highest"></span>
+                让 Ta 知道你看到了
+                <span class="w-8 h-[1px] bg-surface-container-highest"></span>
+</p>
+<div class="flex justify-between w-full max-w-sm gap-4">
+<!-- Reaction Buttons -->
+<button class="reaction-btn group flex flex-col items-center gap-2">
+<div class="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center text-3xl group-hover:bg-primary-container transition-all border border-surface-container-highest/30">
+                        👍
+                    </div>
+<span class="text-xs text-on-surface-variant font-medium">点赞</span>
+</button>
+<button class="reaction-btn group flex flex-col items-center gap-2">
+<div class="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center text-3xl group-hover:bg-primary-container transition-all border border-surface-container-highest/30">
+                        ❤️
+                    </div>
+<span class="text-xs text-on-surface-variant font-medium">温暖</span>
+</button>
+<button class="reaction-btn group flex flex-col items-center gap-2">
+<div class="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center text-3xl group-hover:bg-primary-container transition-all border border-surface-container-highest/30">
+                        😊
+                    </div>
+<span class="text-xs text-on-surface-variant font-medium">开心</span>
+</button>
+<button class="reaction-btn group flex flex-col items-center gap-2">
+<div class="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center text-3xl group-hover:bg-primary-container transition-all border border-surface-container-highest/30">
+                        🤗
+                    </div>
+<span class="text-xs text-on-surface-variant font-medium">拥抱</span>
+</button>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar (Secondary priority, but included for structure) -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-center px-2 py-3 pb-safe bg-surface border-t border-surface-container-highest shadow-sm">
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-150 cursor-pointer">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-label text-[10px]">首页</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary font-bold active:scale-90 duration-150 cursor-pointer">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+<span class="font-label text-[10px]">记录</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-150 cursor-pointer">
+<span class="material-symbols-outlined mb-1">notifications</span>
+<span class="font-label text-[10px]">提醒</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90 duration-150 cursor-pointer">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-label text-[10px]">我的</span>
+</div>
+</nav>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('.reaction-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const icon = this.querySelector('div');
+                icon.classList.add('bg-primary-container', 'border-primary');
+                
+                // Simple confetti-like effect placeholder
+                const rect = icon.getBoundingClientRect();
+                const x = rect.left + rect.width / 2;
+                const y = rect.top + rect.height / 2;
+                
+                console.log(`Reacted with ${this.innerText.split('\n')[0]} at ${x}, ${y}`);
+                
+                // Visual feedback
+                icon.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    icon.style.transform = 'scale(1)';
+                }, 200);
+            });
+        });
+    </script>
+</body></html>

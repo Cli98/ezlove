@@ -1,0 +1,401 @@
+@use './variables.scss' as *;
+
+// — Google Fonts —
+@import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@400;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+
+// — Reset —
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: $fs-base;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: $font-body;
+  color: $text-primary;
+  background: $warm-cream;
+  line-height: $lh-normal;
+}
+
+// — Scrollbar —
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: $warm-stone;
+  border-radius: $radius-full;
+  &:hover {
+    background: $text-secondary;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// Element Plus Overrides — Warm Hearth Theme
+// ═══════════════════════════════════════════════
+
+:root {
+  --el-color-primary: #{$brand-terracotta};
+  --el-color-primary-light-3: #{$brand-terracotta-light};
+  --el-color-primary-light-5: #{$brand-terracotta-light};
+  --el-color-primary-light-7: #{$brand-terracotta-light};
+  --el-color-primary-light-8: #fbe8e0;
+  --el-color-primary-light-9: #fdf4f0;
+  --el-color-primary-dark-2: #{$brand-terracotta-dark};
+  --el-color-success: #{$brand-sage};
+  --el-color-success-light-3: #{$brand-sage-light};
+  --el-color-success-light-5: #{$brand-sage-light};
+  --el-color-success-light-7: #{$brand-sage-light};
+  --el-color-success-light-8: #e8f3e7;
+  --el-color-success-light-9: #f3f9f3;
+  --el-color-success-dark-2: #{$brand-sage-dark};
+  --el-color-warning: #{$brand-amber};
+  --el-color-warning-light-3: #{$brand-amber-light};
+  --el-color-warning-light-5: #{$brand-amber-light};
+  --el-color-warning-light-7: #{$brand-amber-light};
+  --el-color-warning-light-8: #fbf3e8;
+  --el-color-warning-light-9: #fdf9f2;
+  --el-color-danger: #{$level-a};
+  --el-color-info: #{$severity-info};
+  --el-bg-color: #{$surface-white};
+  --el-bg-color-page: #{$warm-cream};
+  --el-fill-color-blank: #{$surface-white};
+  --el-text-color-primary: #{$text-primary};
+  --el-text-color-regular: #{$text-regular};
+  --el-text-color-secondary: #{$text-secondary};
+  --el-text-color-placeholder: #{$text-placeholder};
+  --el-border-color: #{$warm-sand};
+  --el-border-color-light: #{$warm-stone};
+  --el-border-color-lighter: #{$warm-paper};
+  --el-fill-color-light: #{$warm-paper};
+  --el-fill-color-lighter: #{$warm-cream};
+  --el-font-family: #{$font-body};
+  --el-border-radius-base: #{$radius-sm};
+  --el-border-radius-small: #{$radius-sm};
+  --el-box-shadow: #{$shadow-md};
+  --el-box-shadow-light: #{$shadow-sm};
+}
+
+// — Buttons —
+.el-button {
+  font-family: $font-body;
+  font-weight: $fw-medium;
+  border-radius: $radius-sm;
+  transition: all $duration-normal $ease-out;
+
+  &--primary {
+    background: $brand-terracotta;
+    border-color: $brand-terracotta;
+
+    &:hover,
+    &:focus {
+      background: $brand-terracotta-light;
+      border-color: $brand-terracotta-light;
+      box-shadow: $shadow-warm;
+    }
+    &:active {
+      background: $brand-terracotta-dark;
+      border-color: $brand-terracotta-dark;
+    }
+  }
+}
+
+// — Cards —
+.el-card {
+  border: 1px solid $warm-sand;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  transition: box-shadow $duration-normal $ease-out;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+
+  .el-card__header {
+    font-family: $font-display;
+    font-weight: $fw-semibold;
+    font-size: $fs-md;
+    color: $text-primary;
+    border-bottom: 1px solid $warm-paper;
+    padding: $sp-4 $sp-5;
+  }
+}
+
+// — Tables —
+.el-table {
+  --el-table-border-color: #{$warm-paper};
+  --el-table-header-bg-color: #{$warm-paper};
+  --el-table-row-hover-bg-color: #{$warm-cream};
+  --el-table-bg-color: #{$surface-white};
+  --el-table-tr-bg-color: #{$surface-white};
+
+  border-radius: $radius-md;
+  overflow: hidden;
+
+  th.el-table__cell {
+    font-family: $font-body;
+    font-weight: $fw-semibold;
+    font-size: $fs-sm;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  td.el-table__cell {
+    font-size: $fs-base;
+    color: $text-primary;
+  }
+}
+
+// — Tags —
+.el-tag {
+  border-radius: $radius-full;
+  font-weight: $fw-medium;
+  font-size: $fs-sm;
+  border: none;
+  padding: 0 $sp-3;
+}
+
+// — Inputs —
+.el-input {
+  --el-input-border-radius: #{$radius-sm};
+
+  .el-input__wrapper {
+    box-shadow: 0 0 0 1px $warm-sand inset;
+    transition: box-shadow $duration-fast $ease-out;
+
+    &:hover {
+      box-shadow: 0 0 0 1px $brand-terracotta-light inset;
+    }
+    &.is-focus {
+      box-shadow: 0 0 0 1px $brand-terracotta inset;
+    }
+  }
+}
+
+.el-select {
+  .el-select__wrapper {
+    border-radius: $radius-sm;
+    box-shadow: 0 0 0 1px $warm-sand inset;
+    transition: box-shadow $duration-fast $ease-out;
+
+    &:hover {
+      box-shadow: 0 0 0 1px $brand-terracotta-light inset;
+    }
+    &.is-focused {
+      box-shadow: 0 0 0 1px $brand-terracotta inset;
+    }
+  }
+}
+
+// — Dialog —
+.el-dialog {
+  border-radius: $radius-lg;
+  overflow: hidden;
+
+  .el-dialog__header {
+    font-family: $font-display;
+    font-size: $fs-lg;
+    padding: $sp-5 $sp-6;
+    margin-right: 0;
+  }
+  .el-dialog__body {
+    padding: $sp-5 $sp-6;
+  }
+  .el-dialog__footer {
+    padding: $sp-4 $sp-6;
+    border-top: 1px solid $warm-paper;
+  }
+}
+
+// — Descriptions —
+.el-descriptions {
+  --el-descriptions-item-bordered-label-background: #{$warm-paper};
+
+  .el-descriptions__label {
+    font-weight: $fw-semibold;
+    color: $text-secondary;
+  }
+}
+
+// — Menu —
+.el-menu {
+  border-right: none !important;
+  background: transparent;
+
+  .el-menu-item {
+    font-family: $font-body;
+    font-size: $fs-md;
+    color: rgba(255, 255, 255, 0.65);
+    height: 48px;
+    line-height: 48px;
+    margin: $sp-1 $sp-2;
+    border-radius: $radius-sm;
+    transition: all $duration-normal $ease-out;
+
+    &:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    &.is-active {
+      color: #fff;
+      background: rgba(199, 92, 58, 0.3);
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 24px;
+        background: $brand-terracotta;
+        border-radius: 0 $radius-full $radius-full 0;
+      }
+    }
+
+    .el-icon {
+      font-size: 18px;
+      margin-right: $sp-2;
+    }
+  }
+}
+
+// — Message —
+.el-message {
+  border-radius: $radius-md;
+  font-family: $font-body;
+}
+
+// — Form —
+.el-form-item__label {
+  font-weight: $fw-medium;
+  color: $text-regular;
+}
+
+// — Upload —
+.el-upload {
+  border-radius: $radius-md;
+}
+
+// ═══════════════════════════════════════════════
+// Utility Classes
+// ═══════════════════════════════════════════════
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $sp-6;
+
+  h2 {
+    font-family: $font-display;
+    font-size: $fs-2xl;
+    font-weight: $fw-bold;
+    color: $text-primary;
+    letter-spacing: -0.01em;
+  }
+}
+
+.section-card {
+  margin-bottom: $sp-5;
+}
+
+// — Animations —
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp $duration-slow $ease-out both;
+}
+
+.animate-fade-in {
+  animation: fadeIn $duration-normal $ease-out both;
+}
+
+// — Stagger children —
+.stagger-children > * {
+  &:nth-child(1) { animation-delay: 0ms; }
+  &:nth-child(2) { animation-delay: 60ms; }
+  &:nth-child(3) { animation-delay: 120ms; }
+  &:nth-child(4) { animation-delay: 180ms; }
+  &:nth-child(5) { animation-delay: 240ms; }
+  &:nth-child(6) { animation-delay: 300ms; }
+}
+
+// — Text helpers —
+.text-display {
+  font-family: $font-display;
+}
+
+.text-muted {
+  color: $text-secondary;
+}
+
+// — Care level badges —
+.care-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $sp-1;
+  padding: 2px $sp-3;
+  border-radius: $radius-full;
+  font-size: $fs-sm;
+  font-weight: $fw-semibold;
+
+  &--a { background: $level-a-bg; color: $level-a; }
+  &--b { background: $level-b-bg; color: $level-b; }
+  &--c { background: $level-c-bg; color: $level-c; }
+}
+
+// — Status dot —
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: $radius-full;
+
+  &--active {
+    background: $status-active;
+    box-shadow: 0 0 0 3px $status-active-bg;
+  }
+  &--inactive {
+    background: $status-inactive;
+    box-shadow: 0 0 0 3px $status-inactive-bg;
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "易挂念",
+  "appid": "",
+  "description": "让关心自然流动，让牵挂被看见",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": false,
+      "es6": true,
+      "postcss": true,
+      "minified": true
+    },
+    "usingComponents": true,
+    "lazyCodeLoading": "requiredComponents"
+  }
+}

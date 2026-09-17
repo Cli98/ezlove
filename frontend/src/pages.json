@@ -1,0 +1,47 @@
+{
+  "easycom": {
+    "autoscan": true,
+    "custom": {
+      "^u--(.*)": "uview-plus/components/u-$1/u-$1.vue",
+      "^up-(.*)": "uview-plus/components/u-$1/u-$1.vue",
+      "^u-([^-].*)": "uview-plus/components/u-$1/u-$1.vue"
+    }
+  },
+  "pages": [
+    { "path": "pages/index/index", "style": { "navigationBarTitleText": "易挂念", "navigationStyle": "custom", "enablePullDownRefresh": true, "backgroundTextStyle": "dark" } },
+    { "path": "pages/send/index", "style": { "navigationBarTitleText": "发送牵挂", "navigationStyle": "custom" } },
+    { "path": "pages/send/ai-suggest", "style": { "navigationBarTitleText": "AI 帮我写" } },
+    { "path": "pages/send/poster-preview", "style": { "navigationBarTitleText": "选择海报" } },
+    { "path": "pages/send/ai-media", "style": { "navigationBarTitleText": "AI 创作", "navigationStyle": "custom" } },
+    { "path": "pages/view/detail", "style": { "navigationBarTitleText": "", "navigationStyle": "custom" } },
+    { "path": "pages/history/index", "style": { "navigationBarTitleText": "发送记录", "enablePullDownRefresh": true, "backgroundTextStyle": "dark" } },
+    { "path": "pages/bind/invite", "style": { "navigationBarTitleText": "邀请绑定" } },
+    { "path": "pages/bind/list", "style": { "navigationBarTitleText": "我的家人", "enablePullDownRefresh": true, "backgroundTextStyle": "dark" } },
+    { "path": "pages/elder/status", "style": { "navigationBarTitleText": "老人状态" } },
+    { "path": "pages/elder/settings", "style": { "navigationBarTitleText": "提醒设置" } },
+    { "path": "pages/alerts/index", "style": { "navigationBarTitleText": "提醒中心", "enablePullDownRefresh": true, "backgroundTextStyle": "dark" } },
+    { "path": "pages/volunteer/index", "style": { "navigationBarTitleText": "邻里帮", "enablePullDownRefresh": true, "backgroundTextStyle": "dark" } },
+    { "path": "pages/volunteer/tasks", "style": { "navigationBarTitleText": "可接任务", "enablePullDownRefresh": true, "backgroundTextStyle": "dark" } },
+    { "path": "pages/profile/index", "style": { "navigationBarTitleText": "我的" } },
+    { "path": "pages/login/index", "style": { "navigationBarTitleText": "", "navigationStyle": "custom" } },
+    { "path": "pages/login/role", "style": { "navigationBarTitleText": "", "navigationStyle": "custom" } }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "易挂念",
+    "navigationBarBackgroundColor": "#FAF6F1",
+    "backgroundColor": "#FAF6F1"
+  },
+  "tabBar": {
+    "color": "#B5A99B",
+    "selectedColor": "#C4745C",
+    "backgroundColor": "#FFFCF9",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页", "iconPath": "static/tabbar/home.png", "selectedIconPath": "static/tabbar/home_active.png" },
+      { "pagePath": "pages/history/index", "text": "记录", "iconPath": "static/tabbar/list.png", "selectedIconPath": "static/tabbar/list_active.png" },
+      { "pagePath": "pages/alerts/index", "text": "提醒", "iconPath": "static/tabbar/bell.png", "selectedIconPath": "static/tabbar/bell_active.png" },
+      { "pagePath": "pages/profile/index", "text": "我的", "iconPath": "static/tabbar/person.png", "selectedIconPath": "static/tabbar/person_active.png" }
+    ]
+  }
+}

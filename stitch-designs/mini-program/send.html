@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<html class="light" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>发送牵挂 - 易挂念</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&amp;family=Public+Sans:wght@400;500;600&amp;family=Noto+Sans+SC:wght@300;400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#C75C3A", // Terracotta
+              "on-primary": "#FFFFFF",
+              surface: "#FBF7F2", // Creamy White
+              "on-surface": "#2D2D2D",
+              "on-surface-variant": "#6B635B",
+              "warm-sand": "#D9CFC1",
+              "sage-green": "#8BA88E",
+              "amber-gold": "#D4A373",
+              "smoke-gray": "#9E9E9E"
+            },
+            borderRadius: {
+              "DEFAULT": "0.25rem",
+              "lg": "0.75rem",
+              "xl": "1rem",
+              "2xl": "1.5rem",
+              "full": "9999px"
+            },
+            fontFamily: {
+              headline: ["Noto Serif SC", "serif"],
+              display: ["Noto Serif SC", "serif"],
+              body: ["Noto Sans SC", "sans-serif"],
+              label: ["Noto Sans SC", "sans-serif"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #FBF7F2;
+            font-family: 'Noto Sans SC', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .font-headline { font-family: 'Noto Serif SC', serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for horizontal chips */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Subtle transition for interactive elements */
+        .interactive-scale:active { transform: scale(0.97); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface antialiased pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md flex items-center px-4 h-16 w-full">
+<button class="w-10 h-10 flex items-center justify-start text-on-surface-variant active:scale-95 duration-150">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-headline text-lg font-medium flex-1 text-center pr-10 text-on-surface">发送牵挂</h1>
+</header>
+<main class="pt-20 px-5 max-w-md mx-auto">
+<!-- Recipient Selection Section -->
+<section class="mb-8">
+<label class="block text-sm font-medium text-on-surface-variant mb-4">发送给</label>
+<div class="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+<!-- Selected Chip -->
+<div class="flex-shrink-0 flex flex-row items-center justify-center bg-primary text-on-primary rounded-full px-6 py-2.5 font-bold shadow-md shadow-primary/10 interactive-scale cursor-pointer">
+<span class="text-sm">张大爷</span>
+</div>
+<!-- Unselected Chips -->
+<div class="flex-shrink-0 flex flex-row items-center justify-center border border-warm-sand text-on-surface-variant rounded-full px-6 py-2.5 interactive-scale cursor-pointer hover:bg-warm-sand/10">
+<span class="text-sm">李奶奶</span>
+</div>
+<div class="flex-shrink-0 flex flex-row items-center justify-center border border-warm-sand text-on-surface-variant rounded-full px-6 py-2.5 interactive-scale cursor-pointer hover:bg-warm-sand/10">
+<span class="text-sm">王大爷</span>
+</div>
+<div class="flex-shrink-0 flex flex-row items-center justify-center border border-warm-sand text-on-surface-variant rounded-full px-6 py-2.5 interactive-scale cursor-pointer hover:bg-warm-sand/10">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+</div>
+</div>
+</section>
+<!-- Text Input Section -->
+<section class="mb-8">
+<div class="relative bg-white rounded-xl p-5 shadow-sm border border-warm-sand/30">
+<textarea class="w-full h-48 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-smoke-gray resize-none p-0 text-base leading-relaxed" id="contentArea" maxlength="200" placeholder="今天想和Ta说点什么..."></textarea>
+<div class="absolute bottom-4 right-5 text-smoke-gray text-xs font-mono">
+<span id="charCount">0</span>/200
+                </div>
+</div>
+</section>
+<!-- Image Upload Section -->
+<section class="mb-10">
+<div class="grid grid-cols-3 gap-3">
+<!-- Add Image Button -->
+<div class="aspect-square rounded-xl border-2 border-dashed border-warm-sand flex flex-col items-center justify-center bg-white/50 interactive-scale cursor-pointer hover:bg-warm-sand/5">
+<span class="material-symbols-outlined text-primary mb-1 text-3xl" data-icon="add_a_photo">add_a_photo</span>
+<span class="text-[10px] text-on-surface-variant tracking-wider">添加照片</span>
+</div>
+<!-- Image Placeholder (if any were uploaded) -->
+<div class="aspect-square rounded-xl overflow-hidden shadow-sm relative group">
+<img class="w-full h-full object-cover" data-alt="A warm, cinematic photograph of a bouquet of dried wildflowers in a ceramic vase, sitting on a rustic wooden table under soft, dappled morning sunlight. The aesthetic is organic and homey, matching a terracotta and creamy white color palette with soft shadows and high detail." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY4InxB68HhnuINBfJnPsMyF_eKf0oYCdc-Jg6iJTPnqEp00C6g7M1nopVfii-0ZH8pocoibbC69vElfML3LqHg76kpc0KMGj4H0WRM38zbQo7u0bg3sbrqgvycCAe2Jy2ns6llUW56JoPJ_fCTjof1088BRH0ErElOz14WlCskwJxijL_cBLZVj9bs6vTd8rFyt46x1OL4RoqXD0DaCFMRxoKBhBYmqMBnnjjuvVHoC6VEJvc5RuJkShZRrYtweJucVWfDIy0FfnE"/>
+<div class="absolute top-1 right-1 w-5 h-5 bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-white cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-xs" data-icon="close">close</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Atmospheric Visual Element (Bento-style Info) -->
+<section class="grid grid-cols-2 gap-3 mb-10">
+<div class="bg-amber-gold/10 p-4 rounded-xl border border-amber-gold/20">
+<span class="material-symbols-outlined text-amber-gold text-lg block mb-2" data-icon="sunny" style="font-variation-settings: 'FILL' 1;">sunny</span>
+<p class="text-[10px] text-on-surface-variant leading-tight">老家今日晴朗<br/><span class="text-on-surface font-medium">适合出门晒太阳</span></p>
+</div>
+<div class="bg-sage-green/10 p-4 rounded-xl border border-sage-green/20">
+<span class="material-symbols-outlined text-sage-green text-lg block mb-2" data-icon="schedule">schedule</span>
+<p class="text-[10px] text-on-surface-variant leading-tight">最佳发送时间<br/><span class="text-on-surface font-medium">预计 10:30 送达</span></p>
+</div>
+</section>
+</main>
+<!-- Bottom Action Bar -->
+<footer class="fixed bottom-0 left-0 w-full z-50 flex justify-center gap-4 px-6 pb-8 pt-4 bg-surface/70 backdrop-blur-xl rounded-t-xl">
+<!-- AI Assist Button -->
+<button class="flex-1 flex flex-row items-center justify-center border border-primary text-primary rounded-full px-4 py-3.5 hover:bg-primary/5 active:scale-98 transition-transform group">
+<span class="material-symbols-outlined mr-2 text-xl group-hover:animate-pulse" data-icon="auto_awesome" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="text-sm font-semibold tracking-wide">AI 帮我写</span>
+</button>
+<!-- Send Button -->
+<button class="flex-[1.5] flex flex-row items-center justify-center bg-primary text-on-primary rounded-full px-4 py-3.5 font-bold shadow-lg shadow-primary/20 active:scale-98 transition-transform">
+<span class="material-symbols-outlined mr-2 text-xl" data-icon="send">send</span>
+<span class="text-sm tracking-widest">发送牵挂</span>
+</button>
+</footer>
+<!-- Micro-interactions Script -->
+<script>
+        const textarea = document.getElementById('contentArea');
+        const charCount = document.getElementById('charCount');
+
+        textarea.addEventListener('input', (e) => {
+            const length = e.target.value.length;
+            charCount.textContent = length;
+            
+            if (length >= 200) {
+                charCount.classList.add('text-primary');
+            } else {
+                charCount.classList.remove('text-primary');
+            }
+        });
+
+        // Simple vibration/feedback simulator for buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(10);
+                }
+            });
+        });
+
+        // Toggle recipient chips
+        const chips = document.querySelectorAll('.flex-shrink-0');
+        chips.forEach(chip => {
+            if (!chip.querySelector('[data-icon="add"]')) {
+                chip.addEventListener('click', function() {
+                    chips.forEach(c => {
+                        c.classList.remove('bg-primary', 'text-on-primary', 'shadow-md', 'shadow-primary/10', 'font-bold');
+                        c.classList.add('border', 'border-warm-sand', 'text-on-surface-variant');
+                    });
+                    this.classList.add('bg-primary', 'text-on-primary', 'shadow-md', 'shadow-primary/10', 'font-bold');
+                    this.classList.remove('border', 'border-warm-sand', 'text-on-surface-variant');
+                });
+            }
+        });
+    </script>
+</body></html>

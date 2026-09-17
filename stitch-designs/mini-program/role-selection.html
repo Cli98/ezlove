@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>易挂念 - 角色选择</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&amp;family=Public+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#C75C3A", // Terracotta
+              "primary-container": "#F4E8E4",
+              on: {
+                primary: "#FFFFFF",
+                surface: "#4A4540",
+                "surface-variant": "#7A746E"
+              },
+              surface: "#FBF7F2", // Creamy White
+              card: "#FFFFFF",
+              outline: "#D5CCC2", // Warm Stone
+              sage: "#8A9A8B", // Sage Green
+              amber: "#D4AF37" // Amber Gold
+            },
+            borderRadius: {
+              "DEFAULT": "0.25rem",
+              "lg": "16px",
+              "xl": "24px",
+              "full": "9999px"
+            },
+            fontFamily: {
+              headline: ["Noto Serif SC", "serif"],
+              display: ["Noto Serif SC", "serif"],
+              body: ["Public Sans", "sans-serif"],
+              label: ["Public Sans", "sans-serif"]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        font-size: 40px;
+      }
+      .role-card-active {
+        border: 2px solid #C75C3A !important;
+        transform: scale(1.02);
+      }
+      .soft-bounce {
+        transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      body {
+        background-color: #FBF7F2;
+        color: #4A4540;
+        -webkit-tap-highlight-color: transparent;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex flex-col min-h-screen font-body selection:bg-primary/10">
+<!-- Header (TopAppBar Suppression as per "Task-Focused" rule, but maintaining brand alignment) -->
+<header class="w-full flex items-center justify-between px-6 h-16 fixed top-0 left-0 z-50 bg-transparent">
+<button class="w-10 h-10 flex items-center justify-start text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95" onclick="history.back()">
+<span class="material-symbols-outlined" style="font-size: 24px;">close</span>
+</button>
+<span class="font-headline text-2xl font-bold text-primary">易挂念</span>
+<div class="w-10"></div> <!-- Spacer for balance -->
+</header>
+<main class="flex-grow flex flex-col items-center justify-center px-8 py-20 max-w-md mx-auto w-full">
+<!-- Hero Section -->
+<div class="text-center mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+<h1 class="font-headline text-5xl font-bold text-primary mb-2">你是</h1>
+</div>
+<!-- Role Selection Container -->
+<div class="w-full space-y-6">
+<!-- Role 1: Child/Relative -->
+<div class="group relative bg-card p-8 rounded-lg shadow-sm border-2 border-transparent flex flex-col items-center text-center cursor-pointer transition-all duration-300 soft-bounce hover:shadow-md" id="role-child" onclick="selectRole('role-child')">
+<div class="mb-4 text-primary opacity-80 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined" data-icon="family_history">family_history</span>
+</div>
+<h2 class="text-xl font-bold text-on-surface mb-2">子女/亲属</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed max-w-[200px]">
+                    每天发送牵挂，让老人知道你惦记Ta
+                </p>
+</div>
+<!-- Role 2: Elder -->
+<div class="group relative bg-card p-8 rounded-lg shadow-sm border-2 border-transparent flex flex-col items-center text-center cursor-pointer transition-all duration-300 soft-bounce hover:shadow-md" id="role-elder" onclick="selectRole('role-elder')">
+<div class="mb-4 text-primary opacity-80 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined" data-icon="elderly">elderly</span>
+</div>
+<h2 class="text-xl font-bold text-on-surface mb-2">长辈</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed max-w-[200px]">
+                    查看孩子们的问候，用表情回应关爱
+                </p>
+</div>
+</div>
+<!-- Confirm Button (Initially hidden, revealed on selection) -->
+<div class="mt-12 w-full opacity-0 translate-y-4 transition-all duration-500 pointer-events-none" id="confirm-container">
+<button class="w-full bg-primary text-on-primary py-4 rounded-full font-medium text-lg shadow-lg active:scale-95 transition-transform">
+                开启挂念之旅
+            </button>
+</div>
+</main>
+<!-- Footer Information -->
+<footer class="w-full py-8 text-center">
+<p class="text-outline text-sm font-light tracking-wider">
+            选择后可随时切换
+        </p>
+</footer>
+<!-- Atmosphere Background Element -->
+<div class="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
+<div class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] rounded-full bg-primary/5 blur-[80px]"></div>
+<div class="absolute -bottom-[5%] -right-[5%] w-[30%] h-[30%] rounded-full bg-sage/5 blur-[60px]"></div>
+</div>
+<script>
+        function selectRole(roleId) {
+            // Remove active state from all cards
+            document.querySelectorAll('[id^="role-"]').forEach(card => {
+                card.classList.remove('role-card-active');
+                card.classList.remove('shadow-lg');
+            });
+
+            // Add active state to selected card
+            const selectedCard = document.getElementById(roleId);
+            selectedCard.classList.add('role-card-active');
+            selectedCard.classList.add('shadow-lg');
+
+            // Show confirm button
+            const confirmBtn = document.getElementById('confirm-container');
+            confirmBtn.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            confirmBtn.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+
+            // Haptic feedback simulation
+            if (window.navigator && window.navigator.vibrate) {
+                window.navigator.vibrate(10);
+            }
+        }
+    </script>
+</body></html>

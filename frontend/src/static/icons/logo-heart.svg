@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- 外圈光晕 -->
+  <circle cx="60" cy="60" r="56" fill="#C4745C" opacity="0.06"/>
+  <!-- 主心形：两代人的牵挂 -->
+  <path d="M60 95C58.5 95 57 94.3 55.8 93.2C42 80.5 28 68 28 50.5C28 40 36 32 46 32C51.5 32 56.5 34.8 60 39C63.5 34.8 68.5 32 74 32C84 32 92 40 92 50.5C92 68 78 80.5 64.2 93.2C63 94.3 61.5 95 60 95Z" fill="#C4745C"/>
+  <!-- 心内：手捧的圆（被守护的长者） -->
+  <circle cx="60" cy="56" r="12" fill="#FBF7F2" opacity="0.92"/>
+  <!-- 长者简笔 -->
+  <circle cx="60" cy="52" r="4.5" fill="#C4745C" opacity="0.7"/>
+  <path d="M54 62C54 58.7 56.7 56 60 56C63.3 56 66 58.7 66 62" stroke="#C4745C" stroke-width="2" stroke-linecap="round" opacity="0.7" fill="none"/>
+  <!-- 左右两侧温暖波纹 -->
+  <path d="M22 55C19 48 20 39 26 34" stroke="#C4745C" stroke-width="2" stroke-linecap="round" opacity="0.2" fill="none"/>
+  <path d="M17 52C14 43 16 32 24 26" stroke="#C4745C" stroke-width="2" stroke-linecap="round" opacity="0.1" fill="none"/>
+  <path d="M98 55C101 48 100 39 94 34" stroke="#C4745C" stroke-width="2" stroke-linecap="round" opacity="0.2" fill="none"/>
+  <path d="M103 52C106 43 104 32 96 26" stroke="#C4745C" stroke-width="2" stroke-linecap="round" opacity="0.1" fill="none"/>
+  <!-- 底部连接线：家人的纽带 -->
+  <path d="M40 88Q50 96 60 92Q70 96 80 88" stroke="#D4A574" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.4"/>
+</svg>

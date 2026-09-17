@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>易挂念 - 记录</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&amp;family=Public+Sans:wght@300;400;500;600&amp;family=LXGW+WenKai+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#C75C3A",
+                        surface: "#FBF7F2",
+                        "on-surface": "#2C2825",
+                        "on-surface-variant": "#9A8E82",
+                        "sage-green": "#8BA888",
+                        "amber-gold": "#D4A373"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["Noto Serif SC", "serif"],
+                        display: ["LXGW WenKai Mono", "serif"],
+                        body: ["Public Sans", "sans-serif"],
+                        label: ["Public Sans", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #FBF7F2;
+            color: #2C2825;
+            font-family: 'Public Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-dot {
+            box-shadow: 0 0 0 2px #FBF7F2, 0 0 0 4px rgba(199, 92, 58, 0.2);
+        }
+        .custom-shadow {
+            box-shadow: 0 4px 20px -2px rgba(44, 40, 37, 0.05);
+        }
+        /* Smooth scrolling for the feed */
+        .content-canvas {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .content-canvas::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="min-h-screen flex flex-col">
+<!-- TopAppBar: Predicted Component -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#FBF7F2] dark:bg-surface">
+<button class="text-[#C75C3A] dark:text-primary hover:opacity-80 transition-opacity active:scale-95 duration-150">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-display text-2xl font-bold text-[#C75C3A] dark:text-primary">易挂念</h1>
+<button class="text-[#C75C3A] dark:text-primary hover:opacity-80 transition-opacity active:scale-95 duration-150">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 pt-24 pb-32 px-6 content-canvas overflow-y-auto">
+<!-- Section Header -->
+<header class="mb-8">
+<h2 class="font-display text-3xl font-medium text-on-surface tracking-tight mb-2">记录</h2>
+<p class="text-on-surface-variant font-body text-sm">珍惜每一次跨越距离的叮嘱</p>
+</header>
+<!-- History Cards List -->
+<div class="space-y-4">
+<!-- Card 1: 张大爷 (Unread) -->
+<div class="bg-white rounded-2xl p-4 custom-shadow border border-[#9A8E82]/5 active:scale-[0.98] transition-transform duration-200">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-primary/10">
+<img class="w-full h-full object-cover" data-alt="A dignified elderly Chinese man with kind eyes and a warm smile, wearing a traditional beige linen shirt, set against a soft-focus garden background in natural morning light. The style is professional portrait photography with a warm, nostalgic color grade." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfPEa9asosQDNxVy7M_A8aESCbyi7i4Nk2gP0KBHjXofjjAIx3dO1UIBTkuSd3htQLDxT1IIOv193WoEXKuBTVn0as1ir9gndkHXodl5VraXDav6iJHFEgJ7cKTxGtOO14BpDt4HH2LtDyy1bW88COWjugvAzJODN6KoL3jTeDKmy3fYJINciEv1QXX2UnKqehc8zAmm2cwwDSqhYIT74MMDnZSDnHvoaxCYoGYq-WicB3cVc3G3MfS1S6uNeXCHNS3XDfdZhczz43"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg text-on-surface">张大爷</h3>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="w-2 h-2 rounded-full bg-primary active-dot"></span>
+<span class="text-xs font-medium text-primary">未读</span>
+</div>
+</div>
+</div>
+<span class="text-xs text-on-surface-variant font-medium">2小时前</span>
+</div>
+<p class="text-on-surface/80 text-[15px] leading-relaxed line-clamp-2">
+                    张大爷，今天降温了，记得多穿件外套，出门记得带上那把黑色的伞，可能会下小雨...
+                </p>
+<div class="mt-4 pt-3 border-t border-dashed border-on-surface/5 flex justify-end">
+<button class="text-xs font-bold text-primary flex items-center gap-1">
+                        查看详情 <span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Card 2: 李奶奶 (Read) -->
+<div class="bg-white rounded-2xl p-4 custom-shadow border border-[#9A8E82]/5 active:scale-[0.98] transition-transform duration-200">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-sage-green/10">
+<img class="w-full h-full object-cover" data-alt="A gentle elderly Chinese woman with silver hair tied in a neat bun, wearing a soft sage-green cardigan, sitting near a window with warm sunlight filtering through. Her expression is peaceful and loving. High-end lifestyle photography, minimalist and warm aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRPaoyX_JUHB7cJe2phGPrZuS3cpIm4Fn6Fbt0U3JzupAbMHGgnt3iRWMWa3WckyTKAUZDsrBqaBSA9jY2tDYiwsf_Mf4fGbGpnsvhefDmyPbAzswyZU2C_DjlxiozNDbORA8-4zOWBpha6_bk-NXty7DkI8CD6MjjuKiPuPdviBfJrzbiKLoC482eMuC0aKf3ODQDsRfTB-dVLZn_agQHlLG0-Vh2rheHzBpsFdOeaxn-gHlAHZDiX5HWtNlDcvwk_KECPF--D_GG"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg text-on-surface">李奶奶</h3>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="w-2 h-2 rounded-full bg-sage-green"></span>
+<span class="text-xs font-medium text-on-surface-variant">已读</span>
+</div>
+</div>
+</div>
+<span class="text-xs text-on-surface-variant font-medium">昨天</span>
+</div>
+<p class="text-on-surface/80 text-[15px] leading-relaxed line-clamp-2">
+                    今天的午饭记得按时吃，多吃点蔬菜，我晚上回去给你带你最爱吃的那家稻香村点心...
+                </p>
+<div class="mt-4 pt-3 border-t border-dashed border-on-surface/5 flex justify-end">
+<button class="text-xs font-bold text-on-surface-variant flex items-center gap-1">
+                        已存入存档 <span class="material-symbols-outlined text-sm">archive</span>
+</button>
+</div>
+</div>
+<!-- Card 3: 王大爷 (Read) -->
+<div class="bg-white rounded-2xl p-4 custom-shadow border border-[#9A8E82]/5 active:scale-[0.98] transition-transform duration-200">
+<div class="flex justify-between items-start mb-3">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-amber-gold/10">
+<img class="w-full h-full object-cover" data-alt="An elderly Chinese gentleman with a scholarly appearance, wearing glasses and a simple white shirt, reading a newspaper in a bright, airy living room filled with plants. The atmosphere is quiet, intellectual, and sophisticated. Soft daylight, premium minimalist UI photo style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4ShtW_hlfZt_M1jDJAPQDK-OD6hAOK-t_96Oza_8f3o8c1lg6ixBpj7UUEhwsXoWfU-S8qxpWMN4MWMIs-cdjyAWvzuicfA3iV68C1XTC8DNpKv94lMI6KcFqSnVJeWC3Vt9S-U0EWQk6baRW9Qz4pldrMNhsSfvTAa941d92CmKFVlkGrfmUdBlOsCkAAT-jzm7Hctex_zBPvzbJL7CGG_dLpkt0yXV053BYN_e2MwStufIrlquNKX7vMJHjrOxDb6y1_LC6phSj"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg text-on-surface">王大爷</h3>
+<div class="flex items-center gap-1.5 mt-0.5">
+<span class="w-2 h-2 rounded-full bg-sage-green"></span>
+<span class="text-xs font-medium text-on-surface-variant">已读</span>
+</div>
+</div>
+</div>
+<span class="text-xs text-on-surface-variant font-medium">3天前</span>
+</div>
+<p class="text-on-surface/80 text-[15px] leading-relaxed line-clamp-2">
+                    记得量血压哦，我已经帮你记在小本子上了，医生说最近指标控制得不错，继续加油...
+                </p>
+<div class="mt-4 pt-3 border-t border-dashed border-on-surface/5 flex justify-end">
+<button class="text-xs font-bold text-on-surface-variant flex items-center gap-1">
+                        已存入存档 <span class="material-symbols-outlined text-sm">archive</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Empty State Hint (Subtle) -->
+<div class="mt-12 text-center">
+<span class="material-symbols-outlined text-on-surface-variant/20 text-4xl mb-2">history_edu</span>
+<p class="text-on-surface-variant/40 text-xs font-label">没有更多历史记录了</p>
+</div>
+</main>
+<!-- BottomNavBar: Predicted Component -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-[#FBF7F2] dark:bg-surface border-t border-on-surface/5 shadow-sm">
+<!-- Tab 1: 首页 -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 dark:text-on-surface-variant/70 px-3 py-1 hover:bg-[#C75C3A]/5 transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-body text-xs font-medium mt-1">首页</span>
+</a>
+<!-- Tab 2: 记录 (ACTIVE) -->
+<a class="flex flex-col items-center justify-center text-[#C75C3A] dark:text-primary bg-[#C75C3A]/10 rounded-xl px-3 py-1 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">edit_note</span>
+<span class="font-body text-xs font-medium mt-1">记录</span>
+</a>
+<!-- Tab 3: 提醒 -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 dark:text-on-surface-variant/70 px-3 py-1 hover:bg-[#C75C3A]/5 transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">notifications</span>
+<span class="font-body text-xs font-medium mt-1">提醒</span>
+</a>
+<!-- Tab 4: 我的 -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/70 dark:text-on-surface-variant/70 px-3 py-1 hover:bg-[#C75C3A]/5 transition-colors active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-body text-xs font-medium mt-1">我的</span>
+</a>
+</nav>
+<!-- Subtle atmospheric grain overlay -->
+<div class="fixed inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply bg-[url('https://www.transparenttextures.com/patterns/felt.png')]"></div>
+<script>
+        // Simple micro-interaction for cards
+        document.querySelectorAll('.bg-white.rounded-2xl').forEach(card => {
+            card.addEventListener('click', function() {
+                this.classList.add('scale-95');
+                setTimeout(() => this.classList.remove('scale-95'), 150);
+            });
+        });
+    </script>
+</body></html>

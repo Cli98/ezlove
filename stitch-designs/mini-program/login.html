@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>易挂念 - 登录</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;700&amp;family=Noto+Serif+SC:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<!-- 引入霞鹜文楷 (LXGW WenKai) 代替方案，若CDN不可用则回退至 Noto Serif SC -->
+<link href="https://cdn.jsdelivr.net/npm/lxgw-wenkai-screen-webfont@1.1.0/style.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#C75C3A", // 赤陶色
+                        surface: "#FBF7F2", // 奶油白
+                        onSurface: "#2C2825", // 炉黑
+                        onSurfaceVariant: "#9A8E82", // 烟灰
+                        wechat: "#07C160",
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        headline: ["'LXGW WenKai Screen'", "Noto Serif SC", "serif"],
+                        body: ["'Public Sans'", "Source Han Sans CN", "sans-serif"],
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #FBF7F2;
+            -webkit-tap-highlight-color: transparent;
+            overflow: hidden;
+        }
+        .soft-bounce:active {
+            transform: scale(0.96);
+        }
+        .fade-in {
+            animation: fadeIn 1.2s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="font-body text-on-surface selection:bg-primary/20">
+<!-- Top Navigation Suppression: Standard for Login Screens per "The Destination Rule" -->
+<main class="relative min-h-screen w-full flex flex-col items-center justify-between px-8 py-16 overflow-hidden">
+<!-- Subtle Ambient Background Element -->
+<div class="absolute top-[-10%] right-[-10%] w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="absolute bottom-[-5%] left-[-5%] w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+<!-- 1. Brand Area (approx 40% down) -->
+<section class="flex-1 flex flex-col items-center justify-center fade-in" style="margin-top: 5vh;">
+<div class="mb-8 relative">
+<!-- Brand Logo Placeholder -->
+<div class="w-24 h-24 rounded-3xl overflow-hidden shadow-lg shadow-primary/10 bg-white p-1">
+<img alt="易挂念 Logo" class="w-full h-full object-cover rounded-[1.25rem]" src="https://lh3.googleusercontent.com/aida/AP1WRLuTA-wO4YovDuR95GTE03bsGw7VaOWdIa2iE7nKEEzOOnjKuSPQcVyxgalZ-0GGkm3b-2Eh6vC914ex96TudKLcH7AANe3bo0slUfL2rAnM4Kpx7me5gYkpC04xrPc0Uvl3G4UOEV1xF21BcESwntr49F-f6Mt3cqgGxDgc2vZY1m2Td0_T4xXzTqraO5lXkUrVgrOf9OPdTnzKk-toltMA_yX_1jO-LcBo172JjguEB6vHsVz930b49_oz"/>
+</div>
+</div>
+<h1 class="font-headline text-[36px] font-bold text-onSurface tracking-tight mb-3">
+                易挂念
+            </h1>
+<p class="font-body text-[15px] text-onSurfaceVariant tracking-wide text-center">
+                让关心自然流动，让牵挂被看见
+            </p>
+</section>
+<!-- 2. Login Actions (approx 60% down) -->
+<section class="w-full max-w-sm flex flex-col items-center gap-6 pb-12 fade-in" style="animation-delay: 0.2s;">
+<!-- WeChat Login Button -->
+<button class="w-full h-14 bg-wechat text-white rounded-full flex items-center justify-center gap-3 shadow-md hover:opacity-90 transition-all active:scale-95 duration-150 soft-bounce">
+<svg class="w-6 h-6 fill-current" viewbox="0 0 24 24">
+<path d="M8.38 3.5c-.24 0-.48.01-.72.03C4.1 3.86 1.14 6.7 1.14 10.22c0 1.94.88 3.68 2.29 4.88l-.58 2.15c-.07.28.18.52.44.42l2.58-1.01c.78.22 1.62.34 2.51.34.24 0 .48-.01.72-.03 3.56-.33 6.52-3.17 6.52-6.69s-2.96-6.42-6.52-6.75zm.12 4.19c.41 0 .75.34.75.75s-.34.75-.75.75-.75-.34-.75-.75.34-.75.75-.75zm4.5 0c.41 0 .75.34.75.75s-.34.75-.75.75-.75-.34-.75-.75.34-.75.75-.75zm8.13 4.1c-.2 0-.39.01-.58.02-2.91.27-5.32 2.59-5.32 5.46 0 1.58.72 3.01 1.86 3.99l-.47 1.76c-.06.23.15.42.36.34l2.11-.83c.64.18 1.32.28 2.04.28.2 0 .39-.01.58-.02 2.91-.27 5.32-2.59 5.32-5.46s-2.42-5.24-5.32-5.51zm.1 3.43c.34 0 .61.28.61.61s-.28.61-.61.61-.61-.28-.61-.61.28-.61.61-.61zm3.67 0c.34 0 .61.28.61.61s-.28.61-.61.61-.61-.28-.61-.61.28-.61.61-.61z"></path>
+</svg>
+<span class="text-lg font-medium tracking-wide">微信一键登录</span>
+</button>
+<!-- Phone Login Option -->
+<button class="px-4 py-2 text-primary font-medium text-[15px] hover:opacity-80 transition-opacity active:scale-95 duration-150">
+                手机号登录
+            </button>
+<!-- Terms and Privacy -->
+<div class="mt-8 text-[12px] text-onSurfaceVariant/60 text-center leading-relaxed max-w-[280px]">
+                登录即代表您已同意 
+                <a class="text-onSurfaceVariant hover:underline underline-offset-4" href="#">《服务协议》</a> 
+                与 
+                <a class="text-onSurfaceVariant hover:underline underline-offset-4" href="#">《隐私政策》</a>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Suppression: Prohibited for Transactional/Login screens per "The Destination Rule" -->
+<script>
+        // Simple micro-interaction for the login flow
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                // Potential feedback or navigation logic
+                console.log('Action triggered:', this.innerText.trim());
+            });
+        });
+
+        // Background movement effect for a "living" feel
+        document.addEventListener('mousemove', (e) => {
+            const blobs = document.querySelectorAll('.blur-3xl');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            blobs.forEach((blob, index) => {
+                const shift = index === 0 ? 20 : -20;
+                blob.style.transform = `translate(${x * shift}px, ${y * shift}px)`;
+            });
+        });
+    </script>
+</body></html>
