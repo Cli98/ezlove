@@ -1,10 +1,12 @@
 import uuid
-from datetime import datetime, timezone, date, timedelta
+from datetime import datetime, date, timedelta
 from sqlalchemy import select, func, and_, cast, Date
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.models.community_event import CommunityEvent
 from app.models.community import CommunityElder, CommunityWorker
+from app.utils import datetime as ez_dt
 
 
 async def list_events(
@@ -76,7 +78,7 @@ async def resolve_event(
         raise ValueError("事件不存在")
     event.is_resolved = True
     event.resolved_by = worker_id
-    event.resolved_at = datetime.now(timezone.utc)
+    event.resolved_at = datetime.now()
     if resolution_note:
         event.resolution_note = resolution_note
     await db.commit()
@@ -99,7 +101,7 @@ async def get_dashboard_data(
 
     total = sum(level_counts.values())
 
-    today_start = datetime.combine(date.today(), datetime.min.time())
+    today_start = ez_dt.today_start()
 
     active_ids = await _get_today_active_ids(db, community_id, today_start)
 
@@ -154,8 +156,9 @@ async def _build_trends(
     from app.models.canteen import CanteenRecord
     from app.models.alert import Alert
 
+    # 审计白名单（AC-7.1 锚定）：7 日日历序列起点为 date 值语义（非"今日零点"时刻），勿新增 date 类误用
     today = date.today()
-    week_start = datetime.combine(today - timedelta(days=6), datetime.min.time())
+    week_start = ez_dt.window_start(7)
 
     elder_ids_stmt = select(CommunityElder.elder_id).where(
         CommunityElder.community_id == community_id
@@ -479,7 +482,37 @@ async def _build_workstation(
     alert_result = await db.execute(alert_stmt)
     alerts = alert_result.scalars().all()
 
-    elder_ids = [a.elder_id for a in alerts if a.elder_id]
+    # 未解决告警总数（独立计数，与 limit(20) 列表解耦，P2 F4-a）
+    total_stmt = select(func.count(Alert.id)).where(
+        Alert.community_id == community_id,
+        Alert.is_resolved == False,
+    )
+    pending_alerts_total = (await db.execute(total_stmt)).scalar() or 0
+
+    # timed_out 独立查询：本社区全部未解决且已超响应期限的 urgent 告警
+    # （不继承 limit(20) 与降序排序；最老超时优先，P2 US-13 语义；
+    #   家属侧 unread 告警不带 response_deadline，天然被排除在超时口径外）
+    now = datetime.now()
+    timed_out_stmt = (
+        select(Alert)
+        .where(
+            Alert.community_id == community_id,
+            Alert.is_resolved == False,
+            Alert.alert_level == "urgent",
+            Alert.response_deadline.isnot(None),
+            Alert.response_deadline < now,
+        )
+        .order_by(Alert.created_at.asc())
+    )
+    # 冷启动回看窗口（R9 预案，默认 0 不限）
+    lookback = settings.WORKSTATION_TIMED_OUT_LOOKBACK_HOURS
+    if lookback > 0:
+        timed_out_stmt = timed_out_stmt.where(
+            Alert.created_at >= now - timedelta(hours=lookback)
+        )
+    timed_out_alerts = (await db.execute(timed_out_stmt)).scalars().all()
+
+    elder_ids = list({a.elder_id for a in [*alerts, *timed_out_alerts] if a.elder_id})
     name_map = {}
     if elder_ids:
         name_result = await db.execute(
@@ -487,8 +520,9 @@ async def _build_workstation(
         )
         name_map = {r[0]: r[1] for r in name_result.all()}
 
-    pending_alerts = [
-        {
+    def _alert_item(a: Alert) -> dict:
+        # 条目结构与 pending_alerts 逐字段一致（P2 §3.3）
+        return {
             "id": str(a.id),
             "elder_name": name_map.get(a.elder_id, "未知"),
             "alert_type": a.alert_type,
@@ -497,18 +531,17 @@ async def _build_workstation(
             "created_at": a.created_at.isoformat() if a.created_at else None,
             "trigger_rule": a.trigger_rule,
         }
-        for a in alerts
-    ]
 
-    timed_out = [
-        a for a in pending_alerts
-        if a["alert_level"] == "critical"
-    ]
+    pending_alerts = [_alert_item(a) for a in alerts]
+    timed_out = [_alert_item(a) for a in timed_out_alerts]
 
     return {
         "pending_confirmations": pending_confirmations[:30],
         "pending_alerts": pending_alerts,
         "timed_out": timed_out,
+        "pending_confirmations_total": len(pending_confirmations),
+        "pending_alerts_total": pending_alerts_total,
+        "timed_out_total": len(timed_out),
     }
 
 
@@ -520,7 +553,7 @@ async def get_building_elders(
     from app.models.user import User
     from app.models.care_relation import CareRelation
 
-    today_start = datetime.combine(date.today(), datetime.min.time())
+    today_start = ez_dt.today_start()
     active_ids = await _get_today_active_ids(db, community_id, today_start)
 
     stmt = (
@@ -624,7 +657,7 @@ async def sync_family_alerts_to_community(
 
         if not existing:
             # 5. Create a community_event with source='alert'
-            severity_map = {"critical": "urgent", "warning": "warning", "info": "info"}
+            severity_map = {"warning": "warning", "info": "info"}
             severity = severity_map.get(alert.alert_level, "info")
 
             event = CommunityEvent(

@@ -20,6 +20,11 @@ async def notify_family_unread(
     elder_name: str,
     hours: int,
 ):
+    # dry-run 静默开关：关闭时只落表不发通知（P3 §3.5）
+    if not settings.ALERT_NOTIFY_ENABLED:
+        logger.info("ALERT_NOTIFY_ENABLED=false，跳过未读通知发送")
+        return
+
     template_id = settings.WECHAT_UNREAD_TEMPLATE_ID
     if not template_id:
         logger.debug("WECHAT_UNREAD_TEMPLATE_ID 未配置，跳过未读通知")
@@ -46,6 +51,11 @@ async def notify_worker_alert(
     db: AsyncSession,
     alert_id: uuid.UUID,
 ):
+    # dry-run 静默开关：关闭时只落表不发通知（P3 §3.5，覆盖社区侧防误触）
+    if not settings.ALERT_NOTIFY_ENABLED:
+        logger.info("ALERT_NOTIFY_ENABLED=false，跳过告警通知发送")
+        return
+
     template_id = settings.WECHAT_ALERT_TEMPLATE_ID
     if not template_id:
         logger.debug("WECHAT_ALERT_TEMPLATE_ID 未配置，跳过告警通知")

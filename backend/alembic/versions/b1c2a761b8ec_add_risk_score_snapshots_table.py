@@ -111,8 +111,10 @@ def upgrade() -> None:
                existing_type=postgresql.TIMESTAMP(),
                nullable=False,
                existing_server_default=sa.text('now()'))
-    op.drop_constraint('community_workers_phone_key', 'community_workers', type_='unique')
-    op.create_index(op.f('ix_community_workers_phone'), 'community_workers', ['phone'], unique=True)
+    # phone 唯一性在上游 a7b3c9d1e5f2 已通过唯一索引 ix_community_workers_phone 建立。
+    # 自动生成时误判为「删除约束并重建索引」，在 PostgreSQL 上会因约束不存在而中断整个迁移链，
+    # 此处改为幂等处理：仅当历史环境存在同名约束时才删除（唯一索引保持不变）。
+    op.execute("ALTER TABLE community_workers DROP CONSTRAINT IF EXISTS community_workers_phone_key")
     # ### end Alembic commands ###
 
 

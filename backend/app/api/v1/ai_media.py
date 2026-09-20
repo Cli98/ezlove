@@ -38,7 +38,7 @@ async def generate_video(
     db: AsyncSession = Depends(get_db),
 ):
     """使用照片生成 AI 视频，消耗积分。"""
-    cost = point_service.COST_GENERATE_VIDEO
+    cost = points_service.COST_GENERATE_VIDEO
 
     # 积分预扣
     try:

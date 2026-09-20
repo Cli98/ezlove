@@ -9,13 +9,18 @@ __pycache__/
 venv/
 *.egg-info/
 .DS_Store
-worktrees/
 frontend/unpackage/
 .claude/
 .superpowers/
 backend/venv/
 backend/static/uploads/
-.qoder/
+# FIX-6：.qoder 目录默认整体忽略，但白名单放行 autoloop 技能本体（不含 models.json 密钥配置）；
+# __pycache__ / *.pyc 已由上方全局规则覆盖，无需重复
+.qoder/*
+!.qoder/skills/
+.qoder/skills/*
+!.qoder/skills/autoloop/
+.qoder/skills/autoloop/config/models.json
 *.db
 *.sqlite
 *.sqlite3
@@ -23,6 +28,4 @@ backend/static/uploads/
 .vscode/
 *.log
 Thumbs.db
-*.md
-*.ps1
-frontend/node_modules/
+.autoloop/

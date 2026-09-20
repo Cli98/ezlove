@@ -1,7 +1,7 @@
 import json
 import logging
 import uuid
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +12,7 @@ from app.models.alert import Alert
 from app.models.user import User
 from app.models.view_event import ViewEvent
 from app.models.canteen import CanteenRecord
+from app.utils import datetime as ez_dt
 
 logger = logging.getLogger("ezlove.agent")
 
@@ -96,7 +97,7 @@ async def execute_tool(
     tool_input: dict,
     worker_id: uuid.UUID | None = None,
 ) -> str:
-    today_start = datetime.combine(date.today(), datetime.min.time())
+    today_start = ez_dt.today_start()
 
     if tool_name == "query_inactive_elders":
         return await _query_inactive(db, community_id, today_start, tool_input)
@@ -244,7 +245,7 @@ async def _elder_status(db, community_id, inp):
     if not rows:
         return json.dumps({"error": f"未找到名为'{name}'的老人"}, ensure_ascii=False)
 
-    today_start = datetime.combine(date.today(), datetime.min.time())
+    today_start = ez_dt.today_start()
     active_ids = await _get_active_ids(db, community_id, today_start)
 
     elders = []
@@ -264,7 +265,7 @@ async def _elder_status(db, community_id, inp):
 
 
 async def _today_alerts(db, community_id):
-    today_start = datetime.combine(date.today(), datetime.min.time())
+    today_start = ez_dt.today_start()
     alerts = (await db.execute(
         select(Alert).where(
             Alert.community_id == community_id,

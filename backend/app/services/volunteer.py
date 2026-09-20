@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -184,7 +184,7 @@ async def complete_task(
         raise ValueError("任务状态不正确")
 
     task.status = "completed"
-    task.completed_at = datetime.now(timezone.utc)
+    task.completed_at = datetime.now()
     if notes:
         task.notes = notes
     await db.commit()
@@ -205,7 +205,7 @@ async def verify_task(
 
     task.status = "verified"
     task.verified_by = worker_id
-    task.verified_at = datetime.now(timezone.utc)
+    task.verified_at = datetime.now()
     await db.commit()
 
     profile = await db.get(VolunteerProfile, task.volunteer_id)

@@ -1,4 +1,3 @@
-from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -11,6 +10,7 @@ from app.models.user import User
 from app.models.view_event import ViewEvent
 from app.schemas.relation import InviteResponse, BindRequest, RelationUpdate, RelationResponse
 from app.services.relation import create_invite, bind_by_code, get_relations
+from app.utils import datetime as ez_dt
 
 router = APIRouter(prefix="/relations", tags=["relations"])
 
@@ -33,7 +33,7 @@ async def bind(req: BindRequest, user: User = Depends(get_current_user), db: Asy
 @router.get("", response_model=list[RelationResponse])
 async def list_relations(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     relations = await get_relations(db, user.id)
-    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = ez_dt.today_start()
     result = []
     for r in relations:
         resp = RelationResponse.model_validate(r)

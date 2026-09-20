@@ -49,8 +49,14 @@ async def list_rules(db: AsyncSession, community_id: UUID) -> list[AlertRule]:
     return list(result.scalars().all())
 
 
-async def update_rule(db: AsyncSession, rule_id: UUID, updates: dict) -> AlertRule:
-    result = await db.execute(select(AlertRule).where(AlertRule.id == rule_id))
+async def update_rule(db: AsyncSession, community_id: UUID, rule_id: UUID, updates: dict) -> AlertRule:
+    # 按社区隔离：id + community_id 双条件，跨社区与不存在统一 404（W-08，防探测）
+    result = await db.execute(
+        select(AlertRule).where(
+            AlertRule.id == rule_id,
+            AlertRule.community_id == community_id,
+        )
+    )
     rule = result.scalar_one_or_none()
     if not rule:
         raise ValueError("规则不存在")

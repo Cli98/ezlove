@@ -1,5 +1,3 @@
-from datetime import datetime, date
-
 from fastapi import APIRouter, Depends
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,6 +7,7 @@ from app.deps import get_current_user
 from app.models.user import User
 from app.models.view_event import ViewEvent
 from app.schemas.user import UserUpdate, UserResponse
+from app.utils import datetime as ez_dt
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -38,7 +37,7 @@ async def self_check_in(user: User = Depends(get_current_user), db: AsyncSession
 
 @router.get("/check-in/today")
 async def get_today_check_in(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    today_start = datetime.combine(date.today(), datetime.min.time())
+    today_start = ez_dt.today_start()
     result = await db.execute(
         select(ViewEvent.viewed_at)
         .where(ViewEvent.viewer_id == user.id, ViewEvent.moment_id.is_(None), ViewEvent.viewed_at >= today_start)

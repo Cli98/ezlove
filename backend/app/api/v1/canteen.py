@@ -133,6 +133,7 @@ async def generate_menu(
     worker: CommunityWorker = Depends(get_current_worker),
     db: AsyncSession = Depends(get_db),
 ):
+    # 审计白名单（AC-7.1 锚定）：menu_date 参数默认值为 date 值语义（非"今日零点"时刻），勿新增 date 类误用
     d = date.fromisoformat(menu_date) if menu_date else date.today()
     menu = await menu_service.generate_menu(db, worker.community_id, d, meal_type)
     return _menu_response(menu)

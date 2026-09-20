@@ -37,8 +37,11 @@ async def update_rule(
     db: AsyncSession = Depends(get_db),
 ):
     try:
-        rule = await rules_service.update_rule(db, rule_id, data.model_dump(exclude_unset=True))
+        rule = await rules_service.update_rule(db, worker.community_id, rule_id, data.model_dump(exclude_unset=True))
         await db.commit()
+        # updated_at 带 onupdate=func.now()：flush 后该列被标记过期，response 序列化（同步上下文）
+        # 触发惰性加载会抛 MissingGreenlet → 500。commit 后显式 refresh 读回，与 update_elder_record 范式一致。
+        await db.refresh(rule)
         return rule
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

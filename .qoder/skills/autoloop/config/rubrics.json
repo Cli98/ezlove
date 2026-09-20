@@ -1,0 +1,120 @@
+{
+  "evaluator_personas": {
+    "A": {
+      "name": "产品专家",
+      "persona": "你是资深产品专家，从用户价值、需求覆盖、体验完整性角度独立严格评分。评分必须基于证据，禁止人情分；95分以上意味着几乎无可挑剔。"
+    },
+    "B": {
+      "name": "研发专家",
+      "persona": "你是资深研发专家，从正确性、安全性、可维护性、实现质量角度独立严格评分。评分必须基于证据（文件/行号/测试），95分以上意味着生产级质量。"
+    },
+    "C": {
+      "name": "质量仲裁",
+      "persona": "你是独立质量仲裁人，从风险、可验证性、上线就绪度角度评分，职责是防止分数通胀与遗漏风险。你的评分应当最严格。"
+    }
+  },
+  "phases": {
+    "1": {
+      "name": "intake",
+      "dimensions": {
+        "clarity": {"weight": 30, "desc": "目标、范围、非目标、验收标准清晰无歧义"},
+        "completeness": {"weight": 30, "desc": "关键场景、边界、约束、干系人完整"},
+        "feasibility": {"weight": 20, "desc": "技术与人力的可行性判断有依据"},
+        "risk_awareness": {"weight": 20, "desc": "识别主要风险与开放问题"}
+      },
+      "veto": ["需求存在致命歧义且未记录默认决策", "验收标准不可验证"],
+      "checklist": ["有可验证的验收标准", "非目标/范围外明确列出", "开放问题与默认决策记录在案"]
+    },
+    "2": {
+      "name": "product",
+      "dimensions": {
+        "user_value": {"weight": 25, "desc": "核心用户场景与价值主张清晰，兼顾子女与老人双方视角"},
+        "scenario_completeness": {"weight": 25, "desc": "功能范围完整，含边界场景、异常流与降级方案"},
+        "ux_fit": {"weight": 20, "desc": "交互设计符合目标用户约束（老人端大字体、零学习成本、高对比度）"},
+        "measurability": {"weight": 15, "desc": "成功指标与验收口径可量化、可验证"},
+        "scope_discipline": {"weight": 15, "desc": "范围克制，非目标明确，无需求蔓延"}
+      },
+      "veto": ["核心用户场景无法闭环（主流程断裂）", "违反产品红线：出现监控式措辞或老人端高学习成本设计"],
+      "checklist": ["每个核心场景有正常流与异常流", "老人端交互成本已评估（点击层级、字号、对比度）", "成功指标可量化并与验收标准对应", "非目标与延期项明确记录"]
+    },
+    "3": {
+      "name": "tech-design",
+      "dimensions": {
+        "architecture_fit": {"weight": 30, "desc": "架构与现有系统结构匹配，模块边界清晰，无过度设计"},
+        "requirement_coverage": {"weight": 25, "desc": "每条需求都有对应技术方案与数据流映射"},
+        "risk_and_rollback": {"weight": 20, "desc": "技术风险识别充分，含回滚与灰度策略"},
+        "data_and_api": {"weight": 15, "desc": "数据模型、接口契约、迁移方案完整自洽"},
+        "operability": {"weight": 10, "desc": "可部署、可观测、可测试，含监控与日志方案"}
+      },
+      "veto": ["存在无法回滚的破坏性数据变更且无迁移方案", "方案与验收标准存在直接冲突"],
+      "checklist": ["需求到方案有完整追溯映射", "关键接口与数据模型已定义且自洽", "风险清单含触发条件与缓解措施", "部署与回滚步骤可直接执行"]
+    },
+    "4": {
+      "name": "implement",
+      "dimensions": {
+        "requirement_coverage": {"weight": 25, "desc": "需求条目逐项落地，无遗漏、无擅自变更"},
+        "correctness": {"weight": 30, "desc": "逻辑正确，边界与异常处理完备，与方案一致"},
+        "security": {"weight": 15, "desc": "无注入、越权、明文密钥等安全问题，配置经环境注入"},
+        "maintainability": {"weight": 15, "desc": "分层清晰、命名规范、注释得当、易读易改"},
+        "testability": {"weight": 15, "desc": "关键路径可测且已覆盖，测试独立稳定可复现"}
+      },
+      "veto": ["存在安全漏洞：明文密钥、注入、越权访问等", "核心流程无法运行或明显偷工减料偏离方案"],
+      "checklist": ["每条需求都有对应代码实现", "关键路径有测试覆盖", "敏感配置通过环境变量注入，无硬编码密钥", "代码分层与命名符合项目规范", "无未解释的禁用测试或跳过逻辑"]
+    },
+    "5": {
+      "name": "verify",
+      "dimensions": {
+        "evidence_authenticity": {"weight": 30, "desc": "测试证据真实可信，可追溯到具体执行记录"},
+        "coverage": {"weight": 30, "desc": "验收标准逐条覆盖，边界与异常场景无遗漏"},
+        "reproducibility": {"weight": 20, "desc": "测试命令与环境说明完整，结果可一键复现"},
+        "regression_risk": {"weight": 20, "desc": "回归影响已评估，受影响的既有功能已覆盖"}
+      },
+      "veto": ["关键路径零测试覆盖", "测试证据无法复现或系伪造"],
+      "checklist": ["验收标准逐条有对应测试证据", "测试命令与环境说明完整可一键复现", "边界与异常场景已覆盖", "回归影响已评估并有针对性覆盖"]
+    },
+    "6": {
+      "name": "review",
+      "dimensions": {
+        "coverage": {"weight": 30, "desc": "评审范围覆盖需求、代码、测试、风险四象限，关键文件无遗漏"},
+        "defect_quality": {"weight": 30, "desc": "发现问题真实、严重级别判定准确、有证据定位"},
+        "resolution_rigor": {"weight": 25, "desc": "问题闭环严谨：修复有验证，未修复有记录与理由"},
+        "standard_alignment": {"weight": 15, "desc": "与项目规范、安全基线、最佳实践对齐"}
+      },
+      "veto": ["发现致命缺陷但未给出处置结论", "关键变更未经评审即合入"],
+      "checklist": ["评审范围覆盖全部变更文件与需求映射", "每个问题有严重级别与证据定位", "修复后有复核与验证记录", "遗留问题有跟踪与责任人"]
+    },
+    "7": {
+      "name": "release",
+      "dimensions": {
+        "readiness": {"weight": 30, "desc": "发布就绪：功能冻结、遗留缺陷清零或明确豁免、验收全通过"},
+        "safety": {"weight": 25, "desc": "发布安全：灰度计划、回滚方案、数据备份就绪"},
+        "observability": {"weight": 20, "desc": "监控、告警、日志就绪，关键指标有基线"},
+        "process_compliance": {"weight": 25, "desc": "变更记录、审批、公告等流程完备可追溯"}
+      },
+      "veto": ["无回滚方案的发布", "存在未处置的 critical 级缺陷"],
+      "checklist": ["发布清单逐项核对通过", "回滚步骤经过推演或演练", "监控与告警已配置并验证", "变更记录与审批留痕完整"]
+    },
+    "8": {
+      "name": "alpha-test",
+      "dimensions": {
+        "plan_quality": {"weight": 25, "desc": "测试计划含对象、场景、通过标准，设计合理可行"},
+        "execution_evidence": {"weight": 30, "desc": "执行记录可追溯，结果有原始凭证支撑"},
+        "defect_triage": {"weight": 25, "desc": "缺陷全部分级，处置结论明确且与发布决策联动"},
+        "feedback_loop": {"weight": 20, "desc": "用户反馈已收集、归类并回流到需求或迭代清单"}
+      },
+      "veto": ["阿尔法测试未真实执行（无执行痕迹）", "发现 critical 缺陷但未影响发布决策"],
+      "checklist": ["测试计划含对象、场景与通过标准", "执行记录可追溯（时间、人员、结果）", "缺陷全部分级并有处置结论", "反馈已回流到需求或迭代清单"]
+    },
+    "9": {
+      "name": "evolve",
+      "dimensions": {
+        "retrospection_depth": {"weight": 30, "desc": "复盘触及根因而非表象，区分偶发与系统性问题"},
+        "data_driven": {"weight": 25, "desc": "结论基于迭代次数、分数曲线、directive 分布等数据"},
+        "actionability": {"weight": 25, "desc": "改进项可执行：有明确动作、责任人与验证方式"},
+        "knowledge_capture": {"weight": 20, "desc": "经验沉淀为可复用资产（教训、模板、规则）"}
+      },
+      "veto": ["复盘结论与评分数据明显矛盾", "改进项全部不可执行"],
+      "checklist": ["各阶段迭代与分数数据已引用分析", "高频问题已识别根因", "改进项有优先级、责任人与验证标准", "可沉淀经验已形成文档或规则"]
+    }
+  }
+}

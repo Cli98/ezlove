@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,6 +8,7 @@ from app.models.community import CommunityElder
 from app.models.user import User
 from app.models.care_moment import CareMoment
 from app.models.view_event import ViewEvent
+from app.utils import datetime as ez_dt
 from app.models.care_relation import CareRelation
 from app.models.alert import Alert
 from app.services.timeline import get_elder_timeline, get_activity_summary
@@ -55,8 +56,8 @@ async def get_elder_full_detail(
     }
 
     # 3. Today active（多源：ViewEvent + 食堂 + 社区活动）+ last active
-    now = datetime.now(timezone.utc)
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    now = datetime.now()
+    today_start = ez_dt.today_start()
 
     today_active = False
 
@@ -139,7 +140,7 @@ async def get_elder_full_detail(
 
     # 6. 7-day activity calendar
     days = 7
-    start = (now - timedelta(days=days - 1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    start = ez_dt.window_start(days)
     cal_stmt = (
         select(func.date(ViewEvent.viewed_at))
         .where(ViewEvent.viewer_id == user.id, ViewEvent.viewed_at >= start)

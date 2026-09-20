@@ -1,0 +1,31 @@
+{
+  "evaluators": {
+    "A": {
+      "provider": "openai_compatible",
+      "base_url": "https://api.deepseek.com/v1",
+      "api_key_env": "AUTOLOOP_EVAL_A_KEY",
+      "model": "deepseek-chat",
+      "temperature": 0.1,
+      "max_tokens": 3000,
+      "timeout_seconds": 120
+    },
+    "B": {
+      "provider": "anthropic",
+      "base_url": "https://api.anthropic.com",
+      "api_key_env": "AUTOLOOP_EVAL_B_KEY",
+      "model": "claude-sonnet-4-20250514",
+      "temperature": 0.1,
+      "max_tokens": 3000,
+      "timeout_seconds": 120
+    },
+    "C": {
+      "provider": "openai_compatible",
+      "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "api_key_env": "AUTOLOOP_EVAL_C_KEY",
+      "model": "qwen-plus",
+      "temperature": 0.1,
+      "max_tokens": 3000,
+      "timeout_seconds": 120
+    }
+  }
+}

@@ -113,6 +113,7 @@ async def get_today_menu(
     result = await db.execute(
         select(CanteenMenu).where(
             CanteenMenu.community_id == community_id,
+            # 审计白名单（AC-7.1 锚定）：menu_date 列比较为 date 值语义（非"今日零点"时刻），勿新增 date 类误用
             CanteenMenu.menu_date == date.today(),
             CanteenMenu.status == "published",
         ).order_by(CanteenMenu.meal_type)
