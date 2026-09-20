@@ -29,11 +29,16 @@ async def lifespan(app: FastAPI):
         import app.models  # noqa: F401 确保所有模型注册
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
+    # 调度开关：dry-run 窗口期不启动 APScheduler（HTTP 服务照常）
     from app.tasks.alert_checker import start_scheduler
-    start_scheduler()
+    if settings.SCHEDULER_ENABLED:
+        start_scheduler()
     yield
+    # 收尾侧同步保护：false 窗口内停服时，未 start 的调度器调用 shutdown 必抛
+    # SchedulerNotRunningError；if 包裹与启动侧对称（未启动则无需关闭）
     from app.tasks.alert_checker import shutdown_scheduler
-    shutdown_scheduler()
+    if settings.SCHEDULER_ENABLED:
+        shutdown_scheduler()
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):

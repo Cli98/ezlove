@@ -1,11 +1,11 @@
 import uuid
-from datetime import datetime, timezone, date
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.community import Community, CommunityWorker, CommunityElder
 from app.models.user import User
 from app.models.view_event import ViewEvent
+from app.utils import datetime as ez_dt
 
 
 async def create_elder_record(
@@ -22,10 +22,15 @@ async def create_elder_record(
 
 async def update_elder_record(
     db: AsyncSession,
+    community_id: uuid.UUID,
     elder_record_id: uuid.UUID,
     updates: dict,
 ) -> CommunityElder:
-    stmt = select(CommunityElder).where(CommunityElder.id == elder_record_id)
+    # 按社区隔离：id + community_id 双条件，跨社区与不存在统一 404（W-07，防探测）
+    stmt = select(CommunityElder).where(
+        CommunityElder.id == elder_record_id,
+        CommunityElder.community_id == community_id,
+    )
     result = await db.execute(stmt)
     elder = result.scalar_one_or_none()
     if not elder:
@@ -60,7 +65,7 @@ async def list_elders(
     result = await db.execute(stmt)
     rows = result.all()
 
-    today_start = datetime.combine(date.today(), datetime.min.time())
+    today_start = ez_dt.today_start()
     elder_ids = [row[0].elder_id for row in rows]
     active_stmt = (
         select(ViewEvent.viewer_id)

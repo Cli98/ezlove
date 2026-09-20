@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import openpyxl
@@ -63,7 +63,7 @@ async def submit_canteen_record(
         return record
 
     record.parsed_data = parsed
-    record.parsed_at = datetime.now(timezone.utc)
+    record.parsed_at = datetime.now()
     record.parse_status = "success"
     await db.commit()
     await db.refresh(record)

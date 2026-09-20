@@ -19,4 +19,4 @@ class CareMoment(Base):
     media_urls: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     is_ai_generated: Mapped[bool] = mapped_column(Boolean, default=False)
     poster_meta: Mapped[dict | None] = mapped_column(JSON, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, server_default=func.now())

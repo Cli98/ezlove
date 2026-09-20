@@ -11,6 +11,9 @@ apscheduler==3.10.4
 redis==5.1.0
 python-multipart==0.0.9
 anthropic==0.39.0
+# openai：AI 文案建议客户端（app/utils/llm.py:2 from openai import AsyncOpenAI）。
+# 版本按本地 venv 实测钉版（pip show openai = 3.14.1）——P4-iter1 评审指令 D1/D8 授权补录
+openai==3.14.1
 passlib[bcrypt]==1.7.4
 openpyxl==3.1.5
 Pillow==12.0.0

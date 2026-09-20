@@ -62,7 +62,7 @@ async def update_elder(
 ):
     try:
         elder = await community_service.update_elder_record(
-            db, elder_id, data.model_dump(exclude_unset=True)
+            db, worker.community_id, elder_id, data.model_dump(exclude_unset=True)
         )
         return elder
     except ValueError as e:

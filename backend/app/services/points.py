@@ -1,12 +1,12 @@
 """用户积分服务 — 积分账户管理、收入/支出/查询。"""
 import logging
 from uuid import UUID
-from datetime import datetime, date
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user_points import UserPointAccount, UserPointTransaction
+from app.utils import datetime as ez_dt
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +120,7 @@ async def check_daily_bonus(db: AsyncSession, user_id: UUID) -> bool:
     检查并发放每日登录奖励。
     如果今天还没有 daily_bonus 记录，则发放并返回 True。
     """
-    today_start = datetime.combine(date.today(), datetime.min.time())
+    today_start = ez_dt.today_start()
     result = await db.execute(
         select(func.count(UserPointTransaction.id)).where(
             UserPointTransaction.user_id == user_id,

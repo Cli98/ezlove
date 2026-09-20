@@ -26,4 +26,4 @@ class Alert(Base):
     responded_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     response_note: Mapped[str | None] = mapped_column(Text, nullable=True)
     trigger_rule: Mapped[str | None] = mapped_column(String(32), nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, server_default=func.now())

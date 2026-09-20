@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -71,6 +71,6 @@ async def resolve_alert(alert_id: UUID, user: User = Depends(get_current_user), 
         raise HTTPException(status_code=403, detail="无权操作此告警")
 
     alert.is_resolved = True
-    alert.resolved_at = datetime.now(timezone.utc)
+    alert.resolved_at = datetime.now()
     await db.commit()
     return {"ok": True}
