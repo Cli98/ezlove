@@ -15,5 +15,8 @@ anthropic==0.39.0
 # 版本按本地 venv 实测钉版（pip show openai = 3.14.1）——P4-iter1 评审指令 D1/D8 授权补录
 openai==3.14.1
 passlib[bcrypt]==1.7.4
+# bcrypt 4.1+ 与 passlib 1.7.4 不兼容：passlib 初始化后端时的兼容探测会抛
+# ValueError: password cannot be longer than 72 bytes（新版 bcrypt 对 >72 字节直接报错而非截断），故钉在 4.0.1
+bcrypt==4.0.1
 openpyxl==3.1.5
 Pillow==12.0.0

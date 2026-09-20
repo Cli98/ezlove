@@ -78,7 +78,7 @@ async def list_elders(
 
     return [
         {
-            **row[0].__dict__,
+            **{k: v for k, v in row[0].__dict__.items() if not k.startswith("_sa")},
             "elder_name": row[1],
             "elder_phone": row[2],
             "today_active": row[0].elder_id in active_ids,
@@ -123,4 +123,8 @@ async def get_elder_detail(
     row = result.one_or_none()
     if not row:
         return None
-    return {**row[0].__dict__, "elder_name": row[1], "elder_phone": row[2]}
+    return {
+        **{k: v for k, v in row[0].__dict__.items() if not k.startswith("_sa")},
+        "elder_name": row[1],
+        "elder_phone": row[2],
+    }
