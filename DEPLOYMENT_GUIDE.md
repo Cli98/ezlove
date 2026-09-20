@@ -226,7 +226,7 @@ ANTHROPIC_API_KEY=your-anthropic-api-key-here
 
 # 通用 LLM 接口（如使用兼容 OpenAI 格式的服务）
 LLM_API_KEY=your-llm-api-key-here
-LLM_API_BASE=https://your-llm-endpoint.com/v1
+LLM_BASE_URL=https://your-llm-endpoint.com/v1
 LLM_MODEL=your-model-name
 ```
 
