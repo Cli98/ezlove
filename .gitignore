@@ -33,3 +33,10 @@ Thumbs.db
 # 发布工具本地工件（本地打包产物 / 服务器交接文档副本，不入库）
 ezlove-release.tar
 _readme.md
+
+# 测试验证产物（根目录截图 / 测试报告 / 临时脚本，不入库）
+/*.png
+/test-report-*.html
+/*测试报告*.html
+/_*
+/.tmp-font/

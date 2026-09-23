@@ -2,6 +2,15 @@
 
 // — Google Fonts 已在 index.html 中异步加载（避免产物体内同步 @import 阻塞渲染）—
 
+// — Material Symbols 图标字体：本地子集（离线可用，替代 Google Fonts CDN）—
+@font-face {
+  font-family: 'Material Symbols Outlined';
+  font-style: normal;
+  font-weight: 100 700;
+  font-display: block;
+  src: url('../assets/fonts/material-symbols-outlined.woff2') format('woff2');
+}
+
 // — Reset —
 *,
 *::before,
