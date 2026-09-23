@@ -1,7 +1,6 @@
 @use './variables.scss' as *;
 
-// — Google Fonts —
-@import url('https://fonts.googleapis.com/css2?family=LXGW+WenKai:wght@400;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+// — Google Fonts 已在 index.html 中异步加载（避免产物体内同步 @import 阻塞渲染）—
 
 // — Reset —
 *,
