@@ -1,3 +1,6 @@
+--index-url https://mirrors.aliyun.com/pypi/simple/
+# 索引源声明：服务器构建环境直连官方 PyPI 超时（实测约 12.7 kB/s 导致构建失败），
+# 故在依赖清单内声明国内镜像源；命令行 -i 参数优先级更高，可被管理员侧策略覆盖。
 fastapi==0.115.0
 uvicorn[standard]==0.30.0
 sqlalchemy==2.0.35
