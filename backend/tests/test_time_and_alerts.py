@@ -45,8 +45,9 @@ async def test_time_literal_audit():
     hits_utcnow: set[str] = set()
     hits_today: set[str] = set()
     for py in app_dir.rglob("*.py"):
-        src = py.read_text()
-        rel = str(py.relative_to(app_dir))
+        src = py.read_text(encoding="utf-8")
+        # as_posix：断言期望值为 POSIX 风格相对路径，Windows 下 str() 会产出反斜杠
+        rel = py.relative_to(app_dir).as_posix()
         if "replace(hour=0" in src:
             hits_replace.add(rel)
         if "combine(date.today(" in src:
@@ -70,7 +71,7 @@ async def test_time_literal_audit():
     # 模式④锚定注释收紧（D6）：逐行校验白名单文件的每个 date.today() 调用处——
     # 紧邻上一行必须是「# 审计白名单」开头的锚定注释，新增无锚定的调用必被拦截
     for rel in hits_today:
-        lines = (app_dir / rel).read_text().splitlines()
+        lines = (app_dir / rel).read_text(encoding="utf-8").splitlines()
         for i, line in enumerate(lines):
             if "date.today()" not in line:
                 continue

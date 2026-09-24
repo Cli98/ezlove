@@ -91,7 +91,7 @@ async def test_signal_types_single_definition(db):
     definitions = []
     references = 0
     for py in app_dir.rglob("*.py"):
-        src = py.read_text()
+        src = py.read_text(encoding="utf-8")
         if "SIGNAL_EVENT_TYPES = " in src:
             definitions.append(str(py))
         references += src.count("SIGNAL_EVENT_TYPES")

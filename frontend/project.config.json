@@ -38,8 +38,8 @@
   },
   "compileType": "miniprogram",
   "libVersion": "3.0.0",
-  "appid": "",
-  "miniprogramRoot": "dist/build/mp-weixin",
+  "appid": "wxaa111c370498d689",
+  "miniprogramRoot": "dist/build/mp-weixin/",
   "projectname": "ezlove-frontend",
   "condition": {},
   "editorSetting": {
