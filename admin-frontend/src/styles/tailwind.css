@@ -20,6 +20,31 @@
     vertical-align: middle;
   }
 
+  .focus-gradient-surface {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    background:
+      url('../assets/dashboard-composite/focus-stats-waves.png') right center / auto 100% no-repeat,
+      linear-gradient(102deg, #fbf1e9 0%, #fbf4ed 34%, #faf3ec 63%, #f7efe7 100%);
+  }
+  .focus-gradient-surface::before {
+    content: '';
+    position: absolute;
+    z-index: 0;
+    top: 0;
+    left: 0;
+    width: 70px;
+    height: 92px;
+    clip-path: path('M0 0 H70 C44 6 16 54 0 82 Z');
+    background: linear-gradient(135deg, rgba(224, 121, 68, .16), rgba(232, 148, 101, .1) 58%, rgba(246, 218, 200, .035));
+    pointer-events: none;
+  }
+  .focus-gradient-surface > * {
+    position: relative;
+    z-index: 1;
+  }
+
   .custom-scrollbar::-webkit-scrollbar {
     width: 4px;
   }

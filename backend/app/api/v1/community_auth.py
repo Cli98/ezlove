@@ -70,10 +70,17 @@ async def community_refresh(data: RefreshRequest, db: AsyncSession = Depends(get
         if payload.get("type") != "refresh":
             raise HTTPException(status_code=401, detail="刷新令牌无效")
         worker_id = payload.get("sub")
+        if not worker_id:
+            raise HTTPException(status_code=401, detail="刷新令牌无效")
     except JWTError:
         raise HTTPException(status_code=401, detail="刷新令牌无效")
 
-    result = await db.execute(select(CommunityWorker).where(CommunityWorker.id == worker_id))
+    try:
+        worker_uuid = UUID(worker_id)
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=401, detail="刷新令牌无效")
+
+    result = await db.execute(select(CommunityWorker).where(CommunityWorker.id == worker_uuid))
     worker = result.scalar_one_or_none()
     if not worker:
         raise HTTPException(status_code=401, detail="社区工作人员不存在")

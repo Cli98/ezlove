@@ -4,6 +4,10 @@ import { getEvents, createEvent, resolveEvent } from '@/api/events'
 
 export const useEventsStore = defineStore('events', () => {
   const events = ref([])
+  const total = ref(0)
+  const page = ref(1)
+  const pageSize = ref(20)
+  const totalPages = ref(0)
   const loading = ref(false)
   const error = ref(null)
 
@@ -11,7 +15,12 @@ export const useEventsStore = defineStore('events', () => {
     loading.value = true
     error.value = null
     try {
-      events.value = await getEvents(params)
+      const data = await getEvents(params)
+      events.value = Array.isArray(data) ? data : data.items || []
+      total.value = Array.isArray(data) ? data.length : data.total || 0
+      page.value = Array.isArray(data) ? 1 : data.page || 1
+      pageSize.value = Array.isArray(data) ? data.length : data.page_size || 20
+      totalPages.value = Array.isArray(data) ? 1 : data.total_pages || 0
     } catch (e) {
       error.value = e.response?.data?.detail || e.message || '加载失败'
     } finally {
@@ -41,5 +50,5 @@ export const useEventsStore = defineStore('events', () => {
     }
   }
 
-  return { events, loading, error, load, create, resolve }
+  return { events, total, page, pageSize, totalPages, loading, error, load, create, resolve }
 })

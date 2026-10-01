@@ -1,6 +1,10 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException
+import uuid
+from asyncio import get_event_loop
+from functools import partial
+
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
@@ -16,6 +20,7 @@ from app.services import community as community_service
 from app.services.community_elder_detail import get_elder_full_detail
 from app.services import risk_scoring
 from app.services import timeline as timeline_service
+from app.api.v1.upload import IMAGE_TYPES, MAX_IMAGE_SIZE, CHUNK_SIZE, UPLOAD_DIR, _detect_type, _write_file
 
 router = APIRouter(prefix="/community", tags=["community"])
 
@@ -24,15 +29,19 @@ router = APIRouter(prefix="/community", tags=["community"])
 async def list_elders(
     care_level: str | None = None,
     search: str | None = None,
+    area: str | None = None,
+    follow_up_only: bool = False,
     pagination: dict = Depends(get_pagination),
     worker: CommunityWorker = Depends(get_current_worker),
     db: AsyncSession = Depends(get_db),
 ):
     total = await community_service.count_elders(
-        db, worker.community_id, care_level=care_level, search=search
+        db, worker.community_id, care_level=care_level, search=search,
+        area=area, follow_up_only=follow_up_only,
     )
     elders = await community_service.list_elders(
         db, worker.community_id, care_level=care_level, search=search,
+        area=area, follow_up_only=follow_up_only,
         offset=pagination["offset"], limit=pagination["limit"],
     )
     return PaginatedResponse.create(
@@ -62,11 +71,43 @@ async def update_elder(
 ):
     try:
         elder = await community_service.update_elder_record(
-            db, elder_id, data.model_dump(exclude_unset=True)
+            db, elder_id, worker.community_id, data.model_dump(exclude_unset=True)
         )
         return elder
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/elders/{elder_id}/avatar")
+async def upload_elder_avatar(
+    elder_id: UUID,
+    file: UploadFile = File(...),
+    worker: CommunityWorker = Depends(get_current_worker),
+    db: AsyncSession = Depends(get_db),
+):
+    if file.content_type not in IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail="仅支持 jpg/png/gif/webp 图片")
+    chunks: list[bytes] = []
+    total_size = 0
+    while chunk := await file.read(CHUNK_SIZE):
+        total_size += len(chunk)
+        if total_size > MAX_IMAGE_SIZE:
+            raise HTTPException(status_code=400, detail="头像不能超过 5MB")
+        chunks.append(chunk)
+    content = b"".join(chunks)
+    detected = _detect_type(content) if len(content) >= 12 else None
+    if not detected or detected[1] != "image":
+        raise HTTPException(status_code=400, detail="图片内容无效")
+    filename = f"{uuid.uuid4().hex}.{detected[0]}"
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+    await get_event_loop().run_in_executor(None, partial(_write_file, UPLOAD_DIR / filename, content))
+    url = f"/static/uploads/{filename}"
+    try:
+        await community_service.update_elder_record(db, elder_id, worker.community_id, {"avatar_url": url})
+    except ValueError as e:
+        (UPLOAD_DIR / filename).unlink(missing_ok=True)
+        raise HTTPException(status_code=404, detail=str(e))
+    return {"url": url}
 
 
 @router.get("/elders/{elder_id}")

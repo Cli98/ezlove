@@ -1,249 +1,196 @@
 <template>
-  <div>
-    <div class="mb-6">
-      <button class="inline-flex items-center gap-1 text-sm text-on-surface-variant hover:text-primary transition-colors" @click="$router.back()">
-        <span class="material-symbols-outlined text-lg">arrow_back</span>
-        <span>返回档案列表</span>
-      </button>
-    </div>
+  <div class="elder-detail-page">
+    <PageTopbar
+      v-model:search="search"
+      :worker-name="workerName"
+      :pending-events="dashboardStore.data?.pending_events || 0"
+      @search="searchElders"
+      @events="router.push('/events')"
+    />
 
-    <template v-if="store.current">
-      <!-- Profile Card -->
-      <div class="bg-surface rounded-3xl shadow-sm border border-outline-variant/20 overflow-hidden mb-6">
-        <div class="flex items-center gap-5 p-8 bg-gradient-to-r from-surface-container to-surface border-b border-outline-variant/20">
-          <div
-            :class="[
-              'w-16 h-16 rounded-2xl flex items-center justify-center font-headline text-2xl font-bold text-white shrink-0 shadow-md',
-              levelClass,
-            ]"
-          >
-            {{ elderName?.charAt(0) || '?' }}
-          </div>
-          <div class="min-w-0 flex-1">
-            <h2 class="font-headline text-2xl font-bold text-on-surface mb-1">{{ elderName }}</h2>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span :class="['inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold', levelBadge]">
-                {{ store.current.elder?.care_level || store.current.care_level }}级
-              </span>
-              <span class="text-inactive-gray">·</span>
-              <span class="text-sm text-on-surface-variant">{{ elderAddress }}</span>
-              <template v-if="store.current.today_active !== undefined">
-                <span class="text-inactive-gray">·</span>
-                <span :class="['inline-flex items-center gap-1 text-xs font-semibold', store.current.today_active ? 'text-secondary' : 'text-inactive-gray']">
-                  <span class="w-2 h-2 rounded-full" :class="store.current.today_active ? 'bg-secondary' : 'bg-inactive-gray'"></span>
-                  {{ store.current.today_active ? '今日活跃' : '今日未活跃' }}
-                </span>
-              </template>
-            </div>
-          </div>
-          <!-- 风险徽章 -->
-          <div v-if="riskData?.score != null" class="shrink-0 text-center">
-            <div
-              :class="[
-                'w-14 h-14 rounded-xl flex items-center justify-center text-xl font-bold text-white shadow-md',
-                riskBgClass,
-              ]"
-            >
-              {{ riskData.score }}
-            </div>
-            <span class="text-[10px] text-on-surface-variant mt-1 block">{{ riskLevelLabel }}</span>
-          </div>
-        </div>
+    <nav class="breadcrumb" aria-label="面包屑">
+      <button @click="router.push('/elders')"><DashboardIcon name="home" />老人档案</button>
+      <span>›</span>
+      <b>{{ detail?.elder?.name || '档案详情' }}</b>
+    </nav>
 
-        <div class="p-8">
-          <dl class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <dt class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">手机号</dt>
-              <dd class="text-sm text-on-surface">
-                <a v-if="elderPhone" :href="`tel:${elderPhone}`" class="text-primary hover:underline">{{ elderPhone }}</a>
-                <span v-else>—</span>
-              </dd>
-            </div>
-            <div>
-              <dt class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">紧急联系人</dt>
-              <dd class="text-sm text-on-surface">{{ store.current.elder?.emergency_contact?.name || store.current.emergency_contact_name || '—' }}</dd>
-            </div>
-            <div>
-              <dt class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">紧急联系电话</dt>
-              <dd class="text-sm text-on-surface">
-                <a v-if="emergencyPhone" :href="`tel:${emergencyPhone}`" class="text-primary hover:underline">{{ emergencyPhone }}</a>
-                <span v-else>—</span>
-              </dd>
-            </div>
-            <div>
-              <dt class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">最后活跃</dt>
-              <dd class="text-sm text-on-surface">{{ store.current.last_active_at ? formatDateTime(store.current.last_active_at) : '—' }}</dd>
-            </div>
-            <div class="md:col-span-2">
-              <dt class="text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1">健康备注</dt>
-              <dd class="text-sm text-on-surface">{{ store.current.elder?.health_notes || store.current.health_notes || '暂无记录' }}</dd>
-            </div>
-          </dl>
-        </div>
-      </div>
+    <template v-if="detail">
+      <ElderProfileSummary
+        :detail="detail"
+        @contact="showPending('联系与走访记录')"
+        @confirm="confirmActivity"
+        @edit="editOpen = true"
+        @avatar="uploadAvatar"
+      />
 
-      <!-- 日活动轨迹 -->
-      <DayTrajectory :elder-id="route.params.id" class="mb-6" />
-
-      <!-- 主内容区：时间线 + 风险仪表盘 -->
-      <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div class="lg:col-span-3">
-          <ActivityTimeline
-            :items="store.timeline"
-            :activity-summary="store.current.activity_summary"
-            :has-more="store.timelineHasMore"
-            @load-more="store.loadMoreTimeline(route.params.id)"
-          />
-        </div>
-        <div class="lg:col-span-2">
-          <RiskDashboard
-            :risk="riskData"
-            :refreshing="riskRefreshing"
-            :ai-result="aiResult"
-            :ai-loading="aiLoading"
-            @refresh="handleRefreshRisk"
-            @request-ai="handleRequestAi"
-          />
-
-          <!-- 趋势图 -->
-          <TrendCharts
-            v-if="store.current.activity_summary"
-            :summary="store.current.activity_summary"
-            class="mt-6"
-          />
-
-          <!-- 家人关系卡片 -->
-          <div class="mt-6 bg-surface rounded-2xl shadow-sm border border-outline-variant/20 p-6">
-            <h3 class="font-headline text-lg font-bold text-on-surface mb-4">家人关系</h3>
-            <div v-if="store.current.family_relations?.length" class="space-y-3">
-              <div
-                v-for="rel in store.current.family_relations"
-                :key="rel.relation_id"
-                class="flex items-center gap-3 py-2 px-3 rounded-lg bg-surface-container/30"
-              >
-                <span class="material-symbols-outlined text-lg text-on-surface-variant">person</span>
-                <div class="min-w-0 flex-1">
-                  <span class="text-sm font-semibold text-on-surface">{{ rel.family_member_name || '未知' }}</span>
-                  <span class="text-xs text-on-surface-variant ml-2">{{ rel.relation_label || '' }}</span>
-                </div>
-                <span :class="['text-[10px] font-bold px-2 py-0.5 rounded-full', rel.status === 'active' ? 'bg-secondary/10 text-secondary' : 'bg-outline-variant/30 text-inactive-gray']">
-                  {{ rel.status === 'active' ? '已绑定' : '待确认' }}
-                </span>
-              </div>
-            </div>
-            <div v-else class="text-center py-6">
-              <span class="material-symbols-outlined text-3xl text-inactive-gray">family_restroom</span>
-              <p class="text-sm text-inactive-gray mt-2">暂无家人绑定</p>
-            </div>
-          </div>
-        </div>
+      <div class="detail-grid">
+        <ElderDailyActivity
+          :elder-id="elderId"
+          :initial-items="timelineItems"
+          :mock="isMock"
+          @all="showPending('全部活动记录')"
+        />
+        <ElderCareSidebar
+          :detail="detail"
+          :worker-name="workerName"
+          @complete="showPending('关怀任务')"
+          @edit="showPending('联系人编辑')"
+        />
       </div>
     </template>
 
-    <div v-else-if="pageLoading" class="flex items-center justify-center py-20">
-      <div class="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+    <div v-else-if="loading" class="page-state">
+      <span class="material-symbols-outlined spinning">progress_activity</span>
+      <p>正在整理老人档案…</p>
     </div>
 
-    <div v-else class="text-center py-20">
-      <span class="material-symbols-outlined text-5xl text-inactive-gray">person_off</span>
-      <p class="text-inactive-gray text-sm mt-3">老人档案不存在或已被删除</p>
-      <button class="mt-4 px-6 py-2 rounded-xl text-sm font-semibold text-primary hover:bg-primary/10 transition-colors" @click="$router.back()">返回列表</button>
+    <div v-else class="page-state">
+      <span class="material-symbols-outlined">person_off</span>
+      <p>老人档案不存在或暂时无法读取</p>
+      <button @click="router.push('/elders')">返回档案列表</button>
     </div>
+
+    <ElderCreateDialog
+      :open="editOpen"
+      :submitting="submitting"
+      :initial="detail?.elder || {}"
+      mode="edit"
+      @close="editOpen = false"
+      @submit="saveElder"
+    />
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { useDashboardStore } from '@/stores/dashboard'
 import { useEldersStore } from '@/stores/elders'
-import { recalculateRisk, getAiAnalysis } from '@/api/community'
-import ActivityTimeline from './components/ActivityTimeline.vue'
-import RiskDashboard from './components/RiskDashboard.vue'
-import DayTrajectory from './components/DayTrajectory.vue'
-import TrendCharts from './components/TrendCharts.vue'
+import { useUserStore } from '@/stores/user'
+import { getMockElderDetail } from '@/mocks/elders'
+import { uploadElderAvatar } from '@/api/community'
+import DashboardIcon from '@/components/DashboardIcon.vue'
+import PageTopbar from '@/components/PageTopbar.vue'
+import ElderCareSidebar from './components/ElderCareSidebar.vue'
+import ElderCreateDialog from './components/ElderCreateDialog.vue'
+import ElderDailyActivity from './components/ElderDailyActivity.vue'
+import ElderProfileSummary from './components/ElderProfileSummary.vue'
 
 const route = useRoute()
-const store = useEldersStore()
-const pageLoading = ref(false)
-const riskRefreshing = ref(false)
-const aiResult = ref(null)
-const aiLoading = ref(false)
-
-const elderName = computed(() => store.current?.elder?.name || store.current?.elder_name || '')
-const elderAddress = computed(() => store.current?.elder?.address || store.current?.address || '未分配地址')
-const elderPhone = computed(() => store.current?.elder?.phone || store.current?.elder_phone || '')
-const emergencyPhone = computed(() => store.current?.elder?.emergency_contact?.phone || store.current?.emergency_contact_phone || '')
-const careLevel = computed(() => store.current?.elder?.care_level || store.current?.care_level)
-
-const levelClass = computed(() => ({
-  A: 'bg-primary', B: 'bg-accent', C: 'bg-secondary',
-}[careLevel.value] || 'bg-inactive-gray'))
-
-const levelBadge = computed(() => ({
-  A: 'bg-primary/10 text-primary',
-  B: 'bg-accent/10 text-accent',
-  C: 'bg-secondary/10 text-secondary',
-}[careLevel.value] || 'bg-surface-container text-on-surface-variant'))
-
-const riskData = computed(() => store.current?.risk || {})
-
-const riskBgClass = computed(() => {
-  const level = riskData.value?.level
-  return {
-    normal: 'bg-secondary', attention: 'bg-accent',
-    warning: 'bg-warning', critical: 'bg-primary',
-  }[level] || 'bg-inactive-gray'
-})
-
-const riskLevelLabel = computed(() => ({
-  normal: '正常', attention: '关注', warning: '预警', critical: '高危',
-}[riskData.value?.level] || '—'))
+const router = useRouter()
+const dashboardStore = useDashboardStore()
+const eldersStore = useEldersStore()
+const userStore = useUserStore()
+const search = ref('')
+const loading = ref(false)
+const editOpen = ref(false)
+const submitting = ref(false)
+const elderId = computed(() => String(route.params.id || ''))
+const mockDetail = computed(() => getMockElderDetail(elderId.value))
+const isMock = computed(() => Boolean(mockDetail.value))
+const detail = computed(() => mockDetail.value || eldersStore.current)
+const timelineItems = computed(() => isMock.value
+  ? mockDetail.value.recent_timeline
+  : eldersStore.timeline.length ? eldersStore.timeline : detail.value?.recent_timeline || [])
+const workerName = computed(() => userStore.worker?.name || '社工')
 
 onMounted(async () => {
-  pageLoading.value = true
-  try {
-    await store.loadDetail(route.params.id)
-    await store.loadTimeline(route.params.id)
-  } catch {
-    ElMessage.error('加载老人详情失败')
-  } finally {
-    pageLoading.value = false
-  }
+  if (!dashboardStore.data) dashboardStore.load()
+  if (isMock.value) return
+  loading.value = true
+  await Promise.all([
+    eldersStore.loadDetail(elderId.value),
+    eldersStore.loadTimeline(elderId.value),
+  ])
+  loading.value = false
 })
 
-async function handleRefreshRisk() {
-  riskRefreshing.value = true
+function searchElders() {
+  router.push({ path: '/elders', query: search.value.trim() ? { search: search.value.trim() } : {} })
+}
+
+async function confirmActivity() {
+  if (detail.value?.today_active) {
+    ElMessage.info('今日活动已确认')
+    return
+  }
+  if (isMock.value) {
+    mockDetail.value.today_active = true
+    ElMessage.success('已确认今日活动（演示数据）')
+    return
+  }
   try {
-    const data = await recalculateRisk(route.params.id)
-    if (store.current) {
-      store.current.risk = {
-        score: data.risk_score,
-        level: data.risk_level,
-        details: data.risk_details,
-        calculated_at: new Date().toISOString(),
-      }
+    await dashboardStore.confirmActive(elderId.value)
+    if (eldersStore.current) eldersStore.current.today_active = true
+    ElMessage.success('已确认今日活动')
+  } catch {
+    // 请求层已展示错误信息
+  }
+}
+
+function showPending(name) {
+  ElMessage.info(`${name}的数据写入接口暂未提供，当前已完成界面流程`)
+}
+
+async function saveElder(payload) {
+  submitting.value = true
+  try {
+    if (isMock.value) {
+      const { emergency_contact_name, emergency_contact_phone, ...elderData } = payload
+      Object.assign(mockDetail.value.elder, elderData, {
+        emergency_contact: { name: emergency_contact_name, phone: emergency_contact_phone },
+      })
+      ElMessage.success('演示档案已更新')
+    } else {
+      await eldersStore.update(elderId.value, payload)
+      await eldersStore.loadDetail(elderId.value)
+      ElMessage.success('老人信息已更新')
     }
+    editOpen.value = false
   } catch {
-    ElMessage.error('风险评分刷新失败')
+    // 请求层已展示错误信息
   } finally {
-    riskRefreshing.value = false
+    submitting.value = false
   }
 }
 
-async function handleRequestAi() {
-  aiLoading.value = true
+async function uploadAvatar({ file, preview }) {
+  const previous = detail.value.elder.avatar_url
+  detail.value.elder.avatar_url = preview
+  if (isMock.value) {
+    ElMessage.success('演示头像已在本地更新')
+    return
+  }
+  const data = new FormData()
+  data.append('file', file)
   try {
-    aiResult.value = await getAiAnalysis(route.params.id)
+    const result = await uploadElderAvatar(elderId.value, data)
+    detail.value.elder.avatar_url = result.url
+    ElMessage.success('头像已更新')
   } catch {
-    ElMessage.error('AI 分析请求失败')
-  } finally {
-    aiLoading.value = false
+    detail.value.elder.avatar_url = previous
   }
-}
-
-function formatDateTime(d) {
-  if (!d) return '—'
-  return new Date(d).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 </script>
+
+<style scoped>
+.elder-detail-page {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  grid-template-rows: auto 34px auto minmax(0, 1fr);
+  gap: 10px;
+}
+.breadcrumb { display: flex; align-items: center; gap: 12px; min-width: 0; color: #7a8190; font-size: 12px; }
+.breadcrumb button { display: flex; align-items: center; gap: 8px; padding: 0; border: 0; color: #677387; background: transparent; font-size: 12px; cursor: pointer; }
+.breadcrumb button :deep(.dashboard-icon) { font-size: 15px; }.breadcrumb b { color: #2e3d54; font-size: 13px; }
+.detail-grid { display: grid; min-height: 0; grid-template-columns: minmax(0, 1.72fr) minmax(340px, .98fr); gap: 12px; }
+.page-state { display: grid; min-height: 360px; place-items: center; align-content: center; gap: 8px; color: #91867c; border: 1px solid #e5ddd5; border-radius: 11px; background: rgba(255,255,255,.72); }
+.page-state > span { color: #c85b43; font-size: 40px; }.page-state p { margin: 0; font-size: 14px; }.page-state button { height: 36px; padding: 0 20px; border: 1px solid #d85a42; border-radius: 7px; color: #d2543d; background: #fff; cursor: pointer; }
+.spinning { animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
+@media (max-width: 1050px) {
+  .elder-detail-page { height: auto; min-height: 100%; grid-template-rows: auto 34px auto auto; }
+  .detail-grid { grid-template-columns: 1fr; }
+}
+</style>

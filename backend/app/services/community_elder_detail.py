@@ -44,8 +44,10 @@ async def get_elder_full_detail(
     elder_info = {
         "id": str(elder_record.id),
         "name": user.nickname,
+        "avatar_url": user.avatar_url,
         "phone": user.phone,
         "care_level": elder_record.care_level,
+        "gender": elder_record.gender,
         "address": elder_record.address,
         "health_notes": elder_record.health_notes,
         "emergency_contact": {

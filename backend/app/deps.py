@@ -68,7 +68,6 @@ async def get_current_worker(
 
     current_community_id = payload.get("current_community_id")
     if current_community_id:
-        from uuid import UUID
         worker.community_id = UUID(current_community_id)
 
     return worker

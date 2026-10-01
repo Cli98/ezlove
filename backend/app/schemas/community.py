@@ -8,6 +8,7 @@ from datetime import datetime
 class ElderCreate(BaseModel):
     elder_id: UUID
     care_level: Literal["A", "B", "C"]
+    gender: Literal["男", "女", "其他"] | None = None
     address: str | None = None
     emergency_contact_name: str | None = None
     emergency_contact_phone: str | None = None
@@ -16,7 +17,10 @@ class ElderCreate(BaseModel):
 
 
 class ElderUpdate(BaseModel):
+    name: str | None = None
+    avatar_url: str | None = None
     care_level: Literal["A", "B", "C"] | None = None
+    gender: Literal["男", "女", "其他"] | None = None
     address: str | None = None
     emergency_contact_name: str | None = None
     emergency_contact_phone: str | None = None
@@ -29,6 +33,7 @@ class ElderResponse(BaseModel):
     community_id: UUID
     elder_id: UUID
     care_level: str
+    gender: str | None
     address: str | None
     emergency_contact_name: str | None
     emergency_contact_phone: str | None

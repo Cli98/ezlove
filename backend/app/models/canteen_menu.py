@@ -1,6 +1,7 @@
 import uuid
 from datetime import date, datetime
 from sqlalchemy import String, Date, ForeignKey, UniqueConstraint, func, JSON
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
 
@@ -15,7 +16,7 @@ class CanteenMenu(Base):
     community_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("communities.id"))
     menu_date: Mapped[date] = mapped_column(Date, index=True)
     meal_type: Mapped[str] = mapped_column(String(16), default="lunch")
-    dishes: Mapped[dict] = mapped_column(JSON)
+    dishes: Mapped[dict] = mapped_column(JSONB().with_variant(JSON(), "sqlite"))
     status: Mapped[str] = mapped_column(String(16), default="draft")
     generated_by: Mapped[str] = mapped_column(String(16), default="ai")
     published_by: Mapped[uuid.UUID | None] = mapped_column(

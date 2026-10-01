@@ -38,6 +38,13 @@ request.interceptors.response.use(
   response => response.data,
   async error => {
     const originalRequest = error.config
+    const isLoginRequest = originalRequest?.url?.includes('/community/auth/login')
+
+    if (error.response?.status === 401 && isLoginRequest) {
+      ElMessage.error(error.response?.data?.detail || '手机号或密码错误')
+      return Promise.reject(error)
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       const refreshToken = localStorage.getItem('community_refresh_token')
       if (!refreshToken) {
@@ -72,8 +79,11 @@ request.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${newToken}`
         return request(originalRequest)
       } catch (refreshError) {
-        clearAuth()
-        ElMessage.error('登录已过期，请重新登录')
+        // 旧请求失败时，不覆盖其他标签页刚完成的新登录。
+        if (localStorage.getItem('community_refresh_token') === refreshToken) {
+          clearAuth()
+          ElMessage.error('登录已过期，请重新登录')
+        }
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false

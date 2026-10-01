@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, timezone, date
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.community import Community, CommunityWorker, CommunityElder
@@ -23,13 +23,25 @@ async def create_elder_record(
 async def update_elder_record(
     db: AsyncSession,
     elder_record_id: uuid.UUID,
+    community_id: uuid.UUID,
     updates: dict,
 ) -> CommunityElder:
-    stmt = select(CommunityElder).where(CommunityElder.id == elder_record_id)
+    stmt = select(CommunityElder).where(
+        CommunityElder.id == elder_record_id,
+        CommunityElder.community_id == community_id,
+    )
     result = await db.execute(stmt)
     elder = result.scalar_one_or_none()
     if not elder:
         raise ValueError("老人档案不存在")
+    name = updates.pop("name", None)
+    avatar_url = updates.pop("avatar_url", None)
+    if name is not None or avatar_url is not None:
+        user = await db.get(User, elder.elder_id)
+        if name is not None:
+            user.nickname = name
+        if avatar_url is not None:
+            user.avatar_url = avatar_url
     for key, value in updates.items():
         setattr(elder, key, value)
     await db.commit()
@@ -42,18 +54,26 @@ async def list_elders(
     community_id: uuid.UUID,
     care_level: str | None = None,
     search: str | None = None,
+    area: str | None = None,
+    follow_up_only: bool = False,
     offset: int = 0,
     limit: int = 20,
 ) -> list[dict]:
     stmt = (
-        select(CommunityElder, User.nickname, User.phone)
+        select(CommunityElder, User.nickname, User.phone, User.avatar_url)
         .join(User, CommunityElder.elder_id == User.id)
         .where(CommunityElder.community_id == community_id)
     )
     if care_level:
         stmt = stmt.where(CommunityElder.care_level == care_level)
     if search:
-        stmt = stmt.where(User.nickname.ilike(f"%{search}%"))
+        stmt = stmt.where(or_(User.nickname.ilike(f"%{search}%"), CommunityElder.address.ilike(f"%{search}%")))
+    if area:
+        stmt = stmt.where(CommunityElder.address.ilike(f"%{area}%"))
+    if follow_up_only:
+        today_start = datetime.combine(date.today(), datetime.min.time())
+        active_ids = select(ViewEvent.viewer_id).where(ViewEvent.viewed_at >= today_start)
+        stmt = stmt.where(CommunityElder.elder_id.not_in(active_ids))
     stmt = stmt.order_by(CommunityElder.created_at.desc())
     stmt = stmt.offset(offset).limit(limit)
 
@@ -76,6 +96,7 @@ async def list_elders(
             **row[0].__dict__,
             "elder_name": row[1],
             "elder_phone": row[2],
+            "avatar_url": row[3],
             "today_active": row[0].elder_id in active_ids,
         }
         for row in rows
@@ -87,6 +108,8 @@ async def count_elders(
     community_id: uuid.UUID,
     care_level: str | None = None,
     search: str | None = None,
+    area: str | None = None,
+    follow_up_only: bool = False,
 ) -> int:
     stmt = (
         select(func.count(CommunityElder.id))
@@ -96,7 +119,13 @@ async def count_elders(
     if care_level:
         stmt = stmt.where(CommunityElder.care_level == care_level)
     if search:
-        stmt = stmt.where(User.nickname.ilike(f"%{search}%"))
+        stmt = stmt.where(or_(User.nickname.ilike(f"%{search}%"), CommunityElder.address.ilike(f"%{search}%")))
+    if area:
+        stmt = stmt.where(CommunityElder.address.ilike(f"%{area}%"))
+    if follow_up_only:
+        today_start = datetime.combine(date.today(), datetime.min.time())
+        active_ids = select(ViewEvent.viewer_id).where(ViewEvent.viewed_at >= today_start)
+        stmt = stmt.where(CommunityElder.elder_id.not_in(active_ids))
     result = await db.execute(stmt)
     return result.scalar() or 0
 
