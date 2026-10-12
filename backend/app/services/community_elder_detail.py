@@ -12,6 +12,7 @@ from app.utils import datetime as ez_dt
 from app.models.care_relation import CareRelation
 from app.models.alert import Alert
 from app.services.timeline import get_elder_timeline, get_activity_summary
+from app.utils.elder_profile import read_elder_profile
 
 WEEKDAY_LABELS = ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
 
@@ -42,13 +43,17 @@ async def get_elder_full_detail(
     elder_record, user = row
 
     # 2. Build elder info block
+    profile = read_elder_profile(elder_record.health_notes)
     elder_info = {
         "id": str(elder_record.id),
         "name": user.nickname,
         "phone": user.phone,
+        "age": profile["elder_age"],
+        "gender": profile["elder_gender"],
+        "living_status": profile["living_status"],
         "care_level": elder_record.care_level,
         "address": elder_record.address,
-        "health_notes": elder_record.health_notes,
+        "health_notes": profile["health_notes"],
         "emergency_contact": {
             "name": elder_record.emergency_contact_name,
             "phone": elder_record.emergency_contact_phone,

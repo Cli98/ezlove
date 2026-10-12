@@ -17,7 +17,7 @@
       <template #cell-address="{ row }"><b class="address" :title="row.address || '未分配地址'">{{ row.address || '未分配地址' }}</b></template>
       <template #cell-status="{ row }"><span :class="['today-status', { 'today-status--active': row.today_active }]"><i></i>{{ row.today_active ? '今日有动态' : '暂无新动态' }}</span></template>
       <template #cell-risk="{ row }"><span :class="['risk', `risk--${riskInfo(row).tone}`]">{{ riskInfo(row).text }}</span></template>
-      <template #cell-note="{ row }"><p class="health-note" :title="row.health_notes || '暂无健康备注'">{{ row.health_notes || '暂无健康备注' }}</p></template>
+      <template #cell-profile="{ row }"><p class="profile-info" :title="profileInfo(row)">{{ profileInfo(row) }}</p></template>
       <template #cell-action="{ row }"><AppButton variant="link" @click="$emit('view', row.id)">查看档案</AppButton></template>
     </AppTable>
     <AppPagination :total="total" :page="page" :page-size="pageSize" :total-pages="totalPages" @page="$emit('page', $event)" @page-size="$emit('page-size', $event)" />
@@ -39,7 +39,7 @@ const columns = [
   { key: 'address', label: '楼栋 / 门牌', width: '20%' },
   { key: 'status', label: '今日状态', width: '14%' },
   { key: 'risk', label: '风险', width: '12%' },
-  { key: 'note', label: '健康备注', width: '20%' },
+  { key: 'profile', label: '年龄 / 性别 / 居住', width: '20%' },
   { key: 'action', label: '操作', width: '10%' },
 ]
 
@@ -50,6 +50,11 @@ function riskInfo(row) {
   if (['warning', 'attention'].includes(row.risk_level)) return { tone: 'warning', text: `关注${score}` }
   if (['normal', 'low'].includes(row.risk_level)) return { tone: 'normal', text: `正常${score}` }
   return { tone: 'muted', text: '待评估' }
+}
+
+function profileInfo(row) {
+  const age = row.elder_age ? `${row.elder_age}岁` : '年龄待补充'
+  return `${age} · ${row.elder_gender || '性别待补充'} | ${row.living_status || '居住情况待补充'}`
 }
 
 function initialOf(row) { return (row.elder_name || '长').trim().slice(0, 1) }
@@ -64,5 +69,5 @@ function initialOf(row) { return (row.elder_name || '长').trim().slice(0, 1) }
 .level { display: inline-flex; min-width: 46px; height: 31px; align-items: center; justify-content: center; border-radius: 7px; font-size: 13px; font-weight: 800; }.level--A { color: #c6533d; background: #fae9e1; }.level--B { color: #c17b25; background: #fbefdd; }.level--C { color: #56826a; background: #e6f0e9; }
 .today-status i { width: 9px; height: 9px; flex: none; border-radius: 50%; background: #b7b5af; box-shadow: 0 0 0 4px #f1efeb; }.today-status--active i { background: #6b9878; box-shadow: 0 0 0 4px #e4eee7; }
 .risk { display: inline-flex; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 700; }.risk--danger { color: #c6533d; background: #fae9e1; }.risk--warning { color: #b87923; background: #fbefdd; }.risk--normal { color: #56826a; background: #e6f0e9; }.risk--muted { color: #767b82; background: #efefed; }
-.health-note { overflow: hidden; margin: 0; color: #6f716f; font-size: 12px; white-space: nowrap; text-overflow: ellipsis; }
+.profile-info { overflow: hidden; margin: 0; color: #6f716f; font-size: 12px; white-space: nowrap; text-overflow: ellipsis; }
 </style>

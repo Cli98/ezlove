@@ -13,6 +13,7 @@ from app.models.canteen import CanteenRecord
 from app.models.view_event import ViewEvent
 from app.models.user import User
 from app.utils import datetime as ez_dt
+from app.utils.elder_profile import read_elder_profile
 
 HEADER_FONT = Font(bold=True, size=11)
 HEADER_FILL = PatternFill(start_color="F5EFE7", end_color="F5EFE7", fill_type="solid")
@@ -56,19 +57,22 @@ async def export_elder_list(db: AsyncSession, community_id: uuid.UUID) -> bytes:
     wb = Workbook()
     ws = wb.active
     ws.title = "老人名单"
-    ws.append(["姓名", "护理等级", "地址", "风险评分", "风险等级", "紧急联系人", "联系电话", "健康备注", "负责网格员"])
+    ws.append(["姓名", "年龄", "性别", "居住情况", "护理等级", "地址", "风险评分", "风险等级", "紧急联系人", "联系电话", "负责网格员"])
     _style_header(ws)
 
     for elder, nickname in rows:
+        profile = read_elder_profile(elder.health_notes)
         ws.append([
             nickname or "—",
+            profile["elder_age"] or "—",
+            profile["elder_gender"] or "—",
+            profile["living_status"] or "—",
             elder.care_level,
             elder.address or "—",
             elder.risk_score,
             elder.risk_level or "—",
             elder.emergency_contact_name or "—",
             elder.emergency_contact_phone or "—",
-            elder.health_notes or "—",
             worker_map.get(elder.assigned_worker_id, "—"),
         ])
 

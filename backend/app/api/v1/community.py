@@ -48,9 +48,9 @@ async def create_elder(
     db: AsyncSession = Depends(get_db),
 ):
     elder = await community_service.create_elder_record(
-        db, worker.community_id, data.model_dump()
+        db, worker.community_id, data.model_dump(exclude_unset=True)
     )
-    return elder
+    return await community_service.get_elder_detail(db, elder.id, worker.community_id)
 
 
 @router.put("/elders/{elder_id}", response_model=ElderResponse)
@@ -64,7 +64,7 @@ async def update_elder(
         elder = await community_service.update_elder_record(
             db, worker.community_id, elder_id, data.model_dump(exclude_unset=True)
         )
-        return elder
+        return await community_service.get_elder_detail(db, elder.id, worker.community_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 

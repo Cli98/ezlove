@@ -1,12 +1,16 @@
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from uuid import UUID
 from datetime import datetime
 
 
 class ElderCreate(BaseModel):
     elder_id: UUID
+    elder_name: str | None = Field(default=None, max_length=32)
+    elder_age: int | None = Field(default=None, ge=0, le=130)
+    elder_gender: Literal["男", "女"] | None = None
+    living_status: str | None = Field(default=None, max_length=32)
     care_level: Literal["A", "B", "C"]
     address: str | None = None
     emergency_contact_name: str | None = None
@@ -16,6 +20,10 @@ class ElderCreate(BaseModel):
 
 
 class ElderUpdate(BaseModel):
+    elder_name: str | None = Field(default=None, max_length=32)
+    elder_age: int | None = Field(default=None, ge=0, le=130)
+    elder_gender: Literal["男", "女"] | None = None
+    living_status: str | None = Field(default=None, max_length=32)
     care_level: Literal["A", "B", "C"] | None = None
     address: str | None = None
     emergency_contact_name: str | None = None
@@ -37,6 +45,9 @@ class ElderResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     elder_name: str | None = None
+    elder_age: int | None = None
+    elder_gender: str | None = None
+    living_status: str | None = None
     elder_phone: str | None = None
     today_active: bool = False
     model_config = {"from_attributes": True}

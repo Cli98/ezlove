@@ -6,6 +6,7 @@ from app.models.community import Community, CommunityWorker, CommunityElder
 from app.models.user import User
 from app.models.view_event import ViewEvent
 from app.utils import datetime as ez_dt
+from app.utils.elder_profile import PROFILE_FIELDS, read_elder_profile, write_elder_profile
 
 
 async def create_elder_record(
@@ -13,8 +14,17 @@ async def create_elder_record(
     community_id: uuid.UUID,
     data: dict,
 ) -> CommunityElder:
+    data = data.copy()
+    elder_name = data.pop("elder_name", None)
+    profile_updates = {field: data.pop(field) for field in PROFILE_FIELDS if field in data}
+    if profile_updates:
+        data["health_notes"] = write_elder_profile(data.get("health_notes"), profile_updates)
     elder = CommunityElder(community_id=community_id, **data)
     db.add(elder)
+    if elder_name:
+        user = await db.get(User, elder.elder_id)
+        if user:
+            user.nickname = elder_name
     await db.commit()
     await db.refresh(elder)
     return elder
@@ -35,6 +45,19 @@ async def update_elder_record(
     elder = result.scalar_one_or_none()
     if not elder:
         raise ValueError("老人档案不存在")
+    updates = updates.copy()
+    elder_name = updates.pop("elder_name", None)
+    profile_updates = {field: updates.pop(field) for field in PROFILE_FIELDS if field in updates}
+    notes_provided = "health_notes" in updates
+    health_notes = updates.pop("health_notes", elder.health_notes)
+    if profile_updates:
+        elder.health_notes = write_elder_profile(health_notes, profile_updates)
+    elif notes_provided:
+        elder.health_notes = health_notes
+    if elder_name is not None:
+        user = await db.get(User, elder.elder_id)
+        if user:
+            user.nickname = elder_name
     for key, value in updates.items():
         setattr(elder, key, value)
     await db.commit()
@@ -76,15 +99,18 @@ async def list_elders(
     active_result = await db.execute(active_stmt)
     active_ids = set(active_result.scalars().all())
 
-    return [
-        {
+    items = []
+    for row in rows:
+        profile = read_elder_profile(row[0].health_notes)
+        items.append({
             **{k: v for k, v in row[0].__dict__.items() if not k.startswith("_sa")},
             "elder_name": row[1],
             "elder_phone": row[2],
+            **{field: profile[field] for field in PROFILE_FIELDS},
+            "health_notes": profile["health_notes"],
             "today_active": row[0].elder_id in active_ids,
-        }
-        for row in rows
-    ]
+        })
+    return items
 
 
 async def count_elders(
@@ -123,8 +149,11 @@ async def get_elder_detail(
     row = result.one_or_none()
     if not row:
         return None
+    profile = read_elder_profile(row[0].health_notes)
     return {
         **{k: v for k, v in row[0].__dict__.items() if not k.startswith("_sa")},
         "elder_name": row[1],
         "elder_phone": row[2],
+        **{field: profile[field] for field in PROFILE_FIELDS},
+        "health_notes": profile["health_notes"],
     }
