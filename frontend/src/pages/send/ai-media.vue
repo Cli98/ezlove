@@ -1,20 +1,18 @@
 <template>
   <view class="ai-media-page">
     <!-- Top Bar -->
-    <view class="top-bar">
-      <view class="top-bar-left">
-        <view class="back-btn" @tap="goBack">
-          <text class="back-icon">‹</text>
-        </view>
-        <text class="top-bar-title">AI 创作</text>
+    <view class="top-bar" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
+      <view class="back-btn" @tap="goBack">
+        <image class="back-icon" src="/static/icons/arrow-back.svg" mode="aspectFit" />
       </view>
-      <view class="points-badge" v-if="balance !== null">
-        <image class="points-icon-img" src="/static/icons/star.svg" mode="aspectFit" />
-        <text class="points-text">{{ balance.available_points }}</text>
-      </view>
+      <text class="top-bar-title app-nav-title-center" :style="navMetrics.titleStyle">AI 创作</text>
     </view>
 
-    <view class="page-body">
+    <view class="page-body" :style="{ paddingTop: `${navMetrics.totalHeight + 8}px` }">
+      <view class="media-hero">
+        <text class="media-hero__title">让照片里的回忆，\n重新有温度</text>
+        <text class="media-hero__desc">选择现有能力，AI 会先生成结果供你确认</text>
+      </view>
       <!-- 积分余额卡片 -->
       <view class="balance-card" v-if="balance !== null">
         <view class="balance-card__row">
@@ -31,11 +29,11 @@
       </view>
 
       <!-- 功能选择 -->
-      <view class="section-label">选择 AI 功能</view>
+      <view class="section-label">选择创作方式</view>
 
       <view class="feature-list">
         <!-- 照片生成视频 -->
-        <view class="feature-card" :class="{ 'feature-card--disabled': processing }" @tap="selectFeature('video')">
+        <view class="feature-card" :class="{ 'feature-card--active': selectedFeature === 'video', 'feature-card--disabled': processing }" @tap="selectFeature('video')">
           <view class="feature-card__icon feature-card__icon--video">
             <image class="feature-icon-img" src="/static/icons/video.svg" mode="aspectFit" />
           </view>
@@ -50,7 +48,7 @@
         </view>
 
         <!-- 老照片修复 -->
-        <view class="feature-card" :class="{ 'feature-card--disabled': processing }" @tap="selectFeature('restore')">
+        <view class="feature-card" :class="{ 'feature-card--active': selectedFeature === 'restore', 'feature-card--disabled': processing }" @tap="selectFeature('restore')">
           <view class="feature-card__icon feature-card__icon--restore">
             <image class="feature-icon-img" src="/static/icons/photo-restore.svg" mode="aspectFit" />
           </view>
@@ -65,7 +63,7 @@
         </view>
 
         <!-- 照片动画化 -->
-        <view class="feature-card" :class="{ 'feature-card--disabled': processing }" @tap="selectFeature('animate')">
+        <view class="feature-card" :class="{ 'feature-card--active': selectedFeature === 'animate', 'feature-card--disabled': processing }" @tap="selectFeature('animate')">
           <view class="feature-card__icon feature-card__icon--animate">
             <image class="feature-icon-img" src="/static/icons/sparkle.svg" mode="aspectFit" />
           </view>
@@ -84,7 +82,7 @@
       <view class="section-label" style="margin-top: 32rpx;">选择照片</view>
       <view class="photo-area">
         <view v-if="!localImage" class="photo-picker" @tap="choosePhoto">
-          <text class="photo-picker__icon">+</text>
+          <image class="photo-picker__icon" src="/static/icons/add-photo.svg" mode="aspectFit" />
           <text class="photo-picker__text">选择一张照片</text>
         </view>
         <view v-else class="photo-preview">
@@ -152,8 +150,10 @@ import { getPointBalance } from "@/api/points";
 import { getAiMediaCost, generateVideo, restorePhoto, animatePhoto } from "@/api/ai-media";
 import { uploadFile } from "@/api/upload";
 import { useMomentStore } from "@/stores/moment";
+import { getNavigationBarMetrics } from "@/utils/navigation";
 
 const momentStore = useMomentStore();
+const navMetrics = getNavigationBarMetrics();
 
 const elderId = ref("");
 const balance = ref(null);
@@ -315,18 +315,11 @@ function goBack() {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-sizing: content-box;
   padding: 0 $sp-24;
-  padding-top: var(--status-bar-height, 50rpx);
-  height: calc(var(--status-bar-height, 50rpx) + 112rpx);
   background: rgba($c-bg, 0.9);
   backdrop-filter: blur(24rpx);
   -webkit-backdrop-filter: blur(24rpx);
-}
-
-.top-bar-left {
-  display: flex;
-  align-items: center;
-  gap: $sp-16;
 }
 
 .back-btn {
@@ -339,8 +332,8 @@ function goBack() {
 }
 
 .back-icon {
-  font-size: 48rpx;
-  color: $c-text-sub;
+  width: 34rpx;
+  height: 34rpx;
 }
 
 .top-bar-title {
@@ -349,29 +342,8 @@ function goBack() {
   color: $c-text;
 }
 
-.points-badge {
-  display: flex;
-  align-items: center;
-  gap: $sp-6;
-  padding: $sp-6 $sp-16;
-  background: rgba($c-accent, 0.12);
-  border-radius: $r-full;
-}
-
-.points-icon-img {
-  width: 28rpx;
-  height: 28rpx;
-}
-
-.points-text {
-  font-size: $fs-body-sm;
-  font-weight: $fw-bold;
-  color: $c-accent;
-}
-
 // ── Page Body ──
 .page-body {
-  padding-top: calc(var(--status-bar-height, 50rpx) + 112rpx + #{$sp-16});
   padding-left: $sp-24;
   padding-right: $sp-24;
   padding-bottom: 280rpx;
@@ -424,15 +396,18 @@ function goBack() {
 // ── Feature Cards ──
 .feature-list {
   display: flex;
-  flex-direction: column;
-  gap: $sp-16;
+  flex-direction: row;
+  gap: 14rpx;
 }
 
 .feature-card {
+  min-width: 0;
+  flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: $sp-16;
-  padding: $sp-20;
+  gap: 12rpx;
+  padding: 22rpx 10rpx;
   background: $c-surface;
   border-radius: $r-xl;
   box-shadow: $shadow-xs;
@@ -442,6 +417,12 @@ function goBack() {
   &:active {
     transform: scale(0.98);
     border-color: $c-primary;
+  }
+
+  &--active {
+    border-color: $c-primary;
+    background: $c-primary-surface;
+    box-shadow: 0 8rpx 24rpx rgba($c-primary, 0.12);
   }
 
   &--disabled {
@@ -470,39 +451,42 @@ function goBack() {
 }
 
 .feature-card__body {
-  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 
 .feature-card__title {
-  font-size: $fs-body;
+  font-size: 25rpx;
   font-weight: $fw-semibold;
   color: $c-text;
 }
 
 .feature-card__desc {
-  font-size: $fs-caption;
+  display: none;
   color: $c-text-sub;
   margin-top: $sp-2;
 }
 
 .feature-card__cost {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  gap: 4rpx;
   align-items: center;
   flex-shrink: 0;
   min-width: 80rpx;
 }
 
 .cost-num {
-  font-size: $fs-body;
+  font-size: 25rpx;
   font-weight: $fw-bold;
   color: $c-accent;
 }
 
 .cost-label {
-  font-size: $fs-caption;
+  font-size: 21rpx;
   color: $c-text-hint;
 }
 
@@ -529,8 +513,8 @@ function goBack() {
 }
 
 .photo-picker__icon {
-  font-size: 64rpx;
-  color: $c-primary;
+  width: 64rpx;
+  height: 64rpx;
 }
 
 .photo-picker__text {
@@ -734,4 +718,59 @@ function goBack() {
   font-weight: $fw-bold;
   color: $c-text-inverse;
 }
+</style>
+
+<style lang="scss" scoped>
+.ai-media-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 90% 8%, rgba($c-accent,.12), transparent 23%),
+    $gradient-page;
+}
+.top-bar { background: rgba($c-bg,.92); }
+.top-bar-title { color: $c-text; font-family: "Songti SC", "STSong", serif; font-size: 36rpx; font-weight: 800; }
+.back-btn { width: 76rpx; height: 76rpx; }
+.back-icon { width: 34rpx; height: 34rpx; }
+.page-body { padding-left: $sp-24; padding-right: $sp-24; padding-bottom: 210rpx; }
+.media-hero { margin: 26rpx 8rpx 32rpx; }
+.media-hero__title {
+  display: block;
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 50rpx;
+  font-weight: 900;
+  line-height: 1.22;
+  white-space: pre-line;
+}
+.media-hero__desc { display: block; margin-top: 10rpx; color: $c-text-sub; font-size: 27rpx; }
+.balance-card { border: 1rpx solid rgba($c-border,.7); border-radius: 26rpx; background: rgba(255,255,255,.75); box-shadow: $shadow-sm; }
+.section-label { margin: 30rpx 4rpx 16rpx; color: $c-text; font-family: "Songti SC", "STSong", serif; font-size: 32rpx; letter-spacing: 0; }
+.feature-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14rpx; }
+.feature-card {
+  min-height: 218rpx;
+  padding: 20rpx 10rpx 16rpx;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: center;
+  border: 2rpx solid transparent;
+  border-radius: 24rpx;
+  background: rgba(255,255,255,.8);
+  box-shadow: $shadow-sm;
+}
+.feature-card--active { border-color: $c-primary; background: $c-primary-surface; box-shadow: 0 10rpx 26rpx rgba($c-primary,.12); }
+.feature-card__icon { width: 66rpx; height: 66rpx; margin: 0 0 10rpx; }
+.feature-icon-img { width: 38rpx; height: 38rpx; }
+.feature-card__body { width: 100%; }
+.feature-card__title { display: block; font-family: "Songti SC", "STSong", serif; font-size: 26rpx; font-weight: 800; white-space: nowrap; }
+.feature-card__desc { display: none; }
+.feature-card__cost { margin-top: 8rpx; display: flex; flex-direction: row; align-items: baseline; gap: 4rpx; }
+.cost-num { font-size: 24rpx; color: $c-primary; }
+.cost-label { font-size: 21rpx; }
+.photo-area { border-radius: 28rpx; overflow: hidden; }
+.photo-picker { min-height: 360rpx; border-radius: 28rpx; border-color: $c-border; background: rgba(255,255,255,.72); }
+.photo-preview { height: 430rpx; border-radius: 28rpx; box-shadow: $shadow-md; }
+.style-chip { border-radius: $r-full; background: rgba(255,255,255,.8); }
+.style-chip--active { background: $c-primary-surface; border-color: $c-primary; }
+.bottom-bar { background: rgba($c-bg,.94); border-top-color: rgba($c-border,.7); backdrop-filter: blur(24rpx); }
+.generate-btn { min-height: 94rpx; border-radius: $r-full; background: $gradient-warm; box-shadow: $shadow-glow; }
 </style>

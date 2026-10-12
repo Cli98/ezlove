@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { getRelations, createInvite, bindByCode, deleteRelation } from "@/api/relation";
+import { getFullUrl } from "@/api/config";
 
 export const useRelationStore = defineStore("relation", () => {
   const relations = ref([]);
@@ -9,7 +10,11 @@ export const useRelationStore = defineStore("relation", () => {
   async function loadRelations() {
     loading.value = true;
     try {
-      relations.value = await getRelations();
+      const result = await getRelations();
+      relations.value = result.map((relation) => ({
+        ...relation,
+        elder_avatar_url: getFullUrl(relation.elder_avatar_url),
+      }));
     } finally {
       loading.value = false;
     }

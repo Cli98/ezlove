@@ -51,7 +51,7 @@ async def list_elders(
     limit: int = 20,
 ) -> list[dict]:
     stmt = (
-        select(CommunityElder, User.nickname, User.phone)
+        select(CommunityElder, User.nickname, User.phone, User.avatar_url, User.gender)
         .join(User, CommunityElder.elder_id == User.id)
         .where(CommunityElder.community_id == community_id)
     )
@@ -81,6 +81,8 @@ async def list_elders(
             **{k: v for k, v in row[0].__dict__.items() if not k.startswith("_sa")},
             "elder_name": row[1],
             "elder_phone": row[2],
+            "avatar_url": row[3],
+            "gender": row[4],
             "today_active": row[0].elder_id in active_ids,
         }
         for row in rows
@@ -112,7 +114,7 @@ async def get_elder_detail(
     community_id: uuid.UUID,
 ) -> dict | None:
     stmt = (
-        select(CommunityElder, User.nickname, User.phone)
+        select(CommunityElder, User.nickname, User.phone, User.avatar_url, User.gender)
         .join(User, CommunityElder.elder_id == User.id)
         .where(
             CommunityElder.id == elder_record_id,
@@ -127,4 +129,6 @@ async def get_elder_detail(
         **{k: v for k, v in row[0].__dict__.items() if not k.startswith("_sa")},
         "elder_name": row[1],
         "elder_phone": row[2],
+        "avatar_url": row[3],
+        "gender": row[4],
     }

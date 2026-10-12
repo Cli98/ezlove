@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
@@ -16,8 +17,27 @@ from app.services.moment import (
 router = APIRouter(prefix="/moments", tags=["moments"])
 
 
+async def _serialize_moments(db: AsyncSession, moments: list, read_ids: set[UUID]) -> list[MomentResponse]:
+    participant_ids = {user_id for moment in moments for user_id in (moment.sender_id, moment.elder_id)}
+    users = (await db.execute(
+        select(User.id, User.nickname, User.avatar_url).where(User.id.in_(participant_ids))
+    )).all() if participant_ids else []
+    profiles = {user_id: (nickname, avatar_url) for user_id, nickname, avatar_url in users}
+
+    result = []
+    for moment in moments:
+        response = MomentResponse.model_validate(moment)
+        response.is_read = moment.id in read_ids
+        response.sender_name, response.sender_avatar_url = profiles.get(moment.sender_id, (None, None))
+        response.elder_name, response.elder_avatar_url = profiles.get(moment.elder_id, (None, None))
+        result.append(response)
+    return result
+
+
 @router.post("", response_model=MomentResponse)
 async def send_moment(data: MomentCreate, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    if user.role != "family":
+        raise HTTPException(status_code=403, detail="仅家人可发送牵挂")
     try:
         moment = await create_moment(
             db, sender_id=user.id, elder_id=data.elder_id,
@@ -38,7 +58,9 @@ async def list_moments(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    role = user.role or "family"
+    if user.role not in {"family", "elder"}:
+        raise HTTPException(status_code=403, detail="请先选择身份")
+    role = user.role
     total = await count_moments_for_user(db, user.id, role)
     moments = await get_moments_for_user(
         db, user.id, role,
@@ -47,11 +69,7 @@ async def list_moments(
     # 批量查询已读状态，避免 N+1
     moment_ids = [m.id for m in moments]
     read_ids = await batch_get_read_moment_ids(db, moment_ids)
-    result = []
-    for m in moments:
-        resp = MomentResponse.model_validate(m)
-        resp.is_read = m.id in read_ids
-        result.append(resp)
+    result = await _serialize_moments(db, moments, read_ids)
     return PaginatedResponse.create(
         items=result, total=total,
         page=pagination["page"], page_size=pagination["page_size"],
@@ -60,7 +78,6 @@ async def list_moments(
 
 @router.get("/{moment_id}", response_model=MomentResponse)
 async def get_moment(moment_id: UUID, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    from sqlalchemy import select
     from app.models.care_moment import CareMoment
     result = await db.execute(
         select(CareMoment).where(
@@ -71,10 +88,8 @@ async def get_moment(moment_id: UUID, user: User = Depends(get_current_user), db
     moment = result.scalar_one_or_none()
     if not moment:
         raise HTTPException(status_code=404, detail="内容不存在")
-    read = await is_moment_read(db, moment.id, moment.elder_id)
-    resp = MomentResponse.model_validate(moment)
-    resp.is_read = read
-    return resp
+    read_ids = {moment.id} if await is_moment_read(db, moment.id, moment.elder_id) else set()
+    return (await _serialize_moments(db, [moment], read_ids))[0]
 
 
 @router.post("/{moment_id}/view")

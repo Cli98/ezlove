@@ -39,9 +39,14 @@ async def list_relations(user: User = Depends(get_current_user), db: AsyncSessio
         resp = RelationResponse.model_validate(r)
         elder_id = r.elder_user_id
         if elder_id:
-            # 查询老人昵称，用于前端展示
-            elder_result = await db.execute(select(User.nickname).where(User.id == elder_id))
-            resp.elder_name = elder_result.scalar_one_or_none()
+            # 同时返回老人账号昵称和头像，所有页面都使用同一份真实资料
+            elder_result = await db.execute(
+                select(User.nickname, User.avatar_url).where(User.id == elder_id)
+            )
+            elder = elder_result.one_or_none()
+            if elder:
+                resp.elder_name = elder.nickname
+                resp.elder_avatar_url = elder.avatar_url
 
             view_result = await db.execute(
                 select(ViewEvent)

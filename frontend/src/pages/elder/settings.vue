@@ -1,11 +1,16 @@
 <template>
-  <view class="page">
+  <view class="settings-page">
+    <view class="settings-nav" :style="navMetrics.barStyle">
+      <view class="settings-nav__back" @tap="goBack">
+        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+      </view>
+      <text class="settings-nav__title app-nav-title-center" :style="navMetrics.titleStyle">提醒设置</text>
+    </view>
+    <view class="settings-heading">
+      <text class="settings-heading__title">合适的提醒，\n让关心成为一种习惯</text>
+      <text class="settings-heading__subtitle">设置未读多久后提醒你</text>
+    </view>
     <view class="settings-card fade-in">
-      <text class="settings-title">提醒设置</text>
-      <text class="settings-desc">设置未读多久后提醒你</text>
-
-      <view class="divider" />
-
       <view class="setting-row">
         <view class="setting-left">
           <image class="setting-icon" src="/static/icons/clock.svg" mode="aspectFit" />
@@ -19,6 +24,11 @@
         </picker>
       </view>
     </view>
+
+    <view class="settings-note">
+      <image src="/static/icons/sun.svg" mode="aspectFit" />
+      <text>提醒是为了及时问候，不代表家人遇到危险。</text>
+    </view>
   </view>
 </template>
 
@@ -26,12 +36,18 @@
 import { ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { updateRelation } from "@/api/relation";
+import { getNavigationBarMetrics } from "@/utils/navigation";
 
 const relationId = ref("");
 const thresholdIndex = ref(2);
 const thresholdOptions = ["6小时", "8小时", "12小时", "24小时"];
 const thresholdValues = [6, 8, 12, 24];
 const saving = ref(false);
+const navMetrics = getNavigationBarMetrics();
+
+function goBack() {
+  uni.navigateBack();
+}
 
 onLoad((query) => {
   relationId.value = query.relationId;
@@ -60,39 +76,72 @@ async function onThresholdChange(e) {
 </script>
 
 <style lang="scss" scoped>
+.settings-page {
+  min-height: 100vh;
+  padding: 0 28rpx calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at 12% 92%, rgba($c-accent, 0.08), transparent 24%),
+    $c-bg;
+}
+
+.settings-nav {
+  box-sizing: content-box;
+  position: relative;
+  margin: 0 -28rpx;
+
+  &__back {
+    width: 72rpx;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  &__title { color: $c-text; font-family: "Songti SC", "STSong", serif; font-size: 36rpx; font-weight: 800; }
+  image { width: 34rpx; height: 34rpx; }
+}
+
+.settings-heading { padding: 32rpx 12rpx 42rpx; }
+.settings-heading__title {
+  display: block;
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 50rpx;
+  font-weight: 900;
+  line-height: 1.24;
+  white-space: pre-line;
+}
+.settings-heading__subtitle { display: block; margin-top: 8rpx; color: $c-text-sub; font-size: 28rpx; }
+
 .settings-card {
   background: $c-surface;
   border-radius: $r-xl;
-  padding: $sp-32;
+  padding: 20rpx 32rpx;
   box-shadow: $shadow-md;
   border: $border-subtle;
-}
-
-.settings-title {
-  font-size: $fs-title;
-  font-weight: $fw-bold;
-  color: $c-text;
-  display: block;
-}
-
-.settings-desc {
-  font-size: $fs-body;
-  color: $c-text-sub;
-  margin-top: $sp-4;
-  display: block;
-}
-
-.divider {
-  height: 1rpx;
-  background: $gradient-divider;
-  margin: $sp-24 0;
 }
 
 .setting-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: $sp-16 0;
+  min-height: 112rpx;
+  padding: 16rpx 0;
+}
+
+.settings-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 18rpx;
+  margin-top: 28rpx;
+  padding: 28rpx;
+  border-radius: 24rpx;
+  color: $c-text-sub;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 26rpx;
+  line-height: 1.7;
+
+  image { width: 38rpx; height: 38rpx; flex: none; }
 }
 
 .setting-left {

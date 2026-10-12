@@ -1,6 +1,16 @@
 <template>
   <view class="page-volunteer">
-    <view class="volunteer-content">
+    <view class="volunteer-nav" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
+      <view class="volunteer-nav__back" @tap="goBack">
+        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+      </view>
+      <text class="volunteer-nav__title app-nav-title-center" :style="navMetrics.titleStyle">邻里帮</text>
+    </view>
+    <view class="volunteer-content" :style="{ paddingTop: `${navMetrics.totalHeight + 14}px` }">
+      <view class="volunteer-hero">
+        <text class="volunteer-hero__title">邻里帮</text>
+        <text class="volunteer-hero__desc">把顺手的小事，变成社区的温暖</text>
+      </view>
       <!-- 加载中 -->
       <view v-if="volunteerStore.profileLoading" class="loading-center">
         <view class="loading-dot-wrap">
@@ -26,7 +36,7 @@
       <view v-else-if="!volunteerStore.profile" class="invite-section fade-in">
         <view class="invite-card">
           <view class="invite-icon-wrap">
-            <text class="invite-icon">&#x1F91D;</text>
+            <image class="invite-icon" src="/static/icons/neighbor-help.svg" mode="aspectFit" />
           </view>
           <text class="invite-title">加入邻里帮</text>
           <text class="invite-desc">
@@ -34,15 +44,15 @@
           </text>
           <view class="invite-features">
             <view class="invite-feature">
-              <text class="invite-feature__icon">&#x2615;</text>
+              <image class="invite-feature__icon" src="/static/icons/utensils.svg" mode="aspectFit" />
               <text class="invite-feature__text">探访长辈</text>
             </view>
             <view class="invite-feature">
-              <text class="invite-feature__icon">&#x1F3B5;</text>
+              <image class="invite-feature__icon" src="/static/icons/family.svg" mode="aspectFit" />
               <text class="invite-feature__text">陪伴聊天</text>
             </view>
             <view class="invite-feature">
-              <text class="invite-feature__icon">&#x1F381;</text>
+              <image class="invite-feature__icon" src="/static/icons/star.svg" mode="aspectFit" />
               <text class="invite-feature__text">积分兑换</text>
             </view>
           </view>
@@ -150,9 +160,16 @@
 import { ref, computed } from "vue";
 import { onShow, onPullDownRefresh } from "@dcloudio/uni-app";
 import { useVolunteerStore } from "@/stores/volunteer";
+import { getNavigationBarMetrics } from "@/utils/navigation";
 
 const volunteerStore = useVolunteerStore();
+const navMetrics = getNavigationBarMetrics();
 const errorLoading = ref(false);
+
+function goBack() {
+  if (getCurrentPages().length > 1) uni.navigateBack();
+  else uni.switchTab({ url: "/pages/profile/index" });
+}
 
 const myTasks = computed(() => {
   return volunteerStore.tasks.filter((t) => t.status === "accepted");
@@ -359,8 +376,8 @@ onPullDownRefresh(async () => {
 }
 
 .invite-icon {
-  font-size: 80rpx;
-  line-height: 1;
+  width: 84rpx;
+  height: 84rpx;
 }
 
 .invite-title {
@@ -393,8 +410,8 @@ onPullDownRefresh(async () => {
   gap: $sp-8;
 
   &__icon {
-    font-size: 48rpx;
-    line-height: 1;
+    width: 48rpx;
+    height: 48rpx;
   }
 
   &__text {
@@ -727,4 +744,94 @@ onPullDownRefresh(async () => {
     }
   }
 }
+</style>
+
+<style lang="scss" scoped>
+.page-volunteer {
+  background:
+    radial-gradient(circle at 90% 7%, rgba($c-accent,.11), transparent 24%),
+    $gradient-page;
+}
+.volunteer-nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 30;
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  padding-left: $sp-16;
+  background: rgba($c-bg,.92);
+  backdrop-filter: blur(24rpx);
+}
+.volunteer-nav__back {
+  width: 76rpx;
+  height: 76rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  image { width: 34rpx; height: 34rpx; }
+}
+.volunteer-nav__title {
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 36rpx;
+  font-weight: 800;
+}
+.volunteer-content { padding-left: $sp-24; padding-right: $sp-24; }
+.volunteer-hero { margin: 22rpx 8rpx 30rpx; }
+.volunteer-hero__title {
+  display: block;
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 58rpx;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.volunteer-hero__desc { display: block; margin-top: 8rpx; color: $c-text-sub; font-size: 28rpx; }
+.points-card {
+  padding: 30rpx;
+  border: 0;
+  border-radius: 30rpx;
+  background:
+    radial-gradient(circle at 92% 10%, rgba(255,255,255,.24), transparent 28%),
+    linear-gradient(135deg, #C84E3E, #E4835D);
+  color: white;
+  box-shadow: 0 18rpx 46rpx rgba($c-primary,.22);
+}
+.points-card__label,
+.points-card__number,
+.points-card__unit { color: white; }
+.points-card__badge { background: rgba(255,255,255,.18); border: 1rpx solid rgba(255,255,255,.35); }
+.points-card__badge-text,
+.points-card__badge-arrow { color: white; }
+.points-card__hint { color: rgba(255,255,255,.76); }
+.points-card__divider { background: rgba(255,255,255,.3); }
+.section {
+  margin-top: 26rpx;
+  padding: 26rpx;
+  border: 1rpx solid rgba($c-border,.72);
+  border-radius: 28rpx;
+  background: rgba(255,255,255,.78);
+  box-shadow: $shadow-sm;
+}
+.section__title {
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 36rpx;
+  font-weight: 900;
+}
+.section__count { color: $c-text-hint; }
+.task-card { border-radius: 22rpx; background: $c-bg; border: 1rpx solid $c-border-light; box-shadow: none; }
+.btn-complete { border-radius: $r-full; background: $gradient-warm; }
+.points-record { border-color: $c-border-light; }
+.invite-card {
+  padding: 42rpx 30rpx;
+  border: 1rpx solid rgba($c-border,.8);
+  border-radius: 34rpx;
+  background: rgba(255,255,255,.84);
+  box-shadow: $shadow-md;
+}
+.invite-title { font-family: "Songti SC", "STSong", serif; font-size: 44rpx; font-weight: 900; }
+.btn-register { border-radius: $r-full; background: $gradient-warm; box-shadow: $shadow-glow; }
 </style>

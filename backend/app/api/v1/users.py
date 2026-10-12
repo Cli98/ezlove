@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,6 +28,8 @@ async def update_me(data: UserUpdate, user: User = Depends(get_current_user), db
 
 @router.post("/check-in")
 async def self_check_in(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    if user.role != "elder":
+        raise HTTPException(status_code=403, detail="仅长辈可报平安")
     event = ViewEvent(viewer_id=user.id, moment_id=None)
     db.add(event)
     await db.commit()
@@ -37,6 +39,8 @@ async def self_check_in(user: User = Depends(get_current_user), db: AsyncSession
 
 @router.get("/check-in/today")
 async def get_today_check_in(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    if user.role != "elder":
+        raise HTTPException(status_code=403, detail="仅长辈可查看报平安状态")
     today_start = ez_dt.today_start()
     result = await db.execute(
         select(ViewEvent.viewed_at)

@@ -1,35 +1,27 @@
 <template>
-  <view class="page-home">
-    <!-- 顶部导航栏 -->
-    <view class="top-bar">
-      <view class="top-bar__left">
-        <view class="top-bar__avatar">
-          <text class="top-bar__avatar-text">{{ (userStore.profile?.nickname || '我')[0] }}</text>
-        </view>
-        <text class="top-bar__greeting">你好，{{ userStore.profile?.nickname || '家人' }}</text>
-      </view>
-      <view class="top-bar__bell" @tap="goAlerts">
-        <image class="top-bar__bell-icon" src="/static/icons/notification.svg" mode="aspectFit" />
-        <view v-if="alertStore.unresolvedCount > 0" class="top-bar__badge">
-          <text class="top-bar__badge-text">{{ alertStore.unresolvedCount > 99 ? '99+' : alertStore.unresolvedCount }}</text>
-        </view>
-      </view>
-    </view>
-
+  <view class="page-home" :class="{ 'page-home--elder': userStore.isElder }">
     <view class="home-content">
       <!-- 大字问候区域 -->
       <view class="greeting-section fade-in">
-        <text class="greeting-title" :class="{ 'greeting-title--elder': userStore.isElder }">{{ greeting }}</text>
-        <view class="greeting-sub-row">
-          <text class="greeting-sub" :class="{ 'greeting-sub--elder': userStore.isElder }">
-            {{ userStore.isFamily ? '今日牵挂状态' : '看看孩子们的分享' }}
-          </text>
-          <view class="pulse-dot"></view>
+        <view class="greeting-title" :class="{ 'greeting-title--elder': userStore.isElder }">
+          <text class="greeting-title__line">{{ greeting }}，</text>
+          <text class="greeting-title__line">{{ greetingHeadline }}</text>
         </view>
+        <text class="greeting-sub" :class="{ 'greeting-sub--elder': userStore.isElder }">
+          {{ userStore.isFamily ? '小小的问候，是最长情的陪伴' : '家人的牵挂，是最温暖的陪伴' }}
+        </text>
       </view>
 
       <!-- 子女端：绑定家人列表 -->
-      <view v-if="userStore.isFamily" class="elder-section">
+      <view v-if="userStore.isFamily" class="family-home">
+        <view class="family-focus-card fade-in stagger-1">
+          <view class="family-focus-card__head">
+            <view>
+              <text class="family-focus-card__title">今天的牵挂</text>
+              <text class="family-focus-card__sub">家人的近况，一目了然</text>
+            </view>
+            <image class="family-focus-card__heart" src="/static/brand/logo-mark.png" mode="aspectFit" />
+          </view>
         <view v-if="relationStore.loading" class="loading-center fade-in">
           <view class="loading-dot-wrap">
             <view class="loading-dot" />
@@ -37,9 +29,9 @@
             <view class="loading-dot" />
           </view>
         </view>
-        <view v-else-if="relationStore.relations.length === 0" class="empty-state fade-in stagger-1">
+        <view v-else-if="displayRelations.length === 0" class="empty-state fade-in stagger-1">
           <view class="empty-icon-wrap">
-            <image class="empty-icon" src="/static/icons/link.svg" mode="aspectFit" />
+            <image class="empty-icon" src="/static/icons/invite.svg" mode="aspectFit" />
           </view>
           <text class="empty-title">思念需要一个出口</text>
           <text class="empty-desc">邀请家人加入，让关心不再只放在心里</text>
@@ -48,52 +40,93 @@
 
         <view v-else class="elder-list">
           <view
-            v-for="(elder, index) in relationStore.relations"
+            v-for="(elder, index) in visibleRelations"
             :key="elder.id"
             class="elder-card fade-in"
             :class="'stagger-' + Math.min(index + 1, 4)"
             @tap="goElderStatus(elder)"
           >
             <view class="elder-card__left">
-              <view
-                class="elder-card__avatar"
-                :style="{ backgroundColor: getAvatarColor(index).bg }"
-              >
-                <text class="elder-card__avatar-text" :style="{ color: getAvatarColor(index).text }">
-                  {{ (elder.elder_name || elder.relation_label || '家')[0] }}
-                </text>
-              </view>
+              <image class="elder-card__avatar-image" :src="elderAvatar(elder, index)" mode="aspectFill" />
               <view class="elder-card__info">
                 <view class="elder-card__name-row">
                   <text class="elder-card__name">{{ elder.elder_name || elder.relation_label || '家人' }}</text>
-                  <view
-                    class="elder-card__badge"
-                    :class="elder.today_read ? 'elder-card__badge--read' : 'elder-card__badge--unread'"
-                  >
-                    <text>{{ elder.today_read ? '今日已读' : '今日未读' }}</text>
-                  </view>
                 </view>
-                <text class="elder-card__time">{{ elder.last_active_text || '暂无活跃记录' }}</text>
+                <view class="elder-card__status" :class="{ 'elder-card__status--read': elder.today_read }">
+                  <u-icon :name="elder.today_read ? 'checkmark-circle-fill' : 'clock-fill'" :color="elder.today_read ? '#6B9A72' : '#7E8790'" size="18" />
+                  <text>{{ elder.today_read ? '今天已看到' : '还没看到' }}</text>
+                </view>
+                <text class="elder-card__time">{{ elder.last_active_text || (elder.today_read ? '1小时前' : '上次查看：昨天') }}</text>
               </view>
             </view>
-            <image class="elder-card__chevron" src="/static/icons/chevron-right.svg" mode="aspectFit" />
+          </view>
+          </view>
+          <view v-if="displayRelations.length > 0" class="family-send-btn" @tap="goSend">
+            <image class="family-send-btn__icon" src="/static/icons/send.svg" mode="aspectFit" />
+            <view>
+              <text class="family-send-btn__title">发一条牵挂</text>
+              <text class="family-send-btn__sub">一句问候，让爱不缺席</text>
+            </view>
+          </view>
+        </view>
+
+        <view v-if="familyRecentMoments.length" class="recent-card fade-in stagger-2">
+          <view class="recent-card__head">
+            <text class="recent-card__title">最近动态</text>
+            <text class="recent-card__more" @tap="goHistory">查看更多 ›</text>
+          </view>
+          <view v-for="(m, index) in familyRecentMoments" :key="m.id" class="recent-item">
+            <view class="recent-item__dot" :class="{ 'recent-item__dot--read': m.is_read }" />
+            <image class="recent-item__avatar" :src="elderAvatar(m, index)" mode="aspectFill" />
+            <view class="recent-item__body">
+              <text class="recent-item__title">{{ elderDisplayName(m) }}{{ m.is_read ? ' 看到了你的牵挂' : ' 还没看到这条牵挂' }}</text>
+              <text class="recent-item__content">{{ m.text_content || '你发送了一份牵挂' }}</text>
+            </view>
+            <text v-if="m.created_at_text" class="recent-item__time">{{ m.created_at_text }}</text>
           </view>
         </view>
       </view>
 
       <!-- 老人端：查看子女发来的牵挂 -->
       <view v-else class="elder-home">
+        <view v-if="momentStore.loading" class="loading-center fade-in">
+          <view class="loading-dot-wrap">
+            <view class="loading-dot" />
+            <view class="loading-dot" />
+            <view class="loading-dot" />
+          </view>
+        </view>
+
+        <view v-else-if="latestMoment" class="elder-letter-card fade-in stagger-1" @tap="goViewDetail(latestMoment)">
+          <view class="elder-letter-card__head">
+            <image
+              v-if="senderAvatar(latestMoment)"
+              class="elder-letter-card__avatar-image"
+              :src="senderAvatar(latestMoment)"
+              mode="aspectFill"
+            />
+            <view v-else class="elder-letter-card__avatar-image elder-letter-card__avatar-fallback">
+              <text>{{ (latestMoment.sender_name || '家')[0] }}</text>
+            </view>
+            <view class="elder-letter-card__meta">
+              <text class="elder-letter-card__title">{{ latestMoment.sender_name || '家人' }}发来一条牵挂</text>
+              <text class="elder-letter-card__time">{{ formatRelativeTime(latestMoment.created_at) }}</text>
+            </view>
+          </view>
+          <text class="elder-letter-card__content">{{ latestMoment.text_content || '打开看看家人想对您说的话吧。' }}</text>
+        </view>
+
         <!-- 报平安按钮 -->
-        <view class="checkin-section fade-in stagger-1">
+        <view class="checkin-section fade-in stagger-2">
           <view
             class="checkin-btn"
             :class="[checkedInToday ? 'checkin-btn--done' : 'checkin-btn--active', { 'checkin-ripple': showRipple }]"
             @tap="handleCheckIn"
           >
-            <image
-              class="checkin-btn__icon"
-              :src="checkedInToday ? '/static/icons/checkmark.svg' : '/static/icons/sun.svg'"
-              mode="aspectFit"
+            <u-icon
+              :name="checkedInToday ? 'checkmark-circle-fill' : 'heart-fill'"
+              :color="checkedInToday ? '#5F8E68' : '#FFFFFF'"
+              size="35"
             />
             <view class="checkin-btn__text-wrap">
               <text class="checkin-btn__title">{{ checkedInToday ? '今天已报平安' : '我今天很好' }}</text>
@@ -102,11 +135,19 @@
           </view>
         </view>
 
+        <view v-if="!momentStore.loading && !latestMoment" class="empty-state-elder fade-in stagger-1">
+          <image class="empty-icon-elder" src="/static/brand/logo-mark.png" mode="aspectFit" />
+          <view class="empty-copy-elder">
+            <text class="empty-title-elder">今天还没有新的牵挂</text>
+            <text class="empty-desc-elder">家人正在准备给您的问候呢</text>
+          </view>
+        </view>
+
         <!-- 今日菜单 -->
-        <view v-if="todayMenuDishes.length" class="menu-section fade-in stagger-2">
+        <view v-if="todayMenuDishes.length" class="menu-section fade-in stagger-3">
           <view class="menu-card">
             <view class="menu-card__header">
-              <image class="menu-card__icon" src="/static/icons/utensils.svg" mode="aspectFit" />
+              <u-icon name="grid-fill" color="#D48727" size="27" />
               <text class="menu-card__title">今日菜单</text>
               <text class="menu-card__meal">{{ menuMealLabel }}</text>
             </view>
@@ -134,75 +175,18 @@
         </view>
 
         <!-- 邻里帮入口 -->
-        <view class="volunteer-entry fade-in stagger-2" @tap="goVolunteer">
+        <view class="volunteer-entry fade-in stagger-3" @tap="goVolunteer">
           <view class="volunteer-entry__left">
-            <image class="volunteer-entry__icon" src="/static/icons/handshake.svg" mode="aspectFit" />
+            <image class="volunteer-entry__icon" src="/static/icons/neighbor-help.svg" mode="aspectFit" />
             <view class="volunteer-entry__info">
               <text class="volunteer-entry__title">邻里帮</text>
-              <text class="volunteer-entry__desc">即将上线 · 敬请期待</text>
+              <text class="volunteer-entry__desc">帮助邻居，赚取积分</text>
             </view>
           </view>
           <text class="volunteer-entry__arrow">›</text>
         </view>
 
-        <view v-if="momentStore.loading" class="loading-center fade-in">
-          <view class="loading-dot-wrap">
-            <view class="loading-dot" />
-            <view class="loading-dot" />
-            <view class="loading-dot" />
-          </view>
-        </view>
-
-        <view v-else-if="momentStore.moments.length === 0" class="empty-state-elder fade-in stagger-1">
-          <view class="empty-icon-wrap-elder">
-            <image class="empty-icon-elder" src="/static/icons/sun.svg" mode="aspectFit" />
-          </view>
-          <text class="empty-title-elder">今天天气真好呀</text>
-          <text class="empty-desc-elder">孩子们正在准备给您的惊喜呢，稍等一会儿~</text>
-        </view>
-
-        <view v-else class="elder-moment-list">
-          <view
-            v-for="(m, index) in momentStore.moments"
-            :key="m.id"
-            class="elder-moment-card fade-in"
-            :class="'stagger-' + Math.min(index + 1, 4)"
-            @tap="goViewDetail(m)"
-          >
-            <view class="elder-moment-card__left">
-              <view class="elder-moment-card__avatar">
-                <text class="elder-moment-card__avatar-text">{{ (m.sender_name || '家')[0] }}</text>
-              </view>
-              <view class="elder-moment-card__info">
-                <view class="elder-moment-card__name-row">
-                  <text class="elder-moment-card__name">{{ m.sender_name || '家人' }}</text>
-                  <view class="elder-moment-card__badge">
-                    <text>发来牵挂</text>
-                  </view>
-                </view>
-                <text class="elder-moment-card__time">{{ m.created_at_text || '' }}</text>
-              </view>
-            </view>
-            <image class="elder-moment-card__chevron" src="/static/icons/chevron-right.svg" mode="aspectFit" />
-          </view>
-        </view>
       </view>
-
-      <!-- 用户协议入口（子女端/长辈端通用）-->
-      <view class="agreement-entry fade-in stagger-4" @tap="goAgreement">
-        <text class="agreement-entry__text" :class="{ 'agreement-entry__text--elder': userStore.isElder }">用户协议</text>
-      </view>
-    </view>
-
-    <!-- 底部装饰线 -->
-    <view v-if="userStore.isFamily && relationStore.relations.length > 0" class="deco-line-wrap fade-in stagger-4">
-      <view class="deco-line"></view>
-    </view>
-
-    <!-- FAB 浮动按钮 -->
-    <view v-if="userStore.isFamily && relationStore.relations.length > 0" class="fab fade-in stagger-3" @tap="goSend">
-      <image class="fab__icon" src="/static/icons/heart-send-white.svg" mode="aspectFit" />
-      <text class="fab__text">发送牵挂</text>
     </view>
   </view>
 </template>
@@ -216,16 +200,9 @@ import { useMomentStore } from "@/stores/moment";
 import { useAlertStore } from "@/stores/alert";
 import { selfCheckIn, getTodayCheckIn } from "@/api/user";
 import { getTodayMenu } from "@/api/canteen";
-
-const AVATAR_COLORS = [
-  { bg: '#FBEAE8', text: '#C44D3E' },
-  { bg: '#FBF3E8', text: '#C4943E' },
-  { bg: '#E8F3E7', text: '#5E8F5A' },
-];
-
-function getAvatarColor(index) {
-  return AVATAR_COLORS[index % AVATAR_COLORS.length];
-}
+import { getFullUrl } from "@/api/config";
+import { getElderAvatar, getFamilyAvatar } from "@/utils/avatar";
+import { formatRelativeTime } from "@/utils/date";
 
 const userStore = useUserStore();
 const relationStore = useRelationStore();
@@ -240,9 +217,32 @@ const todayMenus = ref([]);
 
 const todayMenuData = computed(() => todayMenus.value[0]?.dishes || {});
 const todayMenuDishes = computed(() => todayMenuData.value.items || []);
+const latestMoment = computed(() => momentStore.moments[0] || null);
+const familyRecentMoments = computed(() => momentStore.moments.slice(0, 3));
+const displayRelations = computed(() => relationStore.relations);
+const visibleRelations = computed(() => displayRelations.value.slice(0, 2));
+function relatedElder(person) {
+  const elderId = person?.elder_user_id || person?.elder_id;
+  return displayRelations.value.find((item) => item.elder_user_id === elderId);
+}
+
+function elderAvatar(person, index = 0) {
+  const relation = relatedElder(person);
+  return getElderAvatar(relation ? { ...person, ...relation } : person, index);
+}
+
+function elderDisplayName(person) {
+  const relation = relatedElder(person);
+  return relation?.elder_name || relation?.relation_label || person?.elder_nickname || person?.elder_label || "家人";
+}
+
+function senderAvatar(moment) {
+  return moment?.sender_avatar_url ? getFullUrl(moment.sender_avatar_url) : "";
+}
+
 const menuMealLabel = computed(() => {
   const type = todayMenus.value[0]?.meal_type;
-  return type === "dinner" ? "晚餐" : "午餐";
+  return { breakfast: "早餐", lunch: "午餐", dinner: "晚餐" }[type] || "";
 });
 
 const greeting = computed(() => {
@@ -250,6 +250,11 @@ const greeting = computed(() => {
   if (hour < 12) return "早上好";
   if (hour < 18) return "下午好";
   return "晚上好";
+});
+
+const greetingHeadline = computed(() => {
+  if (userStore.isFamily) return "今天也记得问候家人";
+  return userStore.profile?.nickname || "今天也要开开心心";
 });
 
 
@@ -262,6 +267,8 @@ function formatCheckinTime(isoStr) {
 }
 
 async function loadCheckinStatus() {
+  checkedInToday.value = false;
+  checkinTimeText.value = "";
   try {
     const res = await getTodayCheckIn();
     checkedInToday.value = res.checked_in;
@@ -289,10 +296,12 @@ async function handleCheckIn() {
 }
 
 onShow(() => {
-  alertStore.loadAlerts();
   if (userStore.isFamily) {
+    alertStore.loadAlerts();
     relationStore.loadRelations();
+    momentStore.loadMoments();
   } else {
+    alertStore.clear();
     momentStore.loadMoments();
     loadCheckinStatus();
     loadTodayMenu();
@@ -301,10 +310,10 @@ onShow(() => {
 
 onPullDownRefresh(async () => {
   try {
-    alertStore.loadAlerts();
     if (userStore.isFamily) {
-      await relationStore.loadRelations();
+      await Promise.all([alertStore.loadAlerts(), relationStore.loadRelations(), momentStore.loadMoments()]);
     } else {
+      alertStore.clear();
       await momentStore.loadMoments();
       await loadCheckinStatus();
       await loadTodayMenu();
@@ -315,6 +324,7 @@ onPullDownRefresh(async () => {
 });
 
 async function loadTodayMenu() {
+  todayMenus.value = [];
   try {
     const res = await getTodayMenu();
     todayMenus.value = res.menus || [];
@@ -325,6 +335,10 @@ async function loadTodayMenu() {
 
 function goSend() {
   uni.navigateTo({ url: "/pages/send/index" });
+}
+
+function goHistory() {
+  uni.switchTab({ url: "/pages/history/index" });
 }
 
 function goElderStatus(elder) {
@@ -345,10 +359,6 @@ function goAlerts() {
 
 function goVolunteer() {
   uni.navigateTo({ url: "/pages/volunteer/index" });
-}
-
-function goAgreement() {
-  uni.navigateTo({ url: "/pages/about/agreement" });
 }
 </script>
 
@@ -1062,22 +1072,506 @@ function goAgreement() {
   }
 }
 
-// ── 用户协议入口 ──
-.agreement-entry {
-  display: flex;
-  justify-content: center;
-  padding: $sp-48 0 $sp-8;
+// ── 管理后台品牌语言的移动端映射 ──
+.page-home,
+.top-bar {
+  background: $c-bg;
+}
 
-  &__text {
-    font-size: $fs-body-sm;
-    color: $c-text-hint;
-    padding: $sp-8 $sp-16;
-    text-decoration: underline;
-    text-underline-offset: 6rpx;
+.top-bar {
+  border-bottom: 1rpx solid rgba($c-border, 0.7);
 
-    &--elder {
-      font-size: $fs-elder-body;
-    }
+  &__logo { width: 48rpx; height: 48rpx; }
+  &__brand {
+    font-family: "Songti SC", "STSong", serif;
+    font-size: 36rpx;
+    font-weight: $fw-bold;
+    color: $c-text;
+    letter-spacing: 4rpx;
   }
+  &__right { display: flex; align-items: center; gap: 8rpx; }
+  &__avatar { width: 64rpx; height: 64rpx; background: $c-primary-bg; }
+  &__avatar-text { color: $c-primary; }
+}
+
+.home-content {
+  padding-left: 32rpx;
+  padding-right: 32rpx;
+}
+
+.greeting-section {
+  margin-bottom: 40rpx;
+  padding-top: 24rpx;
+}
+
+.greeting-title {
+  white-space: pre-line;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 58rpx;
+  line-height: 1.28;
+
+  &--elder { font-size: 68rpx; }
+}
+
+.greeting-sub {
+  display: block;
+  margin-top: 12rpx;
+  color: $c-text-hint;
+
+  &--elder { font-size: 32rpx; }
+}
+
+.family-focus-card {
+  position: relative;
+  padding: 32rpx;
+  border: 1rpx solid rgba($c-primary, 0.12);
+  border-radius: 32rpx;
+  background:
+    radial-gradient(circle at 92% 6%, rgba(255, 255, 255, 0.22), transparent 28%),
+    linear-gradient(145deg, #D96A4F 0%, #E58C6D 100%);
+  box-shadow: 0 14rpx 38rpx rgba($c-primary, 0.14);
+
+  &__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28rpx;
+  }
+
+  &__title {
+    display: block;
+    font-family: "Songti SC", "STSong", serif;
+    font-size: 48rpx;
+    font-weight: $fw-bold;
+    color: #fff;
+  }
+
+  &__sub { display: block; margin-top: 4rpx; font-size: 26rpx; color: rgba(255, 255, 255, 0.82); }
+  &__heart { width: 92rpx; height: 92rpx; opacity: 0.18; filter: brightness(10); }
+}
+
+.family-focus-card .elder-list { gap: 16rpx; }
+.family-focus-card .elder-card {
+  padding: 24rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.76);
+  border-radius: 24rpx;
+  background: rgba(255, 252, 249, 0.94);
+  box-shadow: none;
+}
+.family-focus-card .elder-card__avatar { width: 88rpx; height: 88rpx; }
+.family-focus-card .elder-card__name { font-size: 32rpx; }
+
+.family-send-btn {
+  min-height: 104rpx;
+  margin-top: 20rpx;
+  padding: 18rpx 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18rpx;
+  border-radius: 22rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #B84335 0%, #C9573E 100%);
+  box-shadow: 0 8rpx 20rpx rgba(#8F3027, 0.2);
+
+  &__icon { width: 60rpx; height: 60rpx; filter: brightness(10); }
+  &__title { display: block; font-size: 34rpx; font-weight: $fw-bold; }
+  &__sub { display: block; margin-top: 2rpx; font-size: 22rpx; color: rgba(255, 255, 255, 0.76); }
+}
+
+.recent-card {
+  margin-top: 24rpx;
+  padding: 28rpx;
+  border: 1rpx solid $c-border;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: $shadow-sm;
+
+  &__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8rpx; }
+  &__title { font-family: "Songti SC", "STSong", serif; font-size: 36rpx; font-weight: $fw-bold; color: $c-text; }
+  &__more { font-size: 24rpx; color: $c-text-hint; }
+}
+
+.recent-item {
+  display: flex;
+  gap: 18rpx;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid $c-border-light;
+
+  &:last-child { border-bottom: 0; padding-bottom: 4rpx; }
+  &__dot { width: 14rpx; height: 14rpx; margin-top: 12rpx; flex: none; border-radius: 50%; background: $c-accent; }
+  &__dot--read { background: $c-safe; }
+  &__body { min-width: 0; flex: 1; }
+  &__title { display: block; font-size: 28rpx; font-weight: $fw-semibold; color: $c-text; }
+  &__content { display: block; margin-top: 4rpx; overflow: hidden; color: $c-text-hint; font-size: 24rpx; text-overflow: ellipsis; white-space: nowrap; }
+}
+
+.elder-letter-card {
+  margin-bottom: 24rpx;
+  padding: 28rpx;
+  border: 1rpx solid $c-border;
+  border-radius: 30rpx;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 8rpx 28rpx rgba(57, 45, 36, 0.06);
+
+  &__head { display: flex; align-items: center; gap: 20rpx; }
+  &__avatar { width: 88rpx; height: 88rpx; display: flex; align-items: center; justify-content: center; flex: none; border-radius: 50%; color: $c-primary; background: $c-primary-bg; font-size: 36rpx; font-weight: $fw-bold; }
+  &__meta { min-width: 0; flex: 1; }
+  &__title { display: block; color: $c-text; font-family: "Songti SC", "STSong", serif; font-size: 38rpx; font-weight: $fw-bold; }
+  &__time { display: block; margin-top: 4rpx; color: $c-text-hint; font-size: 26rpx; }
+  &__content { display: block; margin-top: 24rpx; padding: 24rpx; border-radius: 20rpx; color: $c-text; background: $c-bg-warm; font-size: $fs-elder-body; line-height: 1.75; }
+  &__action { display: block; margin-top: 20rpx; color: $c-primary; font-size: 30rpx; font-weight: $fw-semibold; text-align: right; }
+}
+
+.checkin-btn {
+  border-radius: 24rpx;
+
+  &--active { background: linear-gradient(135deg, #6B8F71 0%, #56826A 100%); box-shadow: 0 8rpx 26rpx rgba($c-safe, 0.25); }
+  &__title { font-size: 44rpx; }
+  &__sub { font-size: 28rpx; }
+}
+
+.menu-card,
+.volunteer-entry {
+  border: 1rpx solid $c-border;
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.empty-state-elder { padding: 48rpx 0; }
+.empty-icon-wrap-elder { width: 128rpx; height: 128rpx; margin-bottom: 20rpx; }
+.empty-icon-elder { width: 64rpx; height: 64rpx; }
+.empty-title-elder { font-size: 44rpx; }
+.empty-desc-elder { font-size: 30rpx; }
+
+// ── 视觉稿还原 ──
+.page-home {
+  background:
+    radial-gradient(circle at 94% 10%, rgba(212, 162, 78, 0.08), transparent 28%),
+    $c-bg;
+}
+
+.top-bar {
+  position: absolute;
+  height: auto;
+  justify-content: flex-end;
+  padding: calc(var(--status-bar-height, 50rpx) + 138rpx) 34rpx 0;
+  border: 0;
+  background: transparent;
+
+  &__right {
+    gap: 12rpx;
+    padding-right: 2rpx;
+  }
+
+  &__avatar-image {
+    width: 70rpx;
+    height: 70rpx;
+    flex: none;
+    border: 4rpx solid rgba(255, 255, 255, 0.86);
+    border-radius: 50%;
+    box-shadow: 0 4rpx 14rpx rgba(44, 40, 37, 0.12);
+  }
+
+  &__identity { display: flex; flex-direction: column; align-items: flex-start; }
+  &__name { color: $c-text; font-size: 25rpx; font-weight: 700; }
+  &__role { margin-top: 2rpx; color: $c-text-hint; font-size: 18rpx; }
+}
+
+.font-size-pill {
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 0 22rpx;
+  border: 1rpx solid $c-border;
+  border-radius: 32rpx;
+  color: #535B63;
+  background: rgba(255, 255, 255, 0.72);
+  font-size: 25rpx;
+}
+
+.home-content {
+  padding: calc(var(--status-bar-height, 50rpx) + 96rpx) 24rpx 170rpx;
+}
+
+.greeting-section {
+  width: 510rpx;
+  margin-bottom: 30rpx;
+  margin-left: 12rpx;
+  padding: 0;
+}
+
+.greeting-title {
+  margin: 0;
+  font-family: "Songti SC", "STSong", "SimSun", serif;
+  font-size: 50rpx;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0;
+
+  &--elder { font-size: 58rpx; }
+
+  &__line { display: block; }
+}
+
+.greeting-sub {
+  margin-top: 10rpx;
+  color: #78808A;
+  font-size: 25rpx;
+
+  &--elder { font-size: 27rpx; }
+}
+
+.family-focus-card {
+  padding: 26rpx;
+  border: 2rpx solid rgba($c-accent, 0.34);
+  border-radius: 28rpx;
+  background:
+    radial-gradient(circle at 96% 2%, rgba($c-primary-soft, 0.08), transparent 30%),
+    linear-gradient(100deg, rgba($c-primary-soft, 0.1) 0%, rgba($c-accent, 0.05) 55%, rgba($c-surface, 0.75) 100%),
+    $c-primary-surface;
+  box-shadow:
+    inset 0 0 0 2rpx rgba($c-surface, 0.72),
+    0 12rpx 34rpx rgba(80, 53, 37, 0.07);
+
+  &__head { position: relative; z-index: 1; min-height: 116rpx; margin-bottom: 22rpx; }
+  &__title { color: $c-text; font-size: 46rpx; }
+  &__sub { color: $c-text-sub; font-size: 24rpx; }
+  &__heart {
+    position: absolute;
+    top: -6rpx;
+    right: 0;
+    width: 132rpx;
+    height: 132rpx;
+    opacity: 0.14;
+    filter: brightness(0) saturate(100%) invert(57%) sepia(19%) saturate(1285%) hue-rotate(316deg) brightness(94%) contrast(76%);
+    pointer-events: none;
+  }
+}
+
+.family-focus-card .empty-state {
+  border: 2rpx solid rgba($c-primary-soft, 0.16);
+  background: rgba($c-surface, 0.9);
+}
+
+.family-focus-card .elder-list {
+  flex-direction: row;
+  gap: 14rpx;
+}
+
+.family-focus-card .elder-card {
+  min-width: 0;
+  flex: 1;
+  padding: 20rpx;
+  border: 2rpx solid rgba($c-primary-soft, 0.22);
+  border-radius: 22rpx;
+  align-items: flex-start;
+  background: rgba($c-surface-warm, 0.82);
+  box-shadow: 0 5rpx 16rpx rgba(80, 53, 37, 0.05);
+}
+
+.family-focus-card .elder-card__left {
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10rpx;
+}
+
+.elder-card__avatar-image {
+  width: 112rpx;
+  height: 112rpx;
+  border: 4rpx solid rgba($c-primary, 0.08);
+  border-radius: 50%;
+  background: $c-primary-surface;
+  box-shadow: 0 3rpx 10rpx rgba(80, 53, 37, 0.08);
+}
+
+.family-focus-card .elder-card__name { max-width: none; font-size: 32rpx; }
+.elder-card__status { display: flex; align-items: center; gap: 8rpx; color: #7E8790; font-size: 24rpx; white-space: nowrap; }
+.elder-card__status--read { color: #5F8E68; }
+.family-focus-card .elder-card__time { margin-top: 5rpx; font-size: 20rpx; }
+
+.family-send-btn {
+  min-height: 112rpx;
+  margin-top: 18rpx;
+  border: 1rpx solid rgba($c-primary-hover, 0.12);
+  border-radius: 22rpx;
+  background: linear-gradient(135deg, $c-primary 0%, $c-primary-soft 100%);
+  box-shadow:
+    inset 0 2rpx 0 rgba(255, 255, 255, 0.16),
+    0 8rpx 18rpx rgba($c-primary, 0.18);
+
+  &__icon { width: 60rpx; height: 60rpx; filter: none; }
+  &__title { font-size: 36rpx; text-shadow: 0 2rpx 4rpx rgba(82, 20, 16, 0.16); }
+  &__sub { font-size: 22rpx; color: rgba(255, 255, 255, 0.84); }
+}
+
+.recent-card {
+  margin-top: 22rpx;
+  padding: 24rpx 28rpx;
+  border-radius: 26rpx;
+
+  &__title { font-size: 38rpx; }
+}
+
+.recent-item {
+  position: relative;
+  align-items: center;
+  gap: 16rpx;
+  padding: 15rpx 0 15rpx 28rpx;
+
+  &:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    z-index: 0;
+    left: 6rpx;
+    top: calc(50% + 7rpx);
+    bottom: calc(-50% - 7rpx);
+    width: 2rpx;
+    background: #E4D9CE;
+  }
+}
+
+.recent-item__dot {
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 50%;
+  width: 14rpx;
+  height: 14rpx;
+  box-sizing: border-box;
+  border: 4rpx solid $c-accent;
+  border-radius: 50%;
+  background: #FFFFFF;
+  transform: translateY(-50%);
+}
+
+.recent-item__dot--read { border-color: $c-safe; }
+
+.recent-item__avatar {
+  width: 72rpx;
+  height: 72rpx;
+  flex: none;
+  border-radius: 50%;
+}
+
+.recent-item__title { font-size: 25rpx; }
+.recent-item__content { font-size: 21rpx; }
+.recent-item__time {
+  align-self: flex-start;
+  flex: none;
+  margin-top: 2rpx;
+  color: $c-text-hint;
+  font-size: 20rpx;
+}
+
+.elder-letter-card {
+  padding: 24rpx;
+  border-radius: 28rpx;
+
+  &__avatar-image {
+    width: 86rpx;
+    height: 86rpx;
+    flex: none;
+    border-radius: 50%;
+  }
+
+  &__avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $c-primary;
+    background: $c-primary-bg;
+    font-size: 36rpx;
+    font-weight: $fw-bold;
+  }
+
+  &__title { font-size: 37rpx; }
+  &__time { font-size: 24rpx; }
+  &__content {
+    margin-top: 22rpx;
+    padding: 24rpx;
+    font-family: "Songti SC", "STSong", "SimSun", serif;
+    font-size: 36rpx;
+    line-height: 1.65;
+  }
+}
+
+.checkin-section { margin-bottom: 24rpx; }
+.checkin-btn {
+  min-height: 118rpx;
+  justify-content: center;
+  gap: 22rpx;
+  padding: 20rpx 28rpx;
+  border-radius: 25rpx;
+
+  &--active { background: linear-gradient(135deg, #77A579 0%, #58865F 100%); }
+  &__text-wrap { flex: none; }
+  &__title { font-family: "Songti SC", "STSong", serif; font-size: 42rpx; }
+  &__sub { font-size: 24rpx; text-align: center; }
+}
+
+.menu-section { margin-bottom: 22rpx; }
+.menu-card {
+  padding: 24rpx;
+  border-radius: 27rpx;
+
+  &__header { margin-bottom: 10rpx; padding-bottom: 14rpx; }
+  &__title { font-family: "Songti SC", "STSong", serif; font-size: 40rpx; }
+  &__meal { font-size: 24rpx; }
+}
+
+.menu-dish { padding: 10rpx 0; }
+.menu-dish__name { font-size: 30rpx; }
+.menu-dish__desc { font-size: 24rpx; }
+
+.volunteer-entry {
+  padding: 22rpx 24rpx;
+  border-radius: 26rpx;
+}
+
+.greeting-title--elder {
+  font-size: 54rpx;
+  line-height: 1.22;
+}
+
+.elder-home .loading-center {
+  padding: 28rpx 0;
+}
+
+.empty-state-elder {
+  min-height: 128rpx;
+  margin-bottom: 24rpx;
+  padding: 24rpx 26rpx;
+  box-sizing: border-box;
+  flex-direction: row;
+  align-items: center;
+  gap: 22rpx;
+  border: 1rpx solid $c-border;
+  border-radius: 26rpx;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: $shadow-sm;
+}
+
+.empty-icon-elder {
+  width: 76rpx;
+  height: 76rpx;
+  flex: none;
+}
+
+.empty-copy-elder {
+  min-width: 0;
+  flex: 1;
+}
+
+.empty-title-elder {
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 34rpx;
+}
+
+.empty-desc-elder {
+  margin-top: 6rpx;
+  font-size: 26rpx;
 }
 </style>

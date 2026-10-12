@@ -1,5 +1,11 @@
 <template>
   <view class="page-gradient">
+    <view class="status-nav" :style="navMetrics.barStyle">
+      <view class="status-nav__back" @tap="goBack">
+        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+      </view>
+      <text class="app-nav-title-center" :style="navMetrics.titleStyle">家人状态</text>
+    </view>
     <view v-if="loading" class="loading-center">
       <view class="loading-dots">
         <view class="ld-dot" />
@@ -12,7 +18,10 @@
         <view class="elder-avatar-lg">
           <text class="avatar-letter">{{ elderName[0] || '家' }}</text>
         </view>
-        <text class="elder-name">{{ elderName }}</text>
+        <view class="elder-heading">
+          <text class="elder-name">{{ elderName }}</text>
+          <text class="elder-message">家人的平安，就是最好的消息</text>
+        </view>
       </view>
 
       <view class="status-card fade-in stagger-1" :class="todayRead ? 'safe' : 'warn'">
@@ -94,6 +103,7 @@ import { ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { getElderStatus, getElderActivity, manualCheckin } from "@/api/elder";
 import { updateRelation, getRelations } from "@/api/relation";
+import { getNavigationBarMetrics } from "@/utils/navigation";
 
 const elderId = ref("");
 const elderName = ref("家人");
@@ -105,6 +115,11 @@ const relationId = ref("");
 const alertThreshold = ref(null);
 const loading = ref(true);
 const submitting = ref(false);
+const navMetrics = getNavigationBarMetrics();
+
+function goBack() {
+  uni.navigateBack();
+}
 
 onLoad((query) => {
   elderId.value = query.id;
@@ -190,6 +205,34 @@ async function resumeAlert() {
 </script>
 
 <style lang="scss" scoped>
+.page-gradient {
+  background:
+    radial-gradient(circle at 95% 6%, rgba($c-accent, 0.1), transparent 24%),
+    $gradient-page;
+}
+
+.status-nav {
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 36rpx;
+  font-weight: 800;
+
+  &__back {
+    width: 72rpx;
+    height: 100%;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  image { width: 34rpx; height: 34rpx; }
+}
+
 .loading-center {
   display: flex;
   justify-content: center;
@@ -223,22 +266,23 @@ async function resumeAlert() {
 
 .status-header {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  padding-top: 120rpx;
-  margin-bottom: $sp-40;
+  gap: 24rpx;
+  padding: 46rpx 10rpx 26rpx;
+  margin-bottom: 8rpx;
 }
 
 .elder-avatar-lg {
-  width: 140rpx;
-  height: 140rpx;
+  width: 122rpx;
+  height: 122rpx;
   background: $gradient-warm;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: $shadow-glow;
-  margin-bottom: $sp-20;
+  margin-bottom: 0;
   border: 6rpx solid rgba(255, 255, 255, 0.8);
 }
 
@@ -249,11 +293,15 @@ async function resumeAlert() {
 }
 
 .elder-name {
-  font-size: $fs-headline;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 48rpx;
   font-weight: $fw-bold;
   color: $c-text;
   display: block;
 }
+
+.elder-heading { min-width: 0; flex: 1; }
+.elder-message { display: block; margin-top: 8rpx; color: $c-text-sub; font-size: 25rpx; }
 
 .status-card {
   background: $c-surface;
@@ -319,8 +367,8 @@ async function resumeAlert() {
   text-align: center;
   padding: $sp-16;
   border-radius: $r-full;
-  background: $c-safe-bg;
-  color: $c-safe;
+  background: linear-gradient(135deg, $c-safe 0%, #56826A 100%);
+  color: #fff;
   font-size: $fs-elder-body;
   font-weight: $fw-semibold;
   transition: all $duration-normal $ease-out;

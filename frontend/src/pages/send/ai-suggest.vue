@@ -1,8 +1,17 @@
 <template>
-  <view class="page">
+  <view class="ai-page">
+    <view class="top-bar" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
+      <view class="back-btn" @tap="goBack">
+        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+      </view>
+      <text class="top-bar__title app-nav-title-center" :style="navMetrics.titleStyle">AI 帮我写</text>
+    </view>
+
+    <view class="page-body" :style="{ paddingTop: `${navMetrics.totalHeight + 12}px` }">
     <view class="header-area fade-in">
-      <text class="page-title">AI 帮你写牵挂</text>
-      <text class="page-desc">选一条合适的，或者修改后发送</text>
+      <text class="page-title">把想说的话变得更温暖</text>
+      <text class="page-desc">AI 已根据家人的近况准备了这些问候</text>
+      <image class="header-mark" src="/static/brand/logo-mark.png" mode="aspectFit" />
     </view>
 
     <view v-if="loading" class="loading-state fade-in">
@@ -24,9 +33,7 @@
       >
         <view class="suggestion-tag-row">
           <text class="suggestion-tag">{{ item.tag }}</text>
-          <view v-if="selectedIndex === index" class="check-mark">
-            <image class="check-icon-img" src="/static/icons/checkmark.svg" mode="aspectFit" />
-          </view>
+          <text class="select-copy">{{ selectedIndex === index ? '✓ 已选择' : '使用这句话' }}</text>
         </view>
         <text class="suggestion-text">{{ item.text }}</text>
       </view>
@@ -40,8 +47,9 @@
     </view>
 
     <view class="bottom-bar">
-      <view class="btn-secondary refresh-btn" @tap="regenerate">换一批</view>
-      <view class="btn-primary use-btn" @tap="useSuggestion">使用这条</view>
+      <view class="refresh-btn" @tap="regenerate">↻ 换一批</view>
+      <view class="use-btn" @tap="useSuggestion">✓ 使用这句话</view>
+    </view>
     </view>
   </view>
 </template>
@@ -50,11 +58,13 @@
 import { ref } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
 import { getAiSuggestions } from "@/api/ai";
+import { getNavigationBarMetrics } from "@/utils/navigation";
 
 const elderId = ref("");
 const suggestions = ref([]);
 const selectedIndex = ref(0);
 const loading = ref(false);
+const navMetrics = getNavigationBarMetrics();
 
 onLoad((query) => {
   elderId.value = query.elderId;
@@ -85,20 +95,33 @@ function useSuggestion() {
   uni.setStorageSync("ai_suggest_text", selected.text);
   uni.navigateBack();
 }
+
+function goBack() {
+  uni.navigateBack();
+}
 </script>
 
 <style lang="scss" scoped>
+.ai-page { min-height: 100vh; background: $gradient-page; }
+.top-bar { position: fixed; inset: 0 0 auto; z-index: 50; display: flex; align-items: center; box-sizing: content-box; background: rgba($c-bg, 0.94); backdrop-filter: blur(20rpx); }
+.back-btn { width: 88rpx; height: 100%; display: flex; align-items: center; justify-content: center; image { width: 34rpx; height: 34rpx; } }
+.top-bar__title { font-family: "Songti SC", "STSong", serif; font-size: 36rpx; font-weight: 800; color: $c-text; }
+.page-body { padding-left: $sp-24; padding-right: $sp-24; padding-bottom: 190rpx; }
 .header-area {
-  padding-top: $sp-24;
-  margin-bottom: $sp-32;
+  position: relative;
+  padding: $sp-24 120rpx $sp-24 0;
+  margin-bottom: $sp-20;
 }
 
 .page-title {
-  font-size: $fs-headline;
-  font-weight: $fw-bold;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 50rpx;
+  font-weight: 900;
+  line-height: 1.25;
   color: $c-text;
   display: block;
 }
+.header-mark { position: absolute; top: 0; right: 0; width: 130rpx; height: 130rpx; opacity: 0.16; }
 
 .page-desc {
   font-size: $fs-body;
@@ -174,8 +197,8 @@ function useSuggestion() {
 }
 
 .suggestion-card {
-  background: $c-surface;
-  border-radius: $r-lg;
+  background: rgba(255, 255, 255, 0.86);
+  border-radius: $r-xl;
   padding: $sp-24;
   margin-bottom: $sp-16;
   box-shadow: $shadow-md;
@@ -183,9 +206,8 @@ function useSuggestion() {
   transition: all $duration-normal $ease-out;
   &.selected {
     border-color: $c-primary;
-    background: $c-primary-surface;
-    box-shadow: $shadow-glow;
-    border-left: 6rpx solid $c-primary;
+    background: linear-gradient(135deg, #fffaf6, $c-primary-bg);
+    box-shadow: $shadow-md;
   }
   &:active {
     transform: scale(0.98);
@@ -209,25 +231,10 @@ function useSuggestion() {
   font-weight: $fw-medium;
   box-shadow: 0 0 0 4rpx rgba($c-primary, 0.06);
 }
-
-.check-mark {
-  width: 40rpx;
-  height: 40rpx;
-  background: $gradient-warm;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4rpx 12rpx rgba($c-primary, 0.3);
-}
-
-.check-icon-img {
-  width: 24rpx;
-  height: 24rpx;
-}
+.select-copy { font-size: $fs-caption; color: $c-primary; font-weight: $fw-semibold; }
 
 .suggestion-text {
-  font-size: $fs-body;
+  font-size: 31rpx;
   line-height: $lh-relaxed;
   color: $c-text;
   display: block;
@@ -242,16 +249,11 @@ function useSuggestion() {
   gap: $sp-16;
   padding: $sp-24;
   padding-bottom: calc(#{$sp-24} + env(safe-area-inset-bottom));
-  background: $c-surface;
+  background: rgba($c-bg, 0.96);
   box-shadow: $shadow-md;
   border-top: $border-subtle;
 }
-
-.refresh-btn {
-  flex: 1;
-}
-
-.use-btn {
-  flex: 2;
-}
+.refresh-btn, .use-btn { min-height: 88rpx; display: flex; align-items: center; justify-content: center; border-radius: $r-lg; font-size: $fs-body; font-weight: $fw-semibold; }
+.refresh-btn { flex: 1; color: $c-text-sub; border: 2rpx solid $c-border; background: rgba(255,255,255,.72); }
+.use-btn { flex: 1.2; color: $c-text-inverse; background: $gradient-warm; box-shadow: $shadow-glow; }
 </style>
