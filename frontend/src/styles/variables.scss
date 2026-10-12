@@ -4,18 +4,18 @@
 // ══════════════════════════════════════════════
 
 // ── Core Palette ──
-$c-primary: #C4745C;         // 赤陶暖棕 — 像家的温度
-$c-primary-hover: #B5654D;
-$c-primary-soft: #DBBAB0;
-$c-primary-bg: #F9F0EC;
-$c-primary-surface: #FBF6F4;
+$c-primary: #C44D3E;         // 与管理后台统一的陶赤
+$c-primary-hover: #A04828;
+$c-primary-soft: #D4736A;
+$c-primary-bg: #F4E8E4;
+$c-primary-surface: #FBF1ED;
 
-$c-accent: #D4A574;          // 暖沙金 — 阳光般温暖
+$c-accent: #D4A24E;          // 琥珀金 — 阳光般温暖
 $c-accent-bg: #F8F0E6;
 
-$c-safe: #7BAE8E;            // 鼠尾草绿 — 自然、安好
-$c-safe-soft: #A8CCAF;
-$c-safe-bg: #EFF6F1;
+$c-safe: #6B8F71;            // 与管理后台统一的鼠尾草绿
+$c-safe-soft: #8FB896;
+$c-safe-bg: #EDF4EE;
 
 $c-warn: #C97B6B;            // 柔玫瑰 — 温和的提醒
 $c-warn-soft: #E0AEA3;
@@ -31,15 +31,15 @@ $c-caution-soft: rgba($c-caution, 0.15);
 $c-info-gray: #6B7280;
 
 // ── Neutrals — 暖调灰 ──
-$c-text: #2D2016;            // 深棕 — 墨水般沉稳
-$c-text-sub: #7A6B5D;        // 中棕 — 不刺眼
-$c-text-hint: #B5A99B;       // 浅棕 — 淡淡的存在
+$c-text: #2C2825;            // 深褐 — 墨水般沉稳
+$c-text-sub: #6F655D;        // 中棕 — 不刺眼
+$c-text-hint: #9A8E82;       // 浅棕 — 淡淡的存在
 $c-text-inverse: #FFFAF7;
 
-$c-border: #EDE5DB;
-$c-border-light: #F5F0EA;
-$c-bg: #FAF6F1;              // 信笺底色 — 微微泛黄的纸
-$c-bg-warm: #F5EDE4;         // 稍深的暖底
+$c-border: #E5DED5;
+$c-border-light: #EEE9E4;
+$c-bg: #FBF7F2;              // 与管理后台统一的暖奶油底色
+$c-bg-warm: #F5EFE7;         // 稍深的暖纸色
 $c-surface: #FFFFFF;
 $c-surface-warm: #FFFCF9;
 
@@ -98,10 +98,10 @@ $shadow-lg: 0 12rpx 40rpx rgba(45, 32, 22, 0.08), 0 4rpx 12rpx rgba(45, 32, 22, 
 $shadow-xl: 0 20rpx 60rpx rgba(45, 32, 22, 0.10), 0 8rpx 20rpx rgba(45, 32, 22, 0.05);
 
 // ── Gradients ──
-$gradient-warm: linear-gradient(135deg, #C4745C 0%, #D4A574 100%);
-$gradient-warm-soft: linear-gradient(135deg, #F9F0EC 0%, #F8F0E6 100%);
-$gradient-page: linear-gradient(180deg, #F5EDE4 0%, #FAF6F1 40%, #FAF6F1 100%);
-$gradient-hero: linear-gradient(180deg, #F0E4D8 0%, #FAF6F1 100%);
+$gradient-warm: linear-gradient(135deg, #C44D3E 0%, #D97B5C 100%);
+$gradient-warm-soft: linear-gradient(135deg, #FBF1E9 0%, #F7EFE7 100%);
+$gradient-page: linear-gradient(180deg, #F5EFE7 0%, #FBF7F2 42%, #FBF7F2 100%);
+$gradient-hero: linear-gradient(180deg, #F0E4D8 0%, #FBF7F2 100%);
 
 // ── Compound Tokens ──
 $shadow-glow: 0 8rpx 32rpx rgba($c-primary, 0.28);

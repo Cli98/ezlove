@@ -1,5 +1,21 @@
 <template>
-  <view class="page">
+  <view class="family-page">
+    <view class="family-nav" :style="navMetrics.barStyle">
+      <view class="family-nav__back" @tap="goBack">
+        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+      </view>
+      <text class="family-nav__title app-nav-title-center" :style="navMetrics.titleStyle">我的家人</text>
+    </view>
+
+    <view class="family-hero fade-in">
+      <view class="family-hero__copy">
+        <text class="family-hero__title">家人就在身边</text>
+        <text class="family-hero__subtitle">管理已绑定的家人</text>
+      </view>
+      <image class="family-hero__art" src="/static/brand/family-header-art.png" mode="aspectFit" />
+    </view>
+
+    <view class="family-body">
     <view v-if="relationStore.loading" class="loading-center">
       <view class="loading-dot-wrap">
         <view class="loading-dot" />
@@ -44,14 +60,17 @@
         <text>+ 添加家人</text>
       </view>
     </view>
+    </view>
   </view>
 </template>
 
 <script setup>
 import { onShow, onPullDownRefresh } from "@dcloudio/uni-app";
 import { useRelationStore } from "@/stores/relation";
+import { getNavigationBarMetrics } from "@/utils/navigation";
 
 const relationStore = useRelationStore();
+const navMetrics = getNavigationBarMetrics();
 
 onShow(() => {
   relationStore.loadRelations();
@@ -64,6 +83,10 @@ onPullDownRefresh(async () => {
 
 function goInvite() {
   uni.navigateTo({ url: "/pages/bind/invite" });
+}
+
+function goBack() {
+  uni.navigateBack();
 }
 
 function confirmRemove(id) {
@@ -85,6 +108,58 @@ function confirmRemove(id) {
 </script>
 
 <style lang="scss" scoped>
+.family-page {
+  min-height: 100vh;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at 88% 8%, rgba($c-accent, 0.1), transparent 26%),
+    $c-bg;
+}
+
+.family-nav {
+  box-sizing: content-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 24rpx;
+
+  &__back { width: 76rpx; height: 100%; display: flex; align-items: center; justify-content: center; }
+  &__title { color: $c-text; font-family: "Songti SC", "STSong", serif; font-size: 36rpx; font-weight: 800; }
+  image { width: 34rpx; height: 34rpx; }
+}
+
+.family-hero {
+  height: 310rpx;
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  overflow: hidden;
+  margin-top: 18rpx;
+  padding: 0 40rpx;
+}
+
+.family-hero__copy { position: relative; z-index: 2; padding-top: 10rpx; }
+.family-hero__title {
+  display: block;
+  max-width: 340rpx;
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 52rpx;
+  font-weight: 900;
+  line-height: 1.22;
+}
+.family-hero__subtitle { display: block; margin-top: 8rpx; color: $c-text-sub; font-size: 28rpx; }
+.family-hero__art {
+  width: 430rpx;
+  height: 300rpx;
+  position: absolute;
+  right: -30rpx;
+  bottom: -16rpx;
+}
+
+.family-body { padding: 0 28rpx; }
+
 .loading-center {
   display: flex;
   justify-content: center;
@@ -163,7 +238,7 @@ function confirmRemove(id) {
   align-items: center;
   box-shadow: $shadow-md;
   border: $border-subtle;
-  border-left: 6rpx solid $c-accent;
+  border-left: 0;
   transition: all $duration-normal $ease-out;
   &:active {
     transform: scale(0.98);
@@ -178,8 +253,8 @@ function confirmRemove(id) {
 }
 
 .relation-avatar {
-  width: 80rpx;
-  height: 80rpx;
+  width: 92rpx;
+  height: 92rpx;
   background: $gradient-warm-soft;
   border-radius: $r-xl;
   display: flex;
@@ -196,7 +271,7 @@ function confirmRemove(id) {
 }
 
 .relation-label {
-  font-size: $fs-body;
+  font-size: 32rpx;
   font-weight: $fw-semibold;
   color: $c-text;
   display: block;
@@ -230,5 +305,9 @@ function confirmRemove(id) {
 .add-btn {
   width: 100%;
   text-align: center;
+  min-height: 96rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

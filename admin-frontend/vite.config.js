@@ -8,6 +8,8 @@ import { resolve } from 'path'
 // - 本地构建两者均不存在，使用根路径 '/'（与本地 nginx 配置一致）。
 const envBase = (process.env.VITE_BASE_PATH || '').trim()
 const basePath = envBase || (process.env.VITE_API_BASE_URL ? '/ezlove/' : '/')
+const devApiTarget = process.env.VITE_DEV_API_TARGET || 'http://localhost:8001'
+const devApiPrefix = process.env.VITE_DEV_API_PREFIX || ''
 
 export default defineConfig({
   base: basePath,
@@ -19,8 +21,9 @@ export default defineConfig({
     port: 5174,
     proxy: {
       '/api': {
-        target: 'http://localhost:8001',
+        target: devApiTarget,
         changeOrigin: true,
+        rewrite: devApiPrefix ? path => path.replace(/^\/api/, devApiPrefix) : undefined,
       }
     }
   }

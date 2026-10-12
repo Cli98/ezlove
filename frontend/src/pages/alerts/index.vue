@@ -1,10 +1,8 @@
 <template>
-  <view class="page page-gradient">
-    <!-- Header -->
-    <view class="section-header">
-      <image class="section-icon" src="/static/icons/notification.svg" mode="aspectFit" />
-      <text class="section-title">提醒</text>
-      <text class="section-subtitle">实时关注家人动态</text>
+  <view v-if="userStore.isFamily" class="page page-gradient">
+    <view class="alerts-hero">
+      <text class="alerts-hero__title">需要关心</text>
+      <text class="alerts-hero__desc">这些家人可能正等你的一句问候</text>
     </view>
 
     <!-- Loading -->
@@ -65,19 +63,27 @@
       <view class="empty-divider" />
     </view>
   </view>
+  <elder-reminder-page v-else />
 </template>
 
 <script setup>
 import { ref } from "vue";
 import { onShow, onPullDownRefresh } from "@dcloudio/uni-app";
 import { useAlertStore } from "@/stores/alert";
+import { useUserStore } from "@/stores/user";
 import { requestSubscribe } from "@/utils/subscribe";
+import ElderReminderPage from "./components/ElderReminderPage.vue";
 
 const alertStore = useAlertStore();
+const userStore = useUserStore();
 const resolving = ref(new Set());
 let subscribeRequested = false;
 
 onShow(() => {
+  if (!userStore.isFamily) {
+    alertStore.clear();
+    return;
+  }
   alertStore.loadAlerts();
   if (!subscribeRequested) {
     subscribeRequested = true;
@@ -87,7 +93,7 @@ onShow(() => {
 
 onPullDownRefresh(async () => {
   try {
-    await alertStore.loadAlerts();
+    if (userStore.isFamily) await alertStore.loadAlerts();
   } finally {
     uni.stopPullDownRefresh();
   }
@@ -116,22 +122,16 @@ async function handleResolve(id) {
 /* Section Header */
 .section-header {
   margin-bottom: $sp-32;
-  margin-top: $sp-8;
+  padding-top: $sp-24;
+  display: flex;
+  align-items: center;
+  gap: $sp-12;
 }
 
 .section-icon {
   width: 48rpx;
   height: 48rpx;
-  display: block;
-  margin-bottom: $sp-8;
-}
-
-.section-title {
-  font-size: 56rpx;
-  font-weight: $fw-bold;
-  color: $c-text;
-  display: block;
-  margin-bottom: $sp-4;
+  flex: none;
 }
 
 .section-subtitle {
@@ -150,7 +150,7 @@ async function handleResolve(id) {
 
 /* Alert Card */
 .alert-card {
-  background: $c-surface;
+  background: rgba(255, 255, 255, 0.86);
   border-radius: $r-xl;
   padding: $sp-20;
   box-shadow: 0 4rpx 40rpx -4rpx rgba($c-primary, 0.05);
@@ -328,4 +328,44 @@ async function handleResolve(id) {
   height: 2rpx;
   background: linear-gradient(90deg, transparent 0%, rgba($c-primary, 0.1) 50%, transparent 100%);
 }
+</style>
+
+<style lang="scss" scoped>
+.page {
+  padding-top: calc(var(--status-bar-height, 50rpx) + 96rpx);
+  background:
+    radial-gradient(circle at 92% 8%, rgba($c-accent,.11), transparent 22%),
+    $gradient-page;
+}
+.alerts-hero { margin: 0 8rpx 36rpx; }
+.alerts-hero__title {
+  display: block;
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 58rpx;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.alerts-hero__desc { display: block; margin-top: 10rpx; color: $c-text-sub; font-size: 28rpx; }
+.alert-list { gap: 18rpx; }
+.alert-card {
+  padding: 26rpx;
+  border: 1rpx solid rgba($c-border,.74);
+  border-radius: 28rpx;
+  background: rgba(255,255,255,.82);
+  box-shadow: $shadow-sm;
+}
+.alert-card.resolved { background: rgba(255,255,255,.58); opacity: .72; }
+.color-bar { width: 6rpx; }
+.alert-message { color: $c-text; font-family: "Songti SC", "STSong", serif; font-size: 32rpx; line-height: 1.65; }
+.resolve-btn { border-radius: $r-full; background: $gradient-warm; box-shadow: 0 8rpx 18rpx rgba($c-primary,.15); }
+.empty-state {
+  margin-top: 40rpx;
+  padding: 70rpx 30rpx;
+  border: 1rpx solid rgba($c-border,.72);
+  border-radius: 30rpx;
+  background: rgba(255,255,255,.72);
+  box-shadow: $shadow-sm;
+}
+.empty-title { font-family: "Songti SC", "STSong", serif; font-size: 38rpx; font-weight: 800; }
 </style>

@@ -3,8 +3,20 @@ import { ref, computed } from 'vue'
 import { login as loginApi, getCommunities, switchCommunity as switchApi } from '@/api/auth'
 import router from '@/router'
 
+function readStoredWorker() {
+  const stored = localStorage.getItem('community_worker')
+  if (!stored) return null
+
+  try {
+    return JSON.parse(stored)
+  } catch {
+    localStorage.removeItem('community_worker')
+    return null
+  }
+}
+
 export const useUserStore = defineStore('user', () => {
-  const worker = ref(JSON.parse(localStorage.getItem('community_worker') || 'null'))
+  const worker = ref(readStoredWorker())
   const token = ref(localStorage.getItem('community_access_token') || '')
   const communities = ref([])
   const currentCommunityId = ref(localStorage.getItem('community_current_id') || '')
@@ -16,7 +28,19 @@ export const useUserStore = defineStore('user', () => {
     return found?.community_name || ''
   })
 
+  function clearSession() {
+    token.value = ''
+    worker.value = null
+    communities.value = []
+    currentCommunityId.value = ''
+    localStorage.removeItem('community_access_token')
+    localStorage.removeItem('community_refresh_token')
+    localStorage.removeItem('community_worker')
+    localStorage.removeItem('community_current_id')
+  }
+
   async function login(phone, password) {
+    clearSession()
     const data = await loginApi(phone, password)
     token.value = data.access_token
     worker.value = data.worker
@@ -53,14 +77,7 @@ export const useUserStore = defineStore('user', () => {
   }
 
   function logout() {
-    token.value = ''
-    worker.value = null
-    communities.value = []
-    currentCommunityId.value = ''
-    localStorage.removeItem('community_access_token')
-    localStorage.removeItem('community_refresh_token')
-    localStorage.removeItem('community_worker')
-    localStorage.removeItem('community_current_id')
+    clearSession()
     router.push('/login')
   }
 

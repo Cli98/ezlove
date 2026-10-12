@@ -1,5 +1,11 @@
 <template>
-  <view class="page-gradient">
+  <view class="poster-page">
+    <view class="poster-nav" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
+      <view class="poster-nav__back" @tap="goBack">
+        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+      </view>
+      <text class="poster-nav__title app-nav-title-center" :style="navMetrics.titleStyle">选择海报</text>
+    </view>
     <!-- 发送成功动画 -->
     <view v-if="showSuccess" class="success-overlay">
       <view class="success-heart">
@@ -11,7 +17,11 @@
       </button>
     </view>
 
-    <view class="preview-content">
+    <view class="preview-content" :style="{ paddingTop: `${navMetrics.totalHeight + 12}px` }">
+      <view class="poster-intro">
+        <text class="poster-intro__title">选一张，\n把牵挂送给家人</text>
+        <text class="poster-intro__desc">一句问候，让爱不缺席</text>
+      </view>
       <view v-if="loading" class="loading-area fade-in">
         <view class="loading-poster">
           <view class="loading-shimmer" />
@@ -39,6 +49,7 @@
                   <text>AI推荐</text>
                 </view>
                 <image :src="getFullUrl(v.poster_url)" mode="aspectFill" class="poster-img" />
+                <view class="poster-select-dot">{{ selectedIndex === idx ? '✓' : '' }}</view>
                 <text class="poster-label">{{ v.label }}</text>
               </view>
             </view>
@@ -46,7 +57,7 @@
         </view>
 
         <view class="caption-section fade-in stagger-1">
-          <text class="section-label">配文</text>
+          <text class="section-label">给家人的话</text>
           <view class="caption-input-wrap">
             <textarea
               v-model="editCaption"
@@ -63,8 +74,8 @@
         </view>
 
         <view class="bottom-actions">
-          <view class="btn-secondary regenerate-btn" @tap="regenerate">换一批</view>
-          <view class="btn-primary send-poster-btn" @tap="sendPoster">发送海报</view>
+          <view class="regenerate-btn" @tap="regenerate">↻ 换一批</view>
+          <view class="send-poster-btn" @tap="sendPoster">确认并发送 ›</view>
         </view>
       </view>
     </view>
@@ -77,8 +88,10 @@ import { onLoad, onShareAppMessage } from "@dcloudio/uni-app";
 import { generatePoster, renderSinglePoster } from "@/api/poster";
 import { useMomentStore } from "@/stores/moment";
 import { getFullUrl } from "@/api/config";
+import { getNavigationBarMetrics } from "@/utils/navigation";
 
 const momentStore = useMomentStore();
+const navMetrics = getNavigationBarMetrics();
 
 const loading = ref(true);
 const variants = ref([]);
@@ -99,6 +112,10 @@ onShareAppMessage(() => ({
 }));
 
 const captionChanged = computed(() => editCaption.value !== originalCaption.value);
+
+function goBack() {
+  uni.navigateBack();
+}
 
 onLoad(() => {
   params.value = uni.getStorageSync("poster_params") || {};
@@ -512,4 +529,139 @@ async function sendPoster() {
     box-shadow: 0 2rpx 8rpx rgba($c-primary, 0.2);
   }
 }
+</style>
+
+<style lang="scss" scoped>
+.poster-page {
+  min-height: 100vh;
+  padding-bottom: calc(184rpx + env(safe-area-inset-bottom));
+  background:
+    radial-gradient(circle at 92% 8%, rgba($c-accent, 0.10), transparent 22%),
+    $gradient-page;
+}
+
+.poster-nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 30;
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  padding-left: $sp-16;
+  background: rgba($c-bg, 0.92);
+  backdrop-filter: blur(24rpx);
+}
+
+.poster-nav__back {
+  width: 76rpx;
+  height: 76rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  image { width: 34rpx; height: 34rpx; }
+}
+
+.poster-nav__title {
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 36rpx;
+  font-weight: 800;
+}
+
+.preview-content { padding-left: $sp-24; padding-right: $sp-24; }
+
+.poster-intro { margin: 26rpx 8rpx 34rpx; }
+.poster-intro__title {
+  display: block;
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 54rpx;
+  font-weight: 900;
+  line-height: 1.2;
+  white-space: pre-line;
+}
+.poster-intro__desc { display: block; margin-top: 10rpx; color: $c-text-sub; font-size: 28rpx; }
+
+.poster-scroll { margin: 0 (-$sp-24); }
+.scroll-wrap { width: 100%; padding: 8rpx 0 22rpx; }
+.poster-list { padding: 0 132rpx; gap: 22rpx; }
+.poster-card {
+  width: 438rpx;
+  padding: 10rpx 10rpx 18rpx;
+  border: 3rpx solid transparent;
+  border-radius: 28rpx;
+  background: rgba(255,255,255,.76);
+  box-shadow: $shadow-md;
+  transform: scale(.94);
+  opacity: .82;
+}
+.poster-card.selected {
+  border-color: $c-primary;
+  transform: scale(1);
+  opacity: 1;
+  box-shadow: 0 16rpx 42rpx rgba($c-primary, .16);
+}
+.poster-img { width: 418rpx; height: 560rpx; border-radius: 20rpx; }
+.poster-label { display: block; margin-top: 12rpx; color: $c-text-sub; text-align: center; font-size: 26rpx; }
+.poster-select-dot {
+  position: absolute;
+  top: 22rpx;
+  right: 22rpx;
+  z-index: 2;
+  width: 42rpx;
+  height: 42rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid rgba(255,255,255,.9);
+  border-radius: 50%;
+  background: $c-primary;
+  color: white;
+  font-weight: 800;
+}
+.ai-badge { top: 22rpx; left: 22rpx; background: $c-accent; }
+
+.caption-section {
+  margin-top: 22rpx;
+  padding: 26rpx;
+  border: 1rpx solid rgba($c-border,.75);
+  border-radius: 28rpx;
+  background: rgba(255,255,255,.76);
+  box-shadow: $shadow-sm;
+}
+.section-label { color: $c-text; font-family: "Songti SC", "STSong", serif; font-size: 32rpx; letter-spacing: 0; }
+.caption-input-wrap { margin-top: 14rpx; border-radius: 22rpx; background: $c-bg; border: 1rpx solid $c-border-light; }
+.caption-input { min-height: 130rpx; color: $c-text; font-size: 30rpx; line-height: 1.65; }
+.refresh-btn { color: $c-primary; }
+
+.bottom-actions {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: 220rpx 1fr;
+  gap: 18rpx;
+  padding: 20rpx $sp-24 calc(20rpx + env(safe-area-inset-bottom));
+  background: rgba($c-bg,.94);
+  border-top: 1rpx solid rgba($c-border,.7);
+  backdrop-filter: blur(24rpx);
+}
+.regenerate-btn,
+.send-poster-btn {
+  min-height: 92rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $r-full;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+.regenerate-btn { border: 2rpx solid $c-primary; background: $c-surface; color: $c-primary; }
+.send-poster-btn { background: $gradient-warm; color: white; box-shadow: $shadow-glow; }
+
+.loading-area { padding-top: 70rpx; }
+.loading-poster { border-radius: 28rpx; background: $c-surface; box-shadow: $shadow-md; }
 </style>

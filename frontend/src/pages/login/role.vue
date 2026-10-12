@@ -1,95 +1,94 @@
 <template>
   <view class="role-page">
-    <!-- 氛围背景 -->
-    <view class="ambient-bg">
-      <view class="ambient-circle ambient-1" />
-      <view class="ambient-circle ambient-2" />
-    </view>
+    <image class="page-botanical" src="/static/role/role-botanical.png" mode="aspectFit" />
 
-    <!-- 返回（仅切换模式） -->
-    <view
-      v-if="mode === 'switch'"
-      class="back-btn"
-      :style="{ top: statusBarTop + 'px' }"
-      @tap="goBack"
-    >
-      <image class="back-icon" src="/static/icons/arrow-back.svg" mode="aspectFit" />
-    </view>
-
-    <!-- 主内容 -->
     <view class="role-content">
-      <!-- Hero -->
-      <view class="hero-section fade-in">
-        <text class="hero-title">{{ mode === 'switch' ? '切换身份' : '你是' }}</text>
+      <view class="role-nav" :style="navMetrics.barStyle">
+        <view class="role-nav__back" @tap="goBack">
+          <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+        </view>
       </view>
 
-      <!-- 角色卡片 -->
+      <view class="hero-section fade-in">
+        <text class="hero-title">你是</text>
+        <text class="hero-subtitle">选择一个身份，开启温暖的陪伴</text>
+      </view>
+
       <view class="role-cards">
         <view
           class="role-card fade-in stagger-1"
-          :class="{ 'role-card-active': selectedRole === 'family' }"
+          :class="{ 'role-card--active': selectedRole === 'family' }"
           @tap="selectedRole = 'family'"
         >
-          <image class="role-card-icon" src="/static/icons/family.svg" mode="aspectFit" />
-          <text class="role-card-title">子女/亲属</text>
-          <text class="role-card-desc">每天发送牵挂，让老人知道你惦记Ta</text>
+          <image class="role-card-art" src="/static/role/family-role-art.png" mode="aspectFit" />
+          <view class="role-card-copy">
+            <text class="role-card-title">子女/亲属</text>
+            <text class="role-card-desc">每天发送牵挂，</text>
+            <text class="role-card-desc">让老人知道你惦记Ta</text>
+          </view>
+          <view class="role-check" :class="{ 'role-check--active': selectedRole === 'family' }">
+            <text v-if="selectedRole === 'family'">✓</text>
+          </view>
         </view>
 
         <view
           class="role-card fade-in stagger-2"
-          :class="{ 'role-card-active': selectedRole === 'elder' }"
+          :class="{ 'role-card--active': selectedRole === 'elder' }"
           @tap="selectedRole = 'elder'"
         >
-          <image class="role-card-icon" src="/static/icons/elderly.svg" mode="aspectFit" />
-          <text class="role-card-title">长辈</text>
-          <text class="role-card-desc">查看孩子们的问候，用表情回应关爱</text>
+          <image class="role-card-art role-card-art--elder" src="/static/role/elder-role-art.png" mode="aspectFit" />
+          <view class="role-card-copy">
+            <text class="role-card-title">长辈</text>
+            <text class="role-card-desc">查看孩子们的问候，</text>
+            <text class="role-card-desc">用表情回应关爱</text>
+          </view>
+          <view class="role-check" :class="{ 'role-check--active': selectedRole === 'elder' }">
+            <text v-if="selectedRole === 'elder'">✓</text>
+          </view>
         </view>
       </view>
 
-      <!-- 确认按钮 -->
-      <view class="confirm-area" :class="{ visible: selectedRole }">
-        <button class="confirm-btn" @tap="confirmRole">
-          <text class="confirm-btn-text">{{ mode === 'switch' ? '确认切换' : '开启挂念之旅' }}</text>
-        </button>
+      <view class="role-note">
+        <view class="role-note__line" />
+        <text>选择后可随时切换</text>
+        <view class="role-note__line" />
       </view>
-    </view>
 
-    <!-- Footer -->
-    <view class="role-footer fade-in stagger-3">
-      <text class="footer-text">{{ mode === 'switch' ? '切换后立即生效' : '选择后可随时切换' }}</text>
+      <button class="confirm-btn" @tap="confirmRole">
+        <text class="confirm-btn-text">开启挂念之旅</text>
+      </button>
     </view>
   </view>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
 import { useUserStore } from "@/stores/user";
+import { getNavigationBarMetrics } from "@/utils/navigation";
 
 const userStore = useUserStore();
-const selectedRole = ref("");
-const mode = ref("");
-const statusBarTop = (uni.getSystemInfoSync().statusBarHeight || 20) + 8;
-
-onLoad((query) => {
-  mode.value = query?.mode || "";
-  // 切换模式：预选当前身份
-  if (mode.value === "switch" && userStore.profile?.role) {
-    selectedRole.value = userStore.profile.role;
-  }
-});
+const navMetrics = getNavigationBarMetrics();
+const selectedRole = ref(userStore.profile?.role || "family");
 
 function goBack() {
-  uni.navigateBack();
+  if (getCurrentPages().length > 1) {
+    uni.navigateBack();
+    return;
+  }
+  uni.reLaunch({ url: "/pages/login/index" });
 }
 
 async function confirmRole() {
-  if (!selectedRole.value) return;
   try {
-    await userStore.setRole(selectedRole.value);
+    uni.showLoading({ title: "保存中...", mask: true });
+    if (selectedRole.value !== userStore.profile?.role) {
+      await userStore.setRole(selectedRole.value);
+    }
+    uni.hideLoading();
     uni.reLaunch({ url: "/pages/index/index" });
-  } catch (e) {
-    uni.showToast({ title: "设置失败", icon: "none" });
+  } catch {
+    uni.hideLoading();
+    uni.showToast({ title: "设置失败，请重试", icon: "none" });
   }
 }
 </script>
@@ -97,193 +96,122 @@ async function confirmRole() {
 <style lang="scss" scoped>
 .role-page {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-color: $c-bg;
   position: relative;
   overflow: hidden;
+  background: radial-gradient(circle at 12% 8%, rgba($c-accent, 0.08), transparent 24%), $c-bg;
 }
 
-// ── 返回按钮（切换模式） ──
-.back-btn {
-  position: fixed;
-  left: 32rpx;
-  width: 64rpx;
-  height: 64rpx;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.04);
-  z-index: 10;
-  &:active {
-    opacity: 0.7;
-  }
-}
-
-.back-icon {
-  width: 36rpx;
-  height: 36rpx;
-}
-
-// ── 氛围背景 ──
-.ambient-bg {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.ambient-circle {
+.page-botanical {
   position: absolute;
-  border-radius: 50%;
+  z-index: 0;
+  right: -58rpx;
+  bottom: 176rpx;
+  width: 430rpx;
+  height: 640rpx;
+  opacity: 0.34;
+  pointer-events: none;
 }
 
-.ambient-1 {
-  width: 40%;
-  height: 40%;
-  top: -10%;
-  left: -10%;
-  background: rgba($c-primary, 0.05);
-  filter: blur(120rpx);
-}
-
-.ambient-2 {
-  width: 30%;
-  height: 30%;
-  bottom: -5%;
-  right: -5%;
-  background: rgba($c-safe, 0.05);
-  filter: blur(100rpx);
-}
-
-// ── 内容 ──
 .role-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 160rpx $sp-24 0;
+  min-height: 100vh;
   position: relative;
   z-index: 1;
-  max-width: 600rpx;
-  margin: 0 auto;
-  width: 100%;
+  padding: 0 40rpx calc(36rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
-.hero-section {
-  text-align: center;
-  margin-bottom: $sp-32;
-}
-
-.hero-title {
-  font-size: 96rpx;
-  font-weight: $fw-bold;
-  color: $c-primary;
-  letter-spacing: 2rpx;
-}
-
-// ── 角色卡片 ──
-.role-cards {
-  width: 100%;
+.role-nav {
+  box-sizing: content-box;
   display: flex;
-  flex-direction: column;
-  gap: $sp-12;
+  align-items: center;
+  position: relative;
+
+  &__back {
+    width: 72rpx;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: -20rpx;
+  }
+
+  image { width: 34rpx; height: 34rpx; }
 }
+.hero-section { margin: 46rpx 0 42rpx; text-align: center; }
+.hero-title { display: block; color: $c-text; font-family: "Songti SC", "STSong", serif; font-size: 68rpx; font-weight: 900; line-height: 1.15; }
+.hero-subtitle { display: block; margin-top: 14rpx; color: $c-text-sub; font-size: 28rpx; }
+.role-cards { display: flex; flex-direction: column; gap: 24rpx; }
 
 .role-card {
-  background: $c-surface;
-  padding: $sp-24 $sp-16;
-  border-radius: $r-xl;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  height: 286rpx;
+  position: relative;
+  overflow: hidden;
+  border: 2rpx solid rgba($c-border, 0.88);
+  border-radius: 30rpx;
+  background: rgba(255, 252, 249, 0.9);
   box-shadow: $shadow-sm;
-  border: 4rpx solid transparent;
-  transition: all 300ms $ease-spring;
-  &:active {
-    transform: scale(0.97);
-  }
+  transition: transform $duration-fast $ease-out, border-color $duration-fast $ease-out;
+  &:active { transform: scale(0.985); }
 }
 
-.role-card-active {
-  border-color: $c-primary;
-  transform: scale(1.02);
-  box-shadow: $shadow-glow;
+.role-card--active {
+  border: 4rpx solid $c-primary;
+  background: linear-gradient(135deg, rgba(255, 250, 247, 0.98), rgba(251, 239, 234, 0.98));
+  box-shadow: 0 10rpx 30rpx rgba($c-primary, 0.12);
 }
 
-.role-card-icon {
-  width: 96rpx;
-  height: 96rpx;
-  margin-bottom: $sp-8;
-}
+.role-card-art { position: absolute; left: -20rpx; bottom: -10rpx; width: 390rpx; height: 300rpx; }
+.role-card-art--elder { left: -30rpx; }
+.role-card-copy { position: absolute; z-index: 2; left: 276rpx; right: 66rpx; top: 50%; transform: translateY(-50%); }
+.role-card-title { display: block; margin-bottom: 20rpx; color: $c-text; font-family: "Songti SC", "STSong", serif; font-size: 40rpx; font-weight: 800; line-height: 1.2; }
+.role-card-desc { display: block; color: $c-text-sub; font-size: 25rpx; line-height: 1.5; white-space: nowrap; }
 
-.role-card-title {
-  font-size: $fs-title;
+.role-check {
+  width: 44rpx;
+  height: 44rpx;
+  position: absolute;
+  z-index: 3;
+  right: 24rpx;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-50%);
+  border: 3rpx solid #A69D95;
+  border-radius: 50%;
+  color: $c-text-inverse;
+  font-size: 28rpx;
   font-weight: $fw-bold;
-  color: $c-text;
-  display: block;
-  margin-bottom: $sp-4;
+  &--active { border-color: $c-primary; background: $c-primary; }
 }
 
-.role-card-desc {
-  font-size: $fs-body-sm;
-  color: $c-text-sub;
-  line-height: $lh-relaxed;
-  display: block;
-  max-width: 400rpx;
-}
-
-// ── 确认按钮 ──
-.confirm-area {
-  margin-top: $sp-32;
-  width: 100%;
-  opacity: 0;
-  transform: translateY(16rpx);
-  transition: all 500ms $ease-out;
-  pointer-events: none;
-}
-
-.confirm-area.visible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
+.role-note {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin: 56rpx 26rpx 40rpx;
+  color: $c-text-hint;
+  font-size: 23rpx;
+  text-align: center;
+  &__line { height: 1rpx; flex: 1; background: $c-border; }
 }
 
 .confirm-btn {
   width: 100%;
-  background: $c-primary;
+  height: 106rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
   border-radius: $r-full;
-  padding: $sp-16 0;
-  border: none;
+  background: $gradient-warm;
   box-shadow: $shadow-glow;
-  transition: all $duration-normal $ease-out;
-  &:active {
-    transform: scale(0.95);
-  }
+  transition: transform $duration-fast $ease-out;
+  &:active { transform: scale(0.98); }
   &::after { border: none; }
 }
 
-.confirm-btn-text {
-  font-size: $fs-subtitle;
-  font-weight: $fw-medium;
-  color: $c-text-inverse;
-  letter-spacing: 4rpx;
-}
-
-// ── Footer ──
-.role-footer {
-  padding: $sp-24;
-  text-align: center;
-  position: relative;
-  z-index: 1;
-}
-
-.footer-text {
-  font-size: $fs-body-sm;
-  color: $c-text-hint;
-  letter-spacing: 4rpx;
-}
+.confirm-btn-text { color: $c-text-inverse; font-family: "Songti SC", "STSong", serif; font-size: 36rpx; font-weight: $fw-bold; letter-spacing: 2rpx; }
 </style>

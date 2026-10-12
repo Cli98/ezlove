@@ -38,6 +38,8 @@ class ElderResponse(BaseModel):
     updated_at: datetime
     elder_name: str | None = None
     elder_phone: str | None = None
+    avatar_url: str | None = None
+    gender: str | None = None
     today_active: bool = False
     model_config = {"from_attributes": True}
 

@@ -1,5 +1,10 @@
 <template>
   <view class="page page-gradient">
+    <view class="history-hero">
+      <text class="history-hero__title">{{ heroTitle }}</text>
+      <text class="history-hero__desc">{{ heroDescription }}</text>
+    </view>
+
     <!-- Loading -->
     <view v-if="momentStore.loading" class="loading-center fade-in">
       <view class="loading-dot-wrap">
@@ -21,15 +26,9 @@
 
     <!-- History List -->
     <view v-else class="history-content">
-      <!-- Section Header -->
-      <view class="section-header">
-        <view class="section-header-row">
-          <image class="section-icon" src="/static/icons/edit-note.svg" mode="aspectFit" />
-          <view>
-            <text class="section-title">{{ userStore.isElder ? '收到的牵挂' : '记录' }}</text>
-            <text class="section-subtitle">{{ userStore.isElder ? '家人们的每一份心意' : '珍惜每一次跨越距离的叮嘱' }}</text>
-          </view>
-        </view>
+      <view class="history-summary">
+        <text>{{ userStore.isElder ? '家人们的每一份心意' : '珍惜每一次跨越距离的叮嘱' }}</text>
+        <text>{{ momentStore.moments.length }} 条</text>
       </view>
 
       <!-- Cards -->
@@ -45,20 +44,15 @@
           <view class="card-header">
             <view class="card-header-left">
               <view class="avatar-wrap" :class="{ 'avatar-unread': !m.is_read, 'avatar-read': m.is_read }">
-                <image
-                  v-if="m.elder_avatar"
-                  :src="getFullUrl(m.elder_avatar)"
-                  mode="aspectFill"
-                  class="avatar-img"
-                />
-                <text v-else class="avatar-initial">{{ (m.elder_nickname || m.elder_label || '家')[0] }}</text>
+                <image v-if="participantAvatar(m, index)" :src="participantAvatar(m, index)" mode="aspectFill" class="avatar-img" />
+                <text v-else class="avatar-initial">{{ participantName(m)[0] || '家' }}</text>
               </view>
               <view class="name-status">
-                <text class="elder-name">{{ m.elder_nickname || m.elder_label || '家人' }}</text>
+                <text class="elder-name">{{ participantName(m) }}</text>
                 <view class="status-row">
                   <view class="status-dot" :class="m.is_read ? 'dot-read' : 'dot-unread'" />
                   <text class="status-text" :class="m.is_read ? 'text-read' : 'text-unread'">
-                    {{ m.is_read ? '已读' : '未读' }}
+                    {{ readStatus(m) }}
                   </text>
                 </view>
               </view>
@@ -76,11 +70,11 @@
           <!-- Footer: Dashed Divider + Action -->
           <view class="card-footer">
             <view v-if="!m.is_read" class="footer-action" @tap="goViewDetail(m)">
-              <text class="action-text action-primary">查看详情</text>
+              <text class="action-text action-primary">{{ userStore.isElder ? '查看牵挂' : '查看详情' }}</text>
               <text class="action-arrow">›</text>
             </view>
             <view v-else class="footer-action">
-              <text class="action-text action-muted">已存入存档</text>
+              <text class="action-text action-muted">{{ userStore.isElder ? '已查看' : '已存入存档' }}</text>
             </view>
           </view>
         </view>
@@ -95,14 +89,33 @@
 </template>
 
 <script setup>
+import { computed } from "vue";
 import { onShow, onPullDownRefresh } from "@dcloudio/uni-app";
 import { useMomentStore } from "@/stores/moment";
 import { useUserStore } from "@/stores/user";
 import { formatRelativeTime } from "@/utils/date";
 import { getFullUrl } from "@/api/config";
+import { getElderAvatar } from "@/utils/avatar";
 
 const momentStore = useMomentStore();
 const userStore = useUserStore();
+const heroTitle = computed(() => userStore.isElder ? "家人的每一句牵挂，\n都在这里" : "每一次问候，\n都有回音");
+const heroDescription = computed(() => userStore.isElder ? "慢慢看，每一句都是家人的惦念" : "用一条牵挂，拉近心的距离");
+
+function participantName(moment) {
+  return userStore.isElder ? (moment.sender_name || "家人") : (moment.elder_name || "家人");
+}
+
+function participantAvatar(moment, index) {
+  const avatar = userStore.isElder ? moment.sender_avatar_url : moment.elder_avatar_url;
+  if (avatar) return getFullUrl(avatar);
+  return userStore.isElder ? "" : getElderAvatar(moment, index);
+}
+
+function readStatus(moment) {
+  if (userStore.isElder) return moment.is_read ? "已查看" : "待查看";
+  return moment.is_read ? "已读" : "未读";
+}
 
 function formatTime(isoStr) {
   return formatRelativeTime(isoStr);
@@ -202,6 +215,7 @@ function goViewDetail(m) {
 
 /* Section Header */
 .section-header {
+  padding-top: $sp-24;
   margin-bottom: $sp-32;
 }
 
@@ -214,15 +228,6 @@ function goViewDetail(m) {
 .section-icon {
   width: 48rpx;
   height: 48rpx;
-}
-
-.section-title {
-  font-size: 56rpx;
-  font-weight: $fw-bold;
-  color: $c-text;
-  letter-spacing: -2rpx;
-  display: block;
-  margin-bottom: $sp-4;
 }
 
 .section-subtitle {
@@ -240,7 +245,7 @@ function goViewDetail(m) {
 
 /* History Card */
 .history-card {
-  background: $c-surface;
+  background: rgba(255, 255, 255, 0.86);
   border-radius: $r-2xl;
   padding: $sp-20;
   box-shadow: $shadow-md;
@@ -442,4 +447,49 @@ function goViewDetail(m) {
   font-size: $fs-caption;
   color: rgba($c-text-hint, 0.4);
 }
+</style>
+
+<style lang="scss" scoped>
+.page {
+  padding-top: calc(var(--status-bar-height, 50rpx) + 96rpx);
+  background:
+    radial-gradient(circle at 92% 7%, rgba($c-accent,.10), transparent 23%),
+    $gradient-page;
+}
+.history-hero { margin: 0 8rpx 34rpx; }
+.history-hero__title {
+  display: block;
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 56rpx;
+  font-weight: 900;
+  line-height: 1.2;
+  white-space: pre-line;
+}
+.history-hero__desc { display: block; margin-top: 10rpx; color: $c-text-sub; font-size: 28rpx; }
+.history-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18rpx;
+  padding: 0 6rpx;
+  color: $c-text-hint;
+  font-size: 25rpx;
+}
+.card-list { gap: 16rpx; }
+.history-card {
+  padding: 24rpx;
+  border: 1rpx solid rgba($c-border,.76);
+  border-radius: 26rpx;
+  background: rgba(255,255,255,.82);
+  box-shadow: $shadow-sm;
+}
+.history-card.unread { border-color: rgba($c-primary,.3); box-shadow: 0 10rpx 30rpx rgba($c-primary,.08); }
+.avatar-wrap { width: 88rpx; height: 88rpx; box-shadow: none; }
+.elder-name { font-family: "Songti SC", "STSong", serif; font-size: 34rpx; font-weight: 800; }
+.message-preview { margin: 20rpx 0 10rpx; padding: 20rpx; border-radius: 18rpx; background: $c-bg; color: $c-text; font-size: 29rpx; line-height: 1.65; }
+.poster-thumb { border-radius: 18rpx; }
+.card-footer { border-color: $c-border-light; }
+.action-primary { color: $c-primary; }
+.empty-state { padding-top: 70rpx; }
 </style>
