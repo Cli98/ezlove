@@ -7,12 +7,10 @@
       :columns="columns"
       :rows="rows"
       :loading="loading"
-      min-width="1050px"
-      clickable
+      min-width="1180px"
       loading-text="正在整理老人档案…"
       empty-text="暂无符合条件的老人档案"
       class="archive-table-view"
-      @row-click="$emit('view', $event.id)"
     >
       <template #cell-elder="{ row }"><div class="elder-cell"><img v-if="getElderAvatar(row)" :src="getElderAvatar(row)" :alt="row.elder_name || '老人头像'" /><span v-else class="avatar-fallback" aria-hidden="true">{{ initialOf(row) }}</span><b>{{ row.elder_name || '未命名老人' }}</b></div></template>
       <template #cell-level="{ row }"><span :class="`level level--${row.care_level || 'C'}`">{{ row.care_level || 'C' }} 级</span></template>
@@ -20,12 +18,14 @@
       <template #cell-status="{ row }"><span :class="['today-status', { 'today-status--active': row.today_active }]"><i></i>{{ row.today_active ? '今日有动态' : '暂无新动态' }}</span></template>
       <template #cell-risk="{ row }"><span :class="['risk', `risk--${riskInfo(row).tone}`]">{{ riskInfo(row).text }}</span></template>
       <template #cell-note="{ row }"><p class="health-note" :title="row.health_notes || '暂无健康备注'">{{ row.health_notes || '暂无健康备注' }}</p></template>
+      <template #cell-action="{ row }"><AppButton variant="link" @click="$emit('view', row.id)">查看档案</AppButton></template>
     </AppTable>
     <AppPagination :total="total" :page="page" :page-size="pageSize" :total-pages="totalPages" @page="$emit('page', $event)" @page-size="$emit('page-size', $event)" />
   </AppPanel>
 </template>
 
 <script setup>
+import AppButton from '@/components/AppButton.vue'
 import AppPanel from '@/components/AppPanel.vue'
 import AppTable from '@/components/AppTable.vue'
 import AppPagination from '@/components/AppPagination.vue'
@@ -34,12 +34,13 @@ import { getElderAvatar } from '@/utils/avatar'
 defineEmits(['view', 'page', 'page-size'])
 const props = defineProps({ rows: { type: Array, default: () => [] }, loading: Boolean, total: { type: Number, default: 0 }, page: { type: Number, default: 1 }, pageSize: { type: Number, default: 10 }, totalPages: { type: Number, default: 0 } })
 const columns = [
-  { key: 'elder', label: '姓名', width: '16%' },
-  { key: 'level', label: '分级', width: '10%' },
-  { key: 'address', label: '楼栋 / 门牌', width: '22%' },
-  { key: 'status', label: '今日状态', width: '16%' },
-  { key: 'risk', label: '风险', width: '14%' },
-  { key: 'note', label: '健康备注', width: '22%' },
+  { key: 'elder', label: '姓名', width: '15%' },
+  { key: 'level', label: '分级', width: '9%' },
+  { key: 'address', label: '楼栋 / 门牌', width: '20%' },
+  { key: 'status', label: '今日状态', width: '14%' },
+  { key: 'risk', label: '风险', width: '12%' },
+  { key: 'note', label: '健康备注', width: '20%' },
+  { key: 'action', label: '操作', width: '10%' },
 ]
 
 function riskInfo(row) {

@@ -8,7 +8,7 @@
         <div><b>关怀分级</b><div class="level-options"><button v-for="level in ['A','B','C']" :key="level" :class="{ active: form.care_level === level }" @click="form.care_level = level">{{ level }}级</button></div></div>
         <label>楼栋/门牌<input v-model="form.address" placeholder="例：和谐社区1号楼203室" /></label>
         <label>健康备注<textarea v-model="form.health_notes" rows="3" placeholder="如：高血压、行动不便等"></textarea></label>
-        <div class="contact-fields"><label>紧急联系人<input v-model="form.emergency_contact_name" placeholder="联系人姓名" /></label><label>联系电话<input v-model="form.emergency_contact_phone" placeholder="联系人手机号" /></label></div>
+        <div v-if="!isEdit" class="contact-fields"><label>紧急联系人<input v-model="form.emergency_contact_name" placeholder="联系人姓名" /></label><label>联系电话<input v-model="form.emergency_contact_phone" placeholder="联系人手机号" /></label></div>
       </div>
       <footer><button @click="$emit('close')">取消</button><button class="primary" :disabled="submitting" @click="submit">{{ submitting ? '提交中…' : isEdit ? '保存修改' : '确认添加' }}</button></footer>
     </section>
@@ -37,7 +37,11 @@ watch(() => props.open, open => {
 function submit() {
   if (!isEdit.value && !form.elder_id) return ElMessage.warning('请填写老人ID')
   const payload = { ...form }
-  if (isEdit.value) delete payload.elder_id
+  if (isEdit.value) {
+    delete payload.elder_id
+    delete payload.emergency_contact_name
+    delete payload.emergency_contact_phone
+  }
   emit('submit', payload)
 }
 </script>

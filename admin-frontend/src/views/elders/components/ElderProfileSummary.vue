@@ -6,8 +6,8 @@
         <span v-else aria-hidden="true">{{ elderInitial }}</span>
       </div>
       <div class="profile-copy">
-        <div class="profile-name"><h1>{{ elder.name || '未命名老人' }}</h1><span class="level">{{ elder.care_level || 'C' }}级</span><span class="care-tag">{{ careLabel }}</span><button class="edit-profile" @click="$emit('edit')"><span class="material-symbols-outlined">edit</span>编辑</button></div>
-        <p class="profile-meta">{{ elder.phone || '手机号待补充' }} · {{ elder.address || '地址待补充' }}</p>
+        <div class="profile-name"><h1>{{ elder.name || '未命名老人' }}</h1><span class="level">{{ elder.care_level || 'C' }}级</span><span :class="['risk-tag', `risk-tag--${risk.tone}`]">{{ risk.text }}</span><button class="edit-profile" @click="$emit('edit')"><span class="material-symbols-outlined">edit</span>编辑</button></div>
+        <p class="profile-meta">{{ elder.address || '地址待补充' }}</p>
         <p v-if="elder.health_notes" class="health-note" :title="elder.health_notes">健康备注：{{ elder.health_notes }}</p>
       </div>
     </div>
@@ -34,7 +34,15 @@ const elder = computed(() => props.detail.elder || {})
 const avatar = computed(() => getElderAvatar(elder.value))
 const elderInitial = computed(() => (elder.value.name || '长').trim().charAt(0) || '长')
 const lastSignal = computed(() => props.detail.recent_timeline?.[0])
-const careLabel = computed(() => ({ A: '重点关爱', B: '日常关注', C: '健康互助' }[elder.value.care_level] || '日常关怀'))
+const risk = computed(() => {
+  const level = props.detail.risk?.level
+  const rawScore = props.detail.risk?.score
+  const score = rawScore !== null && rawScore !== undefined && Number.isFinite(Number(rawScore)) ? ` · ${Math.round(Number(rawScore))}` : ''
+  if (level === 'critical') return { tone: 'danger', text: `高风险${score}` }
+  if (level === 'warning' || level === 'attention') return { tone: 'warning', text: `关注${score}` }
+  if (level === 'normal' || level === 'low') return { tone: 'normal', text: `正常${score}` }
+  return { tone: 'muted', text: '待评估' }
+})
 const status = computed(() => {
   const risk = props.detail.risk?.level
   if (risk === 'critical') return { tone: 'danger', icon: 'error', label: '当前需要核实' }
@@ -54,7 +62,7 @@ function formatDateTime(value) {
 <style scoped>
 .profile-card { display: grid; min-height: 154px; grid-template-columns: minmax(420px,1.45fr) minmax(270px,.9fr) 300px; border: 1px solid #e5ddd5; border-radius: 11px; }
 .profile-card::before { display: none; }
-.profile-main { display: flex; align-items: center; gap: 20px; padding: 20px 24px; }.avatar-display { display: grid; width: 112px; height: 112px; flex: none; overflow: hidden; place-items: center; border-radius: 10px; color: #fff; background: #c44d3e; font: 700 40px 'Songti SC','STSong',serif; }.avatar-display img { width: 100%; height: 100%; object-fit: cover; }.profile-copy { min-width: 0; }.profile-name { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }.profile-name h1 { margin: 0 4px 0 0; color: #172942; font: 900 30px/1.1 'Songti SC','STSong',serif; }.profile-meta { margin: 12px 0 0; color: #44536a; font-size: 17px; }.health-note { max-width: 470px; overflow: hidden; margin: 7px 0 0; color: #7c7b79; font-size: 12px; white-space: nowrap; text-overflow: ellipsis; cursor: help; }.level, .care-tag { display: inline-flex; height: 30px; align-items: center; padding: 0 11px; border-radius: 9px; font-size: 13px; font-weight: 800; }.level { color: #c6533d; background: #fae6de; }.care-tag { color: #c6533d; background: #f8e9e4; }.edit-profile { display: inline-flex; height: 30px; align-items: center; gap: 5px; padding: 0 10px; border: 1px solid #d9cfc6; border-radius: 8px; color: #687183; background: rgba(255,255,255,.62); font-size: 12px; cursor: pointer; }.edit-profile .material-symbols-outlined { font-size: 15px; }
+.profile-main { display: flex; align-items: center; gap: 20px; padding: 20px 24px; }.avatar-display { display: grid; width: 112px; height: 112px; flex: none; overflow: hidden; place-items: center; border-radius: 10px; color: #fff; background: #c44d3e; font: 700 40px 'Songti SC','STSong',serif; }.avatar-display img { width: 100%; height: 100%; object-fit: cover; }.profile-copy { min-width: 0; }.profile-name { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }.profile-name h1 { margin: 0 4px 0 0; color: #172942; font: 900 30px/1.1 'Songti SC','STSong',serif; }.profile-meta { margin: 12px 0 0; color: #44536a; font-size: 17px; }.health-note { max-width: 470px; overflow: hidden; margin: 7px 0 0; color: #7c7b79; font-size: 12px; white-space: nowrap; text-overflow: ellipsis; cursor: help; }.level, .risk-tag { display: inline-flex; height: 30px; align-items: center; padding: 0 11px; border-radius: 9px; font-size: 13px; font-weight: 800; }.level { color: #c6533d; background: #fae6de; }.risk-tag--danger { color: #c6533d; background: #fae6de; }.risk-tag--warning { color: #b87923; background: #fbefdd; }.risk-tag--normal { color: #56826a; background: #e6f0e9; }.risk-tag--muted { color: #767b82; background: #efefed; }.edit-profile { display: inline-flex; height: 30px; align-items: center; gap: 5px; padding: 0 10px; border: 1px solid #d9cfc6; border-radius: 8px; color: #687183; background: rgba(255,255,255,.62); font-size: 12px; cursor: pointer; }.edit-profile .material-symbols-outlined { font-size: 15px; }
 .profile-status { display: grid; align-content: center; gap: 12px; padding: 18px 30px; }.profile-status::before { content: ''; position: absolute; top: 22px; bottom: 22px; left: 0; width: 1px; background: rgba(220,185,160,.56); }.status-line, .signal-line { display: flex; align-items: center; gap: 12px; color: #34425a; font-size: 14px; }.status-line .material-symbols-outlined { font-size: 32px; }.status-line b { font-size: 16px; }.status-line.danger { color: #d75439; }.status-line.warning { color: #cf842b; }.status-line.normal { color: #50856a; }.status-line.muted { color: #78808d; }.signal-line :deep(.dashboard-icon) { color: #34425a; font-size: 25px; }
 .profile-actions { display: grid; align-content: center; gap: 9px; padding: 20px 24px; }.profile-actions button { display: flex; width: 100%; height: 45px; align-items: center; justify-content: center; gap: 9px; border: 1px solid #d95a42; border-radius: 7px; color: #cf553d; background: rgba(255,255,255,.72); font-size: 14px; font-weight: 700; cursor: pointer; }.profile-actions button.primary { color: #fff; background: #d85b42; }.profile-actions .material-symbols-outlined { font-size: 20px; }
 @media (max-width: 1180px) { .profile-card { grid-template-columns: 1.2fr 1fr; }.profile-actions { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; padding-top: 0; } }
