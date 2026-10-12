@@ -112,7 +112,7 @@ const filterTabs = [
   { label: '查看', value: 'view' },
   { label: '牵挂', value: 'moment' },
   { label: '食堂', value: 'canteen' },
-  { label: '告警', value: 'alert' },
+  { label: '提醒', value: 'alert' },
   { label: '事件', value: 'event' },
 ]
 

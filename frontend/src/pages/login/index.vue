@@ -8,9 +8,7 @@
     <!-- 品牌区域 -->
     <view class="brand-area fade-in">
       <view class="logo-outer">
-        <view class="logo-inner">
-          <image class="logo-icon" src="/static/icons/logo-heart.svg" mode="aspectFit" />
-        </view>
+        <image class="logo-icon" src="/static/icons/logo-app.png" mode="aspectFit" />
       </view>
       <text class="brand-name">易挂念</text>
       <text class="brand-subtitle">家人牵挂平台</text>
@@ -23,12 +21,33 @@
 
       <!-- 登录操作 -->
     <view class="login-actions fade-in stagger-2">
-      <button class="wx-login-btn" @tap="handleLogin()">
+      <!-- 身份选择 -->
+      <view class="role-pick-area">
+        <text class="role-pick__label">请选择您的身份</text>
+        <view class="role-pick">
+          <view
+            class="role-pick__opt"
+            :class="{ 'role-pick__opt--on': selectedRole === 'family' }"
+            @tap="selectedRole = 'family'"
+          >
+            <text class="role-pick__text">子女/亲属</text>
+          </view>
+          <view
+            class="role-pick__opt"
+            :class="{ 'role-pick__opt--on': selectedRole === 'elder' }"
+            @tap="selectedRole = 'elder'"
+          >
+            <text class="role-pick__text">长辈</text>
+          </view>
+        </view>
+      </view>
+
+      <button class="wx-login-btn" :class="{ 'wx-login-btn--dim': !canSubmit }" @tap="handleLogin()">
         <text class="wx-btn-text">微信一键登录</text>
       </button>
 
-      <!-- 开发环境调试入口 -->
-      <view class="dev-login-group">
+      <!-- 开发环境调试入口（生产构建自动隐藏） -->
+      <view v-if="isDev" class="dev-login-group">
         <button class="dev-login-btn" @tap="handleLogin('demo_family')">
           <text class="dev-btn-text">子女端体验</text>
         </button>
@@ -37,7 +56,17 @@
         </button>
       </view>
 
-      <text class="login-terms">登录即代表您已同意《服务协议》与《隐私政策》</text>
+      <view class="terms-row">
+        <view class="terms-check" :class="{ 'terms-check--on': agreed }" @tap="agreed = !agreed">
+          <text v-if="agreed" class="terms-check__tick">✓</text>
+        </view>
+        <view class="terms-text">
+          <text class="terms-text__plain" @tap="agreed = !agreed">我已阅读并同意</text>
+          <text class="terms-text__link" @tap.stop="goAgreement">《用户协议》</text>
+          <text class="terms-text__plain" @tap="agreed = !agreed">与</text>
+          <text class="terms-text__link" @tap.stop="goPrivacy">《隐私政策》</text>
+        </view>
+      </view>
     </view>
 
     <!-- Footer -->
@@ -46,18 +75,63 @@
 </template>
 
 <script setup>
+import { ref, computed } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
 import { useUserStore } from "@/stores/user";
 
 const userStore = useUserStore();
 const isDev = import.meta.env.DEV;
+const agreed = ref(false);
+const selectedRole = ref("");
+const redirectUrl = ref("");
+const canSubmit = computed(() => !!selectedRole.value && agreed.value);
+
+onLoad((query) => {
+  // 分享卡片直达等场景：登录成功后回跳到目标页
+  if (query?.redirect) {
+    try {
+      redirectUrl.value = decodeURIComponent(query.redirect);
+    } catch {
+      redirectUrl.value = "";
+    }
+  }
+});
+
+function goAgreement() {
+  uni.navigateTo({ url: "/pages/about/agreement" });
+}
+
+function goPrivacy() {
+  uni.navigateTo({ url: "/pages/about/privacy" });
+}
 
 async function handleLogin(openid) {
+  // 真实微信登录需先选身份 + 同意协议；调试入口（openid 直登）仅需协议
+  if (!openid && !selectedRole.value) {
+    uni.showToast({ title: "请先选择您的身份", icon: "none" });
+    return;
+  }
+  if (!agreed.value) {
+    uni.showToast({ title: "请先阅读并勾选同意相关协议", icon: "none" });
+    return;
+  }
   try {
     uni.showLoading({ title: "登录中..." });
     await userStore.login(openid);
     uni.hideLoading();
 
-    if (!userStore.hasRole) {
+    // 按登录页所选身份初始化/校正（存量账号若与所选身份不同，同样生效）
+    if (selectedRole.value && userStore.profile?.role !== selectedRole.value) {
+      try {
+        await userStore.setRole(selectedRole.value);
+      } catch {
+        // 设定失败时由下方 hasRole 分支兜底跳转角色页
+      }
+    }
+
+    if (redirectUrl.value) {
+      uni.reLaunch({ url: redirectUrl.value });
+    } else if (!userStore.hasRole) {
       uni.reLaunch({ url: "/pages/login/role" });
     } else {
       uni.reLaunch({ url: "/pages/index/index" });
@@ -125,35 +199,16 @@ async function handleLogin(openid) {
 .logo-outer {
   width: 160rpx;
   height: 160rpx;
-  border-radius: 32rpx;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8rpx;
+  border-radius: 36rpx;
+  overflow: hidden;
   margin-bottom: 40rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.1);
-}
-
-.logo-inner {
-  width: 100%;
-  height: 100%;
-  border-radius: 26rpx;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  box-shadow: 0 10rpx 36rpx rgba(0, 0, 0, 0.28);
 }
 
 .logo-icon {
-  width: 64rpx;
-  height: 64rpx;
-  opacity: 0.9;
-  filter: brightness(10);
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .brand-name {
@@ -216,6 +271,60 @@ async function handleLogin(openid) {
   gap: 16rpx;
 }
 
+// ── 身份选择 ──
+.role-pick-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 8rpx;
+}
+
+.role-pick__label {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 2rpx;
+}
+
+.role-pick {
+  width: 100%;
+  display: flex;
+  gap: 20rpx;
+}
+
+.role-pick__opt {
+  flex: 1;
+  height: 92rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $r-full;
+  border: 2rpx solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.06);
+  transition: all $duration-normal $ease-out;
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.role-pick__opt--on {
+  background: #C4745C;
+  border-color: #C4745C;
+  box-shadow: 0 6rpx 24rpx rgba(196, 116, 92, 0.45);
+}
+
+.role-pick__text {
+  font-size: 30rpx;
+  font-weight: $fw-medium;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 2rpx;
+}
+
+.role-pick__opt--on .role-pick__text {
+  color: #FFFFFF;
+}
+
 .wx-login-btn {
   width: 100%;
   height: 104rpx;
@@ -230,6 +339,10 @@ async function handleLogin(openid) {
   &:active {
     transform: scale(0.95);
     opacity: 0.9;
+  }
+  &--dim {
+    opacity: 0.4;
+    box-shadow: none;
   }
   &::after { border: none; }
 }
@@ -263,11 +376,55 @@ async function handleLogin(openid) {
   letter-spacing: 2rpx;
 }
 
-.login-terms {
-  font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.3);
-  text-align: center;
+// ── 协议勾选 ──
+.terms-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
   margin-top: 24rpx;
+  padding: 8rpx 12rpx;
+}
+
+.terms-check {
+  width: 34rpx;
+  height: 34rpx;
+  border-radius: 50%;
+  border: 2rpx solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all $duration-fast $ease-out;
+
+  &--on {
+    background: #C4745C;
+    border-color: #C4745C;
+  }
+
+  &__tick {
+    font-size: 24rpx;
+    color: #FFFFFF;
+    line-height: 1;
+  }
+}
+
+.terms-text {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  &__plain {
+    font-size: 24rpx;
+    color: rgba(255, 255, 255, 0.42);
+  }
+
+  &__link {
+    font-size: 24rpx;
+    color: #E8B7A6;
+    font-weight: $fw-medium;
+  }
 }
 
 // ── Footer ──

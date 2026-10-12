@@ -61,7 +61,7 @@
     <!-- Pending alerts -->
     <div v-if="activeTab === 'alerts'" class="space-y-2 max-h-80 overflow-y-auto">
       <div v-if="!alerts.length" class="text-center py-8 text-inactive-gray text-sm">
-        暂无待处理告警
+        暂无待处理提醒
       </div>
       <div
         v-for="alert in alerts"
@@ -86,7 +86,7 @@
     <!-- Timed out -->
     <div v-if="activeTab === 'timeout'" class="space-y-2 max-h-80 overflow-y-auto">
       <div v-if="!timedOut.length" class="text-center py-8 text-inactive-gray text-sm">
-        无超时告警
+        无超时提醒
       </div>
       <div
         v-for="alert in timedOut"

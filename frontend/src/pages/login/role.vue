@@ -6,11 +6,21 @@
       <view class="ambient-circle ambient-2" />
     </view>
 
+    <!-- 返回（仅切换模式） -->
+    <view
+      v-if="mode === 'switch'"
+      class="back-btn"
+      :style="{ top: statusBarTop + 'px' }"
+      @tap="goBack"
+    >
+      <image class="back-icon" src="/static/icons/arrow-back.svg" mode="aspectFit" />
+    </view>
+
     <!-- 主内容 -->
     <view class="role-content">
       <!-- Hero -->
       <view class="hero-section fade-in">
-        <text class="hero-title">你是</text>
+        <text class="hero-title">{{ mode === 'switch' ? '切换身份' : '你是' }}</text>
       </view>
 
       <!-- 角色卡片 -->
@@ -39,24 +49,39 @@
       <!-- 确认按钮 -->
       <view class="confirm-area" :class="{ visible: selectedRole }">
         <button class="confirm-btn" @tap="confirmRole">
-          <text class="confirm-btn-text">开启挂念之旅</text>
+          <text class="confirm-btn-text">{{ mode === 'switch' ? '确认切换' : '开启挂念之旅' }}</text>
         </button>
       </view>
     </view>
 
     <!-- Footer -->
     <view class="role-footer fade-in stagger-3">
-      <text class="footer-text">选择后可随时切换</text>
+      <text class="footer-text">{{ mode === 'switch' ? '切换后立即生效' : '选择后可随时切换' }}</text>
     </view>
   </view>
 </template>
 
 <script setup>
 import { ref } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
 import { useUserStore } from "@/stores/user";
 
 const userStore = useUserStore();
 const selectedRole = ref("");
+const mode = ref("");
+const statusBarTop = (uni.getSystemInfoSync().statusBarHeight || 20) + 8;
+
+onLoad((query) => {
+  mode.value = query?.mode || "";
+  // 切换模式：预选当前身份
+  if (mode.value === "switch" && userStore.profile?.role) {
+    selectedRole.value = userStore.profile.role;
+  }
+});
+
+function goBack() {
+  uni.navigateBack();
+}
 
 async function confirmRole() {
   if (!selectedRole.value) return;
@@ -77,6 +102,28 @@ async function confirmRole() {
   background-color: $c-bg;
   position: relative;
   overflow: hidden;
+}
+
+// ── 返回按钮（切换模式） ──
+.back-btn {
+  position: fixed;
+  left: 32rpx;
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.04);
+  z-index: 10;
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.back-icon {
+  width: 36rpx;
+  height: 36rpx;
 }
 
 // ── 氛围背景 ──

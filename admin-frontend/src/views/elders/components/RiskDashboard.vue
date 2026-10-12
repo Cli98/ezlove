@@ -165,9 +165,9 @@ const dimensions = computed(() => {
     },
     {
       key: 'alerts',
-      label: '告警密度',
+      label: '提醒密度',
       score: d.alert_density?.score ?? 0,
-      detail: `近30天 ${d.alert_density?.count_30d ?? 0} 次告警`,
+      detail: `近30天 ${d.alert_density?.count_30d ?? 0} 次提醒`,
     },
     {
       key: 'base',

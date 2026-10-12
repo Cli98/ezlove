@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>易挂念 · 发布就绪门禁报告 · 2026-09-24</title>
+<style>
+  :root{
+    --terra:#C44D3E; --orange:#FF8C42; --sage:#6B8F71; --green:#06D6A0;
+    --amber:#D4A853; --pink:#EF476F; --ink:#2b2b2b; --muted:#6b7280;
+    --bg:#FFF8F0; --card:#ffffff; --line:#ece3d8; --shadow:0 6px 24px rgba(120,80,50,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Segoe UI",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.7;font-size:16px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+  header.hero{background:linear-gradient(135deg,#C44D3E 0%,#FF8C42 100%);color:#fff;padding:44px 20px 56px;text-align:center;border-radius:0 0 28px 28px;box-shadow:var(--shadow)}
+  header.hero h1{margin:0 0 6px;font-size:30px;letter-spacing:.5px}
+  header.hero .sub{opacity:.95;font-size:15px}
+  header.hero .meta{margin-top:14px;font-size:13px;opacity:.9}
+  .badge{display:inline-block;padding:3px 12px;border-radius:999px;font-size:13px;font-weight:700;color:#fff}
+  .verdict{margin:-34px auto 26px;max-width:1000px;background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:22px 26px;border:1px solid var(--line)}
+  .verdict .tag{font-size:13px;color:var(--muted);letter-spacing:2px;font-weight:700}
+  .verdict h2{margin:6px 0 10px;font-size:22px;color:var(--terra)}
+  .verdict p{margin:0;color:#444}
+  .flag{display:inline-flex;align-items:center;gap:8px;font-weight:700}
+  .dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+  .g-ok{background:var(--green)} .g-no{background:var(--pink)} .g-doing{background:var(--amber)}
+  section{margin-top:38px}
+  h2.sec{font-size:21px;border-left:6px solid var(--orange);padding-left:12px;margin:0 0 18px}
+  h3{font-size:17px;margin:22px 0 10px;color:#3a3a3a}
+  .lights{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+  .light{background:var(--card);border-radius:14px;padding:16px 18px;border:1px solid var(--line);box-shadow:var(--shadow)}
+  .light .n{font-size:26px;font-weight:800;line-height:1.2}
+  .light .l{font-size:13px;color:var(--muted);margin-top:4px}
+  .light.ok .n{color:var(--sage)} .light.no .n{color:var(--pink)} .light.doing .n{color:var(--amber)}
+  table{width:100%;border-collapse:collapse;background:var(--card);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);font-size:15px}
+  th,td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#fbeee5;color:#7a3b2e;font-weight:700;font-size:14px}
+  tr:last-child td{border-bottom:none}
+  .pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap}
+  .p-ok{background:#e7f8f1;color:#0a8a63} .p-no{background:#fdeaef;color:#c62a54} .p-doing{background:#fbf1dc;color:#a9791f}
+  .gate{background:var(--card);border-radius:16px;padding:18px 20px;border:1px solid var(--line);box-shadow:var(--shadow);margin-bottom:16px;border-left:8px solid var(--muted)}
+  .gate.ok{border-left-color:var(--green)} .gate.no{border-left-color:var(--pink)} .gate.doing{border-left-color:var(--amber)}
+  .gate .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+  .gate h3{margin:0;font-size:18px}
+  .gate ul{margin:12px 0 0;padding-left:20px}
+  .gate li{margin:5px 0}
+  .muted{color:var(--muted)}
+  .bar{height:12px;background:#eee6db;border-radius:8px;overflow:hidden;margin:8px 0 2px}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--sage),var(--green))}
+  .kv{display:flex;gap:26px;flex-wrap:wrap;margin-top:10px}
+  .kv div{font-size:14px}
+  .kv b{font-size:22px;display:block;color:var(--terra)}
+  .evidence{background:#fff;border:1px dashed var(--terra);border-radius:14px;padding:16px 18px}
+  a.btn{display:inline-block;background:var(--terra);color:#fff;text-decoration:none;padding:9px 16px;border-radius:10px;font-weight:700;font-size:14px}
+  a.btn.ghost{background:#fff;color:var(--terra);border:1.5px solid var(--terra)}
+  .tl{position:relative;margin-left:8px;padding-left:26px;border-left:3px solid #f0dccb}
+  .tl .item{position:relative;margin-bottom:20px}
+  .tl .item:before{content:"";position:absolute;left:-35px;top:4px;width:15px;height:15px;border-radius:50%;background:var(--orange);border:3px solid #fff;box-shadow:0 0 0 2px var(--orange)}
+  .tl .item.cal:before{background:var(--pink);box-shadow:0 0 0 2px var(--pink)}
+  .check{list-style:none;padding:0;margin:0}
+  .check li{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin:8px 0;display:flex;gap:11px;align-items:flex-start;box-shadow:var(--shadow)}
+  .box{width:20px;height:20px;border-radius:5px;border:2px solid #c9bcae;flex:0 0 auto;margin-top:2px}
+  .box.on{background:var(--green);border-color:var(--green);position:relative}
+  .box.on:after{content:"✓";color:#fff;position:absolute;left:3px;top:-3px;font-weight:900}
+  .foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+  .callout{background:#fff5ef;border:1px solid #f3d8c8;border-radius:12px;padding:14px 16px;font-size:14.5px;color:#7a3b2e}
+  @media print{header.hero{border-radius:0}.wrap{max-width:none}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <h1>易挂念（EZLove）· 发布就绪门禁报告</h1>
+  <div class="sub">一份给所有人看得懂的进度核查与发布总结 · 面向"微信小程序对外正式发布"</div>
+  <div class="meta">报告日期：2026-09-24 &nbsp;|&nbsp; 视角：项目负责人 / 交付把关 &nbsp;|&nbsp; 结论性质：Go / No-Go 门禁核查</div>
+</header>
+
+<div class="wrap">
+
+  <!-- 结论横幅 -->
+  <div class="verdict">
+    <div class="tag">总 体 结 论</div>
+    <h2>✅ 内测就绪　·　⛔ 尚不具备"正式对外发布"条件</h2>
+    <p>
+      功能和软件质量这道关已经过了 —— <b>后端自动化测试 53/53 全绿</b>、<b>小程序与服务端联调验收 38/38 全绿</b>，
+      安全越权问题也全部修复。真正卡住"让老人和子女在手机上正式用起来"的，<b>不是代码，而是 4 件对外发布必须满足的事</b>：
+      ① 网站域名 + HTTPS 加密（微信强制要求）② 隐私政策与用户协议 ③ 微信"未读提醒"消息模板 ④ 服务器备份与自愈。
+      这些里有 3 件要走外部审批，<b>需要现在就去申请</b>。
+    </p>
+    <div style="margin-top:14px;display:flex;gap:22px;flex-wrap:wrap;font-weight:700">
+      <span class="flag"><span class="dot g-ok"></span> 软件质量：达标</span>
+      <span class="flag"><span class="dot g-doing"></span> 真机联调：进行中</span>
+      <span class="flag"><span class="dot g-no"></span> 对外发布：4 项硬门槛未过</span>
+    </div>
+  </div>
+
+  <!-- 红绿灯总览 -->
+  <section>
+    <h2 class="sec">一、一眼看懂：五道发布门禁</h2>
+    <div class="lights">
+      <div class="light ok"><div class="n">G1</div><div class="l">功能与安全<br><b>达标</b></div></div>
+      <div class="light no"><div class="n">G2</div><div class="l">合规与隐私<br><b>未过</b></div></div>
+      <div class="light no"><div class="n">G3</div><div class="l">微信发布链路<br><b>未过</b></div></div>
+      <div class="light no"><div class="n">G4</div><div class="l">服务器运维底座<br><b>未过</b></div></div>
+      <div class="light doing"><div class="n">G5</div><div class="l">真实数据与验收<br><b>进行中</b></div></div>
+    </div>
+    <p class="muted" style="margin-top:14px">说明：G1 已完成；G2/G3/G4 是对外发布的"一票否决"项；G5 正在推进中。</p>
+  </section>
+
+  <!-- 门禁详情 -->
+  <section>
+    <h2 class="sec">二、五道门禁逐条核查</h2>
+
+    <div class="gate ok">
+      <div class="top"><h3>G1 · 功能与安全</h3><span class="pill p-ok">✅ 达标</span></div>
+      <ul>
+        <li>四类"越权访问"高危漏洞（陌生人乱发内容、看老人状态、跨社区改数据）<b>已全部修复并加测试固化</b>。</li>
+        <li>核心列表打不开、"今日"时间算错、后台超时面板失效等回归问题<b>已全部修好</b>。</li>
+        <li>小程序首页/历史/提醒、后台老人/事件列表的显示问题<b>已修复</b>。</li>
+        <li>后端自动化测试 <b>53 项全部通过</b>，覆盖安全、核心流程、时间口径、限流等。</li>
+      </ul>
+    </div>
+
+    <div class="gate no">
+      <div class="top"><h3>G2 · 合规与隐私（法律 + 微信审核双要求）</h3><span class="pill p-no">⛔ 未过</span></div>
+      <ul>
+        <li>登录页现在只有一行"登录即代表同意…"的<b>静态文字</b>，<b>没有真正能点开看的《隐私政策》《用户协议》</b>，也没有"必须勾选同意"和"可以撤回"。</li>
+        <li>本产品会记录<b>老人的位置、健康、作息等敏感信息</b>，属于法律高敏感场景，协议文本需要<b>法务把关</b>，不是前端加个页面就行。</li>
+        <li><b>结论：</b>对外发布前必须有正式的隐私政策页 + 主动勾选 + 可撤回入口。</li>
+      </ul>
+    </div>
+
+    <div class="gate no">
+      <div class="top"><h3>G3 · 微信小程序对外发布链路</h3><span class="pill p-no">⛔ 未过</span></div>
+      <ul>
+        <li><b>域名 + HTTPS：</b>线上后端目前只有一个 IP 地址（<code>http://118.178.169.245</code>），<b>没有域名、没有加密（HTTPS）</b>。微信要求正式/体验版必须用"已备案域名 + HTTPS"，<b>这一步直接卡住对外</b>。</li>
+        <li><b>未读提醒送不到：</b>产品的核心卖点是"老人没看 → 提醒子女微信"，但微信订阅消息<b>模板还没申请、没配置</b>，现在这条提醒是"哑火"的。</li>
+        <li><b>老人直达没做好：</b>还差"微信卡片点一下就能看"的分享直达链路，现在老人要好几步才能看到内容。</li>
+        <li class="muted">（好消息：小程序名称、AppID、微信服务类目、主体备案此前已通过审核。）</li>
+      </ul>
+    </div>
+
+    <div class="gate no">
+      <div class="top"><h3>G4 · 服务器运维底座（敢不敢承接真实数据）</h3><span class="pill p-no">⛔ 未过</span></div>
+      <ul>
+        <li><b>没有数据备份：</b>全项目<b>零备份实现</b>，老人数据一旦服务器出问题就是不可挽回的事故。</li>
+        <li><b>服务不会自愈：</b>服务器重启后，后端服务不能保证自动恢复。</li>
+        <li><b>上传的图会丢：</b>老人/子女上传的照片<b>没有做持久化存储</b>，系统一重建就全没了。</li>
+        <li><b>线上配置和代码库不一致：</b>直接按代码库重新部署会失败，需要先核对同步。</li>
+      </ul>
+    </div>
+
+    <div class="gate doing">
+      <div class="top"><h3>G5 · 真实数据与真机验收</h3><span class="pill p-doing">🟡 进行中</span></div>
+      <ul>
+        <li><b>接口层联调已完成：</b>小程序与服务端的六大流程（登录、绑定、发牵挂、老人查看、提醒处理、个人中心积分）<b>端到端验收 38/38 全绿</b>。</li>
+        <li><b>真机端到端联调进行中：</b>受限于 G3（还没有 HTTPS 域名），手机上的完整体验验收还没跑完。</li>
+        <li><b>真实老人名册导入未完成：</b>现在用的是演示/模拟数据，正式绑定关系模型、试点家庭导入、工作人员培训还没落地。</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 进度核查 -->
+  <section>
+    <h2 class="sec">三、进度核查：从 9/15 基线到现在</h2>
+    <p class="muted">对照 2026-09-15 的《MVP 差距报告》基线，这一轮把"该止的血"基本止住了。下面是完成度快照。</p>
+    <h3>整体完成度（工程侧）</h3>
+    <div class="bar"><i style="width:88%"></i></div>
+    <div class="muted" style="font-size:13px">功能与安全底座 88%（发布链路/运维底座/真实数据另计，见门禁表）</div>
+
+    <table style="margin-top:18px">
+      <tr><th style="width:34%">差距报告里的问题</th><th style="width:16%">优先级</th><th style="width:16%">当前状态</th><th>说明</th></tr>
+      <tr><td>四类越权访问漏洞</td><td>P0</td><td><span class="pill p-ok">已修复</span></td><td>代码层校验 + 测试固化</td></tr>
+      <tr><td>列表分页打不开（4 个页面）</td><td>P0</td><td><span class="pill p-ok">已修复</span></td><td>三端列表恢复正常</td></tr>
+      <tr><td>"今日"时间三套口径不一致</td><td>P0</td><td><span class="pill p-ok">已统一</span></td><td>收口到统一时间函数</td></tr>
+      <tr><td>后台"超时"面板恒为空</td><td>P0</td><td><span class="pill p-ok">已修复</span></td><td>工作台测试通过</td></tr>
+      <tr><td>测试基线为零</td><td>P0</td><td><span class="pill p-ok">已建立</span></td><td>后端 53 项 + 联调 38 项</td></tr>
+      <tr><td>AppID / 类目 / 主体备案</td><td>P1</td><td><span class="pill p-ok">已完成</span></td><td>微信侧已审核通过</td></tr>
+      <tr><td>隐私政策页 + 勾选</td><td>P1</td><td><span class="pill p-no">未完成</span></td><td>微信审核硬要求（G2）</td></tr>
+      <tr><td>订阅消息模板接入</td><td>P1</td><td><span class="pill p-no">未完成</span></td><td>提醒送达的命门（G3）</td></tr>
+      <tr><td>老人卡片直达链路</td><td>P1</td><td><span class="pill p-no">未完成</span></td><td>产品铁律（G3）</td></tr>
+      <tr><td>HTTPS + 已备案域名</td><td>P1</td><td><span class="pill p-no">未完成</span></td><td>发布关键路径（G3）</td></tr>
+      <tr><td>备份 / 自愈 / 持久化</td><td>P1</td><td><span class="pill p-no">未完成</span></td><td>运维底座（G4）</td></tr>
+      <tr><td>后台"告警"文案 13 处</td><td>P2</td><td><span class="pill p-no">未整改</span></td><td>"牵挂而非监控"合规（半天）</td></tr>
+    </table>
+  </section>
+
+  <!-- 测试与证据 -->
+  <section>
+    <h2 class="sec">四、测试与验证证据（可点开核实）</h2>
+    <div class="evidence">
+      <h3 style="margin-top:0">🟢 后端自动化测试</h3>
+      <div class="kv">
+        <div><b>53 / 53</b>全部通过</div>
+        <div><b>2026-09-24</b>本地实测</div>
+        <div><b>安全矩阵</b>越权必拒 403</div>
+      </div>
+      <p class="muted" style="font-size:14px">覆盖：越权防护、核心闭环、时间口径、超时判定、限流、AI 媒体降级等。</p>
+
+      <h3>🟢 小程序 × 服务端 联调验收（当前在做的工作）</h3>
+      <div class="kv">
+        <div><b>38 / 38</b>接口+数据层全绿</div>
+        <div><b>6 大模块</b>端到端</div>
+        <div><b>进行中</b>真机联调待 HTTPS</div>
+      </div>
+      <table style="margin-top:10px;font-size:14px">
+        <tr><th>模块</th><th>用例数</th><th>结果</th><th>关键校验点</th></tr>
+        <tr><td>登录流程</td><td>6</td><td><span class="pill p-ok">全通过</span></td><td>一键登录、令牌刷新、每日奖励幂等、未认证拒绝</td></tr>
+        <tr><td>绑定关系</td><td>7</td><td><span class="pill p-ok">全通过</span></td><td>邀请码绑定/解绑、无效码拒绝、双向可见</td></tr>
+        <tr><td>发送牵挂</td><td>8</td><td><span class="pill p-ok">全通过</span></td><td>文字/图片/图文发送、非法文件拦截、未绑定被拒</td></tr>
+        <tr><td>老人查看</td><td>8</td><td><span class="pill p-ok">全通过</span></td><td>已读即在线、重复查看不重复加分、家属回看不算已读</td></tr>
+        <tr><td>告警中心</td><td>4</td><td><span class="pill p-ok">全通过</span></td><td>提醒列表、处理落库、越权处理被拒</td></tr>
+        <tr><td>个人中心</td><td>5</td><td><span class="pill p-ok">全通过</span></td><td>资料、积分余额与流水一致、每日签到</td></tr>
+      </table>
+      <div class="callout" style="margin-top:12px">
+        ⚠️ <b>诚实标注：</b>以上是"接口层 + 数据层"的端到端验收，证明后端与业务逻辑正确。
+        <b>手机上的真机全流程验收仍"进行中"</b>——因为对外发布必须走 HTTPS + 已备案域名（见 G3），这条不解决，真机体验版无法连接线上。
+      </div>
+
+      <h3>📎 阶段性产物：线上功能验证测试报告（2026-09-23）</h3>
+      <p style="font-size:14.5px;margin:6px 0 12px">
+        上一阶段已交付的图文实测报告（含 17 张真实截图，覆盖全站功能与 AI 助手专项），已随本报告归档进
+        <code>docs/</code> 目录，可点击下方按钮查看。
+      </p>
+      <a class="btn" href="./test-report-20260923-standalone.html" target="_blank">查看线上功能验证报告（2026-09-23）→</a>
+      &nbsp;
+      <a class="btn ghost" href="./2026-09-15-mvp-gap-report-and-plan.md" target="_blank">查看差距基线报告（2026-09-15）</a>
+    </div>
+  </section>
+
+  <!-- 时间线 -->
+  <section>
+    <h2 class="sec">五、关键路径与时间线（把"审批日历"和"写代码"分开算）</h2>
+    <div class="callout">
+      决定"最早哪天能对外"的，<b>不是我们写代码的速度，而是外部审批要多久</b>。红色节点是审批日历（不可压缩，须今天启动），橙色是工程冲刺。
+    </div>
+    <div class="tl" style="margin-top:18px">
+      <div class="item cal">
+        <b>【今天启动 · 审批线】</b> 域名购买 → ICP 备案接入 <span class="muted">（1–2 周起）</span><br>
+        <span class="muted">备案通过后 → SSL 证书 → 服务器开 HTTPS(443) → 微信后台配置合法域名</span>
+      </div>
+      <div class="item cal">
+        <b>【今天启动 · 审批线】</b> 微信公众平台申请"订阅消息模板" <span class="muted">（数天–1 周）</span><br>
+        <span class="muted">审批通过后填模板 ID → 打通"未读提醒"送达</span>
+      </div>
+      <div class="item cal">
+        <b>【今天启动 · 法务线】</b> 隐私政策 / 用户协议正文 <span class="muted">（法务把关）</span>
+      </div>
+      <div class="item">
+        <b>【工程第 1 周】</b> 运维底座：每日备份 + 恢复演练 + 服务自愈 + 上传文件持久化 + 配置同步
+      </div>
+      <div class="item">
+        <b>【工程第 2 周】</b> 隐私政策页 + 勾选撤回、订阅模板接入联调、老人卡片直达、后台文案整改
+      </div>
+      <div class="item">
+        <b>【工程第 3 周】</b> 真实数据导入隔离、首批家庭绑定、体验版真机全链路验收
+      </div>
+    </div>
+    <p style="margin-top:10px"><b>建议节奏（两步走）：</b>先让<b>管理后台</b>对外（社区工作人员用，无微信审核依赖，最快产生价值）；小程序在满足"域名 + 隐私 + 订阅模板"三门禁后提审发布。</p>
+  </section>
+
+  <!-- 风险 -->
+  <section>
+    <h2 class="sec">六、Top 风险</h2>
+    <table>
+      <tr><th style="width:44%">风险</th><th style="width:14%">等级</th><th>应对</th></tr>
+      <tr><td>域名/备案/审核等日历时间拖垮上线日期</td><td><span class="pill p-no">高</span></td><td>今天启动审批线；期间用体验版"启动调试"做内部验证</td></tr>
+      <tr><td>线上配置与代码库不一致，重新部署即失败</td><td><span class="pill p-no">高</span></td><td>先核对数据库版本 + 回灌线上真实配置入库</td></tr>
+      <tr><td>无备份承接真实老人数据 = 交付事故风险</td><td><span class="pill p-no">高</span></td><td>备份 + 至少一次恢复演练留证据后再放真实数据</td></tr>
+      <tr><td>老人临时绑定方案沿用到全量导入</td><td><span class="pill p-doing">中</span></td><td>设硬门槛：无正式绑定模型不得导入全量名册</td></tr>
+    </table>
+  </section>
+
+  <!-- Go/No-Go 清单 -->
+  <section>
+    <h2 class="sec">七、对外发布 Go / No-Go 核对清单</h2>
+    <ul class="check">
+      <li><span class="box on"></span><div><b>功能与安全</b> —— 越权修复、核心流程回归、后端 53 项 + 联调 38 项测试全绿</div></li>
+      <li><span class="box"></span><div><b>已备案域名 + HTTPS</b> —— 微信后台配置合法域名，体验版/正式版能连线上</div></li>
+      <li><span class="box"></span><div><b>订阅消息模板已接入</b> —— "未读提醒"能真实送达子女微信</div></li>
+      <li><span class="box"></span><div><b>隐私政策 / 用户协议</b> —— 可查看、可勾选同意、可撤回（法务过）</div></li>
+      <li><span class="box"></span><div><b>老人卡片直达</b> —— 点微信卡片 2 步内看到内容</div></li>
+      <li><span class="box"></span><div><b>运维底座</b> —— 每日备份 + 恢复演练 + 服务自愈 + 上传持久化 + 配置一致</div></li>
+      <li><span class="box"></span><div><b>真实数据验收</b> —— 体验版真机全链路跑通；试点数据与模拟数据隔离</div></li>
+      <li><span class="box"></span><div><b>合规文案</b> —— 三端无"监控/追踪/报警"，后台"告警"改为"提醒"</div></li>
+    </ul>
+    <div class="callout" style="margin-top:16px">
+      <b>放行判定：</b>当以上 8 项全部勾选，即可对外正式发布。<b>当前 1/8 达标</b>。
+      在此之前，可正常开展<b>管理后台内测</b>与<b>小程序体验版小范围验证</b>（内部测试用途）。
+    </div>
+  </section>
+
+  <div class="foot">
+    证据来源：后端 pytest 实跑（53 passed）· 小程序×服务端联调验收 <code>_acceptance_test.py</code>（run acc0924144227，38/38 passed）·
+    线上功能验证报告（2026-09-23，已归档 <code>docs/test-report-20260923-standalone.html</code>）· MVP 差距基线（2026-09-15）·
+    代码/配置实地核对（隐私页、订阅模板、docker-compose、manifest、config.js）。<br>
+    本报告为项目负责人视角的交付门禁核查，供决策与对外沟通使用。
+  </div>
+
+</div>
+</body>
+</html>

@@ -30,7 +30,7 @@ TOOLS = [
     },
     {
         "name": "get_building_summary",
-        "description": "查询楼栋或小区的统计摘要（老人数、活跃率、告警数）",
+        "description": "查询楼栋或小区的统计摘要（老人数、活跃率、提醒数）",
         "input_schema": {
             "type": "object",
             "properties": {
@@ -52,7 +52,7 @@ TOOLS = [
     },
     {
         "name": "get_today_alerts",
-        "description": "获取今日告警汇总",
+        "description": "获取今日提醒汇总",
         "input_schema": {
             "type": "object",
             "properties": {},

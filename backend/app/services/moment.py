@@ -1,3 +1,4 @@
+import logging
 from uuid import UUID
 
 from sqlalchemy import select, func
@@ -6,7 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.care_moment import CareMoment
 from app.models.view_event import ViewEvent
 from app.models.response import Response
+from app.services.points import EARN_SEND_MOMENT, EARN_VIEW_MOMENT, earn_points
 from app.services.relation import get_active_relation, exists_active_relation_as_elder
+
+logger = logging.getLogger(__name__)
 
 
 async def create_moment(db: AsyncSession, sender_id: UUID, elder_id: UUID, text_content: str | None,
@@ -38,6 +42,11 @@ async def create_moment(db: AsyncSession, sender_id: UUID, elder_id: UUID, text_
     db.add(moment)
     await db.commit()
     await db.refresh(moment)
+    # 发送牵挂奖励积分（每条 +5）；发放失败不阻塞主流程
+    try:
+        await earn_points(db, sender_id, EARN_SEND_MOMENT, "send_moment", "发送牵挂奖励")
+    except Exception:
+        logger.exception("发送牵挂奖励发放失败 sender_id=%s", sender_id)
     return moment
 
 
@@ -91,10 +100,23 @@ async def record_view(db: AsyncSession, moment_id: UUID, viewer_id: UUID, durati
     if viewer_id != moment.elder_id:
         # 发送者（家属）查看，不计入已读
         return None
+    # 首次查看判定：同一内容重复查看不重复发放奖励（防刷）
+    first_view = (await db.execute(
+        select(ViewEvent.id).where(
+            ViewEvent.moment_id == moment_id,
+            ViewEvent.viewer_id == viewer_id,
+        ).limit(1)
+    )).scalar_one_or_none() is None
     event = ViewEvent(moment_id=moment_id, viewer_id=viewer_id, view_duration=duration)
     db.add(event)
     await db.commit()
     await db.refresh(event)
+    if first_view:
+        # 查看牵挂奖励积分（首次 +2）；发放失败不阻塞主流程
+        try:
+            await earn_points(db, viewer_id, EARN_VIEW_MOMENT, "view_moment", "查看牵挂奖励")
+        except Exception:
+            logger.exception("查看牵挂奖励发放失败 viewer_id=%s", viewer_id)
     return event
 
 

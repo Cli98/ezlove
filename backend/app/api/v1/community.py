@@ -124,7 +124,7 @@ async def respond_alert(
     )
     alert = result.scalar_one_or_none()
     if not alert:
-        raise HTTPException(status_code=404, detail="告警不存在")
+        raise HTTPException(status_code=404, detail="提醒不存在")
 
     alert.responded_at = datetime.now()
     alert.response_note = data.response_note

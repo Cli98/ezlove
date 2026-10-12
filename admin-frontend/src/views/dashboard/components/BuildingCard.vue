@@ -41,7 +41,7 @@
     />
     <div v-if="building.alert_count > 0" class="mt-2 flex items-center gap-1">
       <span class="material-symbols-outlined text-primary text-xs">warning</span>
-      <span class="text-[10px] text-primary font-bold">{{ building.alert_count }} 条告警</span>
+      <span class="text-[10px] text-primary font-bold">{{ building.alert_count }} 条提醒</span>
     </div>
   </div>
 </template>

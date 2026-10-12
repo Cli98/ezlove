@@ -77,7 +77,7 @@
       <div class="flex flex-wrap gap-4 mt-3 text-[10px] font-medium text-inactive-gray">
         <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-secondary"></span> 食堂</div>
         <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-accent"></span> 查看牵挂</div>
-        <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-primary"></span> 事件/告警</div>
+        <div class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-primary"></span> 事件/提醒</div>
         <div class="flex items-center gap-1"><span class="w-6 h-2.5 rounded border border-dashed border-accent bg-accent/10"></span> 6h+空白</div>
         <div class="flex items-center gap-1"><span class="w-6 h-2.5 rounded border border-dashed border-primary bg-primary/10"></span> 12h+空白</div>
       </div>

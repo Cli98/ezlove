@@ -35,6 +35,9 @@
         />
       </view>
       <view class="btn-primary bind-btn" @tap="handleBind">绑定</view>
+      <view class="paste-area">
+        <text class="paste-hint" @tap="pasteCode">复制了邀请码？点此粘贴</text>
+      </view>
     </view>
   </view>
 </template>
@@ -66,6 +69,22 @@ async function generate() {
 
 function copyCode() {
   uni.setClipboardData({ data: inviteCode.value });
+}
+
+function pasteCode() {
+  uni.getClipboardData({
+    success: (res) => {
+      const code = (res.data || "").trim();
+      if (code) {
+        inputCode.value = code;
+      } else {
+        uni.showToast({ title: "剪贴板为空", icon: "none" });
+      }
+    },
+    fail: () => {
+      uni.showToast({ title: "读取剪贴板失败", icon: "none" });
+    },
+  });
 }
 
 async function handleBind() {
@@ -164,7 +183,7 @@ async function handleBind() {
 }
 
 .input-wrap {
-  margin: $sp-24 0;
+  margin: $sp-24 0 $sp-8;
 }
 
 .code-input {
@@ -174,11 +193,21 @@ async function handleBind() {
   text-align: center;
   font-size: $fs-title;
   letter-spacing: 8rpx;
-  padding: $sp-20;
+  padding: 0 $sp-20;
   background: $c-bg;
   border-radius: $r-lg;
   border: $border-subtle;
   transition: border-color $duration-normal $ease-out;
+}
+
+.paste-area {
+  margin-bottom: $sp-24;
+}
+
+.paste-hint {
+  font-size: $fs-body-sm;
+  color: $c-primary;
+  text-decoration: underline;
 }
 
 .bind-btn {

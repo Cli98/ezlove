@@ -125,14 +125,14 @@ const toolName = ref('')
 const messages = ref([
   {
     role: 'assistant',
-    content: '你好！我是溪东社区AI助手「小溪」。你可以问我关于老人状态、活跃情况、告警等问题。',
+    content: '你好！我是溪东社区AI助手「小溪」。你可以问我关于老人状态、活跃情况、提醒等问题。',
   },
 ])
 
 const quickQuestions = [
   '今日未活跃老人？',
   '祥盛家园3号楼情况？',
-  '待处理告警有哪些？',
+  '待处理提醒有哪些？',
   'A级老人谁需要关注？',
   '本周活跃率趋势如何？',
   '哪些楼栋活跃率最低？',
@@ -143,7 +143,7 @@ const TOOL_LABELS = {
   query_inactive_elders: '未活跃老人',
   get_building_summary: '楼栋概况',
   get_elder_status: '老人状态',
-  get_today_alerts: '今日告警',
+  get_today_alerts: '今日提醒',
   list_unconfirmed_elders: '待确认列表',
   confirm_elder_active: '确认活跃',
   get_weekly_trend: '周趋势',

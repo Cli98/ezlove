@@ -27,6 +27,7 @@
       <image class="error-icon" src="/static/icons/elderly.svg" mode="aspectFit" />
       <text class="error-title">内容加载失败</text>
       <text class="error-desc">网络不太好，再试一次吧</text>
+      <text class="error-hint">若为首次使用，请让家人协助完成绑定后再查看</text>
       <view class="retry-btn" @tap="loadMoment">
         <text class="retry-text">重新加载</text>
       </view>
@@ -123,16 +124,25 @@
         </view>
       </view>
     </view>
+
+    <!-- Share -->
+    <view class="share-section reactions-enter">
+      <button class="share-btn" open-type="share">
+        <text class="share-btn-text">转发给家人看看</text>
+      </button>
+    </view>
     </template>
   </view>
 </template>
 
 <script setup>
 import { ref, computed } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
+import { onLoad, onShareAppMessage } from "@dcloudio/uni-app";
 import { getMomentDetail, recordView, sendResponse } from "@/api/moment";
 import { getFullUrl } from "@/api/config";
+import { useUserStore } from "@/stores/user";
 
+const userStore = useUserStore();
 const moment = ref({});
 const momentId = ref("");
 const loading = ref(true);
@@ -168,7 +178,28 @@ const timeText = computed(() => {
 
 onLoad((query) => {
   momentId.value = query.id;
+  init();
+});
+
+async function init() {
+  // 分享卡片直达场景：等待启动流程（含静默登录）完成后再请求
+  await userStore.waitLoginReady();
+  if (!momentId.value) {
+    error.value = true;
+    loading.value = false;
+    return;
+  }
   loadMoment();
+}
+
+// 转发卡片：家人点开直达本页查看
+onShareAppMessage(() => {
+  const name = moment.value.sender_nickname || moment.value.sender_name || "家人";
+  const preview = (moment.value.text_content || "").slice(0, 24);
+  return {
+    title: preview ? `${name}的牵挂：${preview}` : `${name}给你留了一条牵挂`,
+    path: `/pages/view/detail?id=${momentId.value}`,
+  };
 });
 
 async function loadMoment() {
@@ -354,6 +385,16 @@ async function sendReaction(type) {
   color: $c-text-sub;
   margin-top: $sp-8;
   display: block;
+}
+
+.error-hint {
+  font-size: $fs-title;
+  color: $c-text-hint;
+  margin-top: $sp-12;
+  display: block;
+  text-align: center;
+  padding: 0 $sp-32;
+  line-height: $lh-relaxed;
 }
 
 .retry-btn {
@@ -657,5 +698,34 @@ async function sendReaction(type) {
     color: $c-primary;
     font-weight: $fw-semibold;
   }
+}
+
+/* Share */
+.share-section {
+  display: flex;
+  justify-content: center;
+  margin-top: $sp-40;
+}
+
+.share-btn {
+  padding: $sp-16 $sp-48;
+  background: rgba($c-primary, 0.08);
+  border: 2rpx solid rgba($c-primary, 0.25);
+  border-radius: $r-full;
+  line-height: 1.5;
+  transition: all $duration-normal $ease-out;
+
+  &::after { border: none; }
+
+  &:active {
+    background: rgba($c-primary, 0.15);
+    transform: scale(0.97);
+  }
+}
+
+.share-btn-text {
+  font-size: $fs-elder-body;
+  font-weight: $fw-medium;
+  color: $c-primary;
 }
 </style>

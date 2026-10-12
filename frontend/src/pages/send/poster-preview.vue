@@ -6,6 +6,9 @@
         <image class="success-heart__icon" src="/static/icons/heart-send.svg" mode="aspectFit" />
       </view>
       <text class="success-text">牵挂已送达</text>
+      <button v-if="sentMomentId" class="success-share-btn" open-type="share">
+        <text class="success-share-text">转发给长辈看看</text>
+      </button>
     </view>
 
     <view class="preview-content">
@@ -70,7 +73,7 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import { onLoad } from "@dcloudio/uni-app";
+import { onLoad, onShareAppMessage } from "@dcloudio/uni-app";
 import { generatePoster, renderSinglePoster } from "@/api/poster";
 import { useMomentStore } from "@/stores/moment";
 import { getFullUrl } from "@/api/config";
@@ -87,6 +90,13 @@ const scrollLeft = ref(0);
 const params = ref({});
 const showSuccess = ref(false);
 const sending = ref(false);
+const sentMomentId = ref("");
+
+// 发送成功后转发：长辈点开卡片直达查看
+onShareAppMessage(() => ({
+  title: editCaption.value ? editCaption.value.slice(0, 30) : "我给您留了一条牵挂，点开看看",
+  path: `/pages/view/detail?id=${sentMomentId.value}`,
+}));
 
 const captionChanged = computed(() => editCaption.value !== originalCaption.value);
 
@@ -160,7 +170,7 @@ async function sendPoster() {
   const chosen = variants.value[selectedIndex.value];
   uni.showLoading({ title: "发送中..." });
   try {
-    await momentStore.send({
+    const res = await momentStore.send({
       elder_id: params.value.elder_id,
       content_type: "poster",
       text_content: editCaption.value,
@@ -170,6 +180,7 @@ async function sendPoster() {
         original_photo: params.value.image_url,
       },
     });
+    sentMomentId.value = res?.id || "";
     uni.hideLoading();
     uni.removeStorageSync("poster_params");
     showSuccess.value = true;
@@ -177,7 +188,7 @@ async function sendPoster() {
       const pages = getCurrentPages();
       const delta = pages.length >= 3 ? 2 : 1;
       uni.navigateBack({ delta });
-    }, 2000);
+    }, 3200);
   } catch (e) {
     uni.hideLoading();
     sending.value = false;
@@ -227,6 +238,30 @@ async function sendPoster() {
   color: $c-text-inverse;
   animation: textSlide 400ms $ease-out both;
   animation-delay: 400ms;
+}
+
+.success-share-btn {
+  margin-top: $sp-40;
+  padding: $sp-16 $sp-48;
+  background: $c-surface;
+  border-radius: $r-full;
+  border: none;
+  line-height: 1.5;
+  animation: textSlide 400ms $ease-out both;
+  animation-delay: 600ms;
+
+  &::after { border: none; }
+
+  &:active {
+    transform: scale(0.96);
+    opacity: 0.9;
+  }
+}
+
+.success-share-text {
+  font-size: $fs-subtitle;
+  font-weight: $fw-semibold;
+  color: $c-primary;
 }
 
 @keyframes overlayIn {

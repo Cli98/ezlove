@@ -54,7 +54,7 @@
           </div>
           <div class="text-center">
             <div class="serif-num text-3xl font-bold" :class="(store.data?.pending_events || 0) > 0 ? 'text-primary' : 'text-secondary'">{{ store.data?.pending_events || 0 }}</div>
-            <div class="text-xs text-white/70 mt-1">待处理告警</div>
+            <div class="text-xs text-white/70 mt-1">待处理提醒</div>
           </div>
         </div>
       </div>
@@ -347,7 +347,7 @@
           <!-- Alert mini bars -->
           <div v-if="dailyAlertNew.length" class="mt-3 pt-3 border-t border-outline-variant/10">
             <div class="flex items-center justify-between text-[10px] text-inactive-gray mb-1.5">
-              <span>告警趋势</span>
+              <span>提醒趋势</span>
               <span>最高 {{ maxAlert }}</span>
             </div>
             <div class="flex items-end gap-1 h-6">
@@ -379,7 +379,7 @@
                 <span class="material-symbols-outlined text-white text-sm">warning</span>
               </div>
               <div>
-                <p class="text-sm font-bold text-on-surface">{{ store.data?.pending_events || 0 }} 条告警</p>
+                <p class="text-sm font-bold text-on-surface">{{ store.data?.pending_events || 0 }} 条提醒</p>
                 <p class="text-[10px] text-inactive-gray">待处理事件</p>
               </div>
             </router-link>

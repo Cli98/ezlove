@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
+    restart: unless-stopped
     environment:
       POSTGRES_DB: ezlove
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
@@ -12,11 +13,13 @@ services:
 
   redis:
     image: redis:7-alpine
+    restart: unless-stopped
     ports:
       - "6380:6379"
 
   backend:
     build: ./backend
+    restart: unless-stopped
     ports:
       - "8001:8000"
     env_file:
