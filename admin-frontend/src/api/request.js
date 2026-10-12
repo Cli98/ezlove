@@ -2,8 +2,10 @@ import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
 
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
+
 const request = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: API_BASE_URL,
   timeout: 15000,
 })
 
@@ -60,7 +62,7 @@ request.interceptors.response.use(
 
       try {
         const res = await axios.post(
-          `${import.meta.env.VITE_API_BASE_URL}/community/auth/refresh`,
+          `${API_BASE_URL}/community/auth/refresh`,
           { refresh_token: refreshToken }
         )
         const newToken = res.data.access_token
@@ -113,7 +115,7 @@ export async function ensureFreshToken() {
   isRefreshing = true
   try {
     const res = await axios.post(
-      `${import.meta.env.VITE_API_BASE_URL}/community/auth/refresh`,
+      `${API_BASE_URL}/community/auth/refresh`,
       { refresh_token: refresh }
     )
     const newToken = res.data.access_token
