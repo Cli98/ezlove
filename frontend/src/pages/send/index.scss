@@ -152,6 +152,16 @@
   box-shadow: 0 4rpx 12rpx rgba(80, 55, 37, 0.12);
 }
 
+.recipient-card__avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $c-text-inverse;
+  background: $c-primary;
+  font-size: 30rpx;
+  font-weight: $fw-bold;
+}
+
 .recipient-card__copy { display: flex; flex-direction: column; gap: 8rpx; margin-left: 16rpx; }
 .recipient-card__name { max-width: 140rpx; overflow: hidden; font-size: 27rpx; font-weight: 600; white-space: nowrap; text-overflow: ellipsis; }
 .recipient-card__state { font-size: 21rpx; color: $c-text-sub; }

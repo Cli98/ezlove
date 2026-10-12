@@ -23,10 +23,6 @@ class MomentResponse(BaseModel):
     poster_meta: dict | None = None
     created_at: datetime
     is_read: bool = False
-    sender_name: str | None = None
-    sender_avatar_url: str | None = None
-    elder_name: str | None = None
-    elder_avatar_url: str | None = None
 
     model_config = {"from_attributes": True}
 

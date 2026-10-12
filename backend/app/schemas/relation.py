@@ -23,7 +23,6 @@ class RelationResponse(BaseModel):
     elder_user_id: UUID | None
     relation_label: str | None
     elder_name: str | None = None
-    elder_avatar_url: str | None = None
     alert_threshold: int
     alert_paused_until: datetime | None = None
     status: str

@@ -1,7 +1,8 @@
-import { API_BASE_URL, ensureFreshToken } from './request'
+const API_BASE = import.meta.env.VITE_API_BASE_URL || ''
+import { ensureFreshToken } from './request'
 
 async function doFetch(messages, token) {
-  return fetch(`${API_BASE_URL}/community/agent/chat`, {
+  return fetch(`${API_BASE}/community/agent/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -16,7 +17,7 @@ export async function* streamAgentChat(messages) {
   let res = await doFetch(messages, token)
 
   if (res.status === 401 || res.status === 403) {
-    const newToken = await ensureFreshToken(true)
+    const newToken = await ensureFreshToken()
     if (newToken) {
       token = newToken
       res = await doFetch(messages, token)

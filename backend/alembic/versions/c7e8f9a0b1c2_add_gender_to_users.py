@@ -1,12 +1,9 @@
-"""add gender to users
+"""保留已发布的迁移版本号，不再修改 users 表。
 
 Revision ID: c7e8f9a0b1c2
 Revises: a9f4c7d8e2b1
 """
 from typing import Sequence, Union
-
-from alembic import op
-import sqlalchemy as sa
 
 
 revision: str = "c7e8f9a0b1c2"
@@ -16,8 +13,8 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    op.add_column("users", sa.Column("gender", sa.String(length=8), nullable=True))
+    pass
 
 
 def downgrade() -> None:
-    op.drop_column("users", "gender")
+    pass

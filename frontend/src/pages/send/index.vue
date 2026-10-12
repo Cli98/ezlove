@@ -36,7 +36,10 @@
               :class="{ 'recipient-card--active': selectedElderId === relation.elder_user_id }"
               @tap="selectedElderId = relation.elder_user_id"
             >
-              <image class="recipient-card__avatar" :src="getElderAvatar(relation, index)" mode="aspectFill" />
+              <image v-if="getElderAvatar(relation)" class="recipient-card__avatar" :src="getElderAvatar(relation)" mode="aspectFill" />
+              <view v-else class="recipient-card__avatar recipient-card__avatar--fallback">
+                <text>{{ recipientInitial(relation) }}</text>
+              </view>
               <view class="recipient-card__copy">
                 <text class="recipient-card__name">{{ recipientName(relation) }}</text>
                 <text class="recipient-card__state">
@@ -192,6 +195,10 @@ onShow(() => {
 
 function recipientName(relation) {
   return relation.elder_name || relation.relation_label || "家人";
+}
+
+function recipientInitial(relation) {
+  return recipientName(relation).trim().charAt(0) || "家";
 }
 
 function removeImage() {

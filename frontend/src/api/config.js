@@ -64,7 +64,6 @@ export const BASE_URL = ENDPOINT.api;
 
 export function getFullUrl(url) {
   if (!url) return "";
-  if (url.startsWith("/static/avatars/")) return url;
   if (url.startsWith("http")) return url;
   return `${MEDIA_BASE_URL}${url}`;
 }
