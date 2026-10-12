@@ -1,0 +1,4 @@
+# 开发/测试依赖（不进生产 requirements.txt，P3 §2#2 / OP-8）
+# httpx 0.27.2 为生产已有依赖（FastAPI TestClient 同源），此处不重复声明
+pytest==8.3.4
+pytest-asyncio==0.24.0

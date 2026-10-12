@@ -15,7 +15,8 @@ export const useEldersStore = defineStore('elders', () => {
     loading.value = true
     error.value = null
     try {
-      elders.value = await getElders(params)
+      const data = await getElders(params)
+      elders.value = data.items || []
     } catch (e) {
       error.value = e.response?.data?.detail || e.message || '加载失败'
     } finally {

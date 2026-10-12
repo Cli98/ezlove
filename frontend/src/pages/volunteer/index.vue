@@ -30,7 +30,7 @@
           </view>
           <text class="invite-title">加入邻里帮</text>
           <text class="invite-desc">
-            帮助社区里的长辈，每次探访、陪伴都能获得积分奖励。用温暖换温暖，让社区更有爱。
+            帮助社区里的长辈，每次探访、陪伴都能获得积分奖励。功能即将上线，敬请期待。
           </text>
           <view class="invite-features">
             <view class="invite-feature">
@@ -46,8 +46,8 @@
               <text class="invite-feature__text">积分兑换</text>
             </view>
           </view>
-          <view class="btn-register" @tap="handleRegister">
-            <text class="btn-register__text">加入邻里帮</text>
+          <view class="btn-register btn-register--soon" @tap="handleComingSoon">
+            <text class="btn-register__text">敬请期待</text>
           </view>
         </view>
       </view>
@@ -173,13 +173,8 @@ function formatTime(isoStr) {
   return `${month}-${day} ${h}:${m}`;
 }
 
-async function handleRegister() {
-  try {
-    await volunteerStore.register();
-    uni.showToast({ title: "欢迎加入邻里帮", icon: "none" });
-  } catch {
-    uni.showToast({ title: "注册失败，请稍后再试", icon: "none" });
-  }
+function handleComingSoon() {
+  uni.showToast({ title: "邻里帮即将上线，敬请期待", icon: "none" });
 }
 
 async function handleComplete(task) {
@@ -421,6 +416,20 @@ onPullDownRefresh(async () => {
   &:active {
     transform: scale(0.97);
     box-shadow: $shadow-sm;
+  }
+
+  // 功能未开放：置灰态
+  &--soon {
+    background: $c-bg-warm;
+    box-shadow: none;
+
+    &:active {
+      transform: none;
+    }
+
+    .btn-register__text {
+      color: $c-text-hint;
+    }
   }
 
   &__text {

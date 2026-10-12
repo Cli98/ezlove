@@ -12,6 +12,8 @@ from app.models.view_event import ViewEvent
 from app.models.care_moment import CareMoment
 from app.models.care_relation import CareRelation
 from app.schemas.moment import ElderStatusResponse, ActivityResponse, ActivityDay
+from app.services.relation import get_active_relation
+from app.utils import datetime as ez_dt
 
 router = APIRouter(prefix="/elders", tags=["elders"])
 
@@ -20,11 +22,16 @@ WEEKDAY_LABELS = ["周一", "周二", "周三", "周四", "周五", "周六", "�
 
 @router.get("/{elder_id}/status", response_model=ElderStatusResponse)
 async def get_elder_status(elder_id: UUID, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    # IDOR 校验：仅存在 active 绑定关系的家属可查询（W-06），关系对象复用供暂停判定
+    relation = await get_active_relation(db, user.id, elder_id)
+    if relation is None:
+        raise HTTPException(status_code=403, detail="请先与老人完成绑定")
+
     elder_result = await db.execute(select(User).where(User.id == elder_id))
     elder = elder_result.scalar_one_or_none()
     elder_name = elder.nickname if elder else None
 
-    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = ez_dt.today_start()
 
     result = await db.execute(
         select(ViewEvent)
@@ -42,16 +49,8 @@ async def get_elder_status(elder_id: UUID, user: User = Depends(get_current_user
     last_active = last_result.scalar_one_or_none()
     last_text = last_active.strftime("%m月%d日 %H:%M") if last_active else None
 
-    relation_result = await db.execute(
-        select(CareRelation).where(
-            CareRelation.family_user_id == user.id,
-            CareRelation.elder_user_id == elder_id,
-            CareRelation.status == "active",
-        )
-    )
-    relation = relation_result.scalar_one_or_none()
     paused_until = None
-    if relation and relation.alert_paused_until:
+    if relation.alert_paused_until:
         if relation.alert_paused_until > datetime.now():
             paused_until = relation.alert_paused_until.strftime("%m月%d日")
         else:
@@ -93,8 +92,11 @@ async def get_elder_activity(
     elder_id: UUID, days: int = 7,
     user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db),
 ):
-    now = datetime.now()
-    start = (now - timedelta(days=days - 1)).replace(hour=0, minute=0, second=0, microsecond=0)
+    # IDOR 校验：仅存在 active 绑定关系的家属可查询（W-06）
+    if await get_active_relation(db, user.id, elder_id) is None:
+        raise HTTPException(status_code=403, detail="请先与老人完成绑定")
+
+    start = ez_dt.window_start(days)
 
     result = await db.execute(
         select(func.date(ViewEvent.viewed_at))

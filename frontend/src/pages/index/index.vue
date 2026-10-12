@@ -139,7 +139,7 @@
             <image class="volunteer-entry__icon" src="/static/icons/handshake.svg" mode="aspectFit" />
             <view class="volunteer-entry__info">
               <text class="volunteer-entry__title">邻里帮</text>
-              <text class="volunteer-entry__desc">帮助邻居，赚取积分</text>
+              <text class="volunteer-entry__desc">即将上线 · 敬请期待</text>
             </view>
           </view>
           <text class="volunteer-entry__arrow">›</text>
@@ -187,6 +187,11 @@
           </view>
         </view>
       </view>
+
+      <!-- 用户协议入口（子女端/长辈端通用）-->
+      <view class="agreement-entry fade-in stagger-4" @tap="goAgreement">
+        <text class="agreement-entry__text" :class="{ 'agreement-entry__text--elder': userStore.isElder }">用户协议</text>
+      </view>
     </view>
 
     <!-- 底部装饰线 -->
@@ -196,7 +201,7 @@
 
     <!-- FAB 浮动按钮 -->
     <view v-if="userStore.isFamily && relationStore.relations.length > 0" class="fab fade-in stagger-3" @tap="goSend">
-      <image class="fab__icon" src="/static/icons/heart-send.svg" mode="aspectFit" />
+      <image class="fab__icon" src="/static/icons/heart-send-white.svg" mode="aspectFit" />
       <text class="fab__text">发送牵挂</text>
     </view>
   </view>
@@ -340,6 +345,10 @@ function goAlerts() {
 
 function goVolunteer() {
   uni.navigateTo({ url: "/pages/volunteer/index" });
+}
+
+function goAgreement() {
+  uni.navigateTo({ url: "/pages/about/agreement" });
 }
 </script>
 
@@ -1050,6 +1059,25 @@ function goVolunteer() {
     font-weight: $fw-medium;
     letter-spacing: 2rpx;
     color: #FFFFFF;
+  }
+}
+
+// ── 用户协议入口 ──
+.agreement-entry {
+  display: flex;
+  justify-content: center;
+  padding: $sp-48 0 $sp-8;
+
+  &__text {
+    font-size: $fs-body-sm;
+    color: $c-text-hint;
+    padding: $sp-8 $sp-16;
+    text-decoration: underline;
+    text-underline-offset: 6rpx;
+
+    &--elder {
+      font-size: $fs-elder-body;
+    }
   }
 }
 </style>

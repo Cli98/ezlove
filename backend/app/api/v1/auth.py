@@ -1,3 +1,5 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from jose import jwt, JWTError
 from sqlalchemy import select
@@ -7,10 +9,21 @@ from uuid import UUID
 from app.config import settings
 from app.database import get_db
 from app.schemas.auth import WxLoginRequest, DevLoginRequest, RefreshRequest, TokenResponse
+from app.services import points as points_service
 from app.services.auth import get_or_create_user, create_access_token, create_refresh_token
 from app.utils.wechat import code_to_openid
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+async def _issue_daily_bonus(db: AsyncSession, user_id: UUID) -> None:
+    """每日首次登录发放积分奖励；发放失败不影响登录主流程。"""
+    try:
+        await points_service.check_daily_bonus(db, user_id)
+    except Exception:
+        logger.exception("每日登录奖励发放失败 user_id=%s", user_id)
 
 
 @router.post("/wx-login", response_model=TokenResponse)
@@ -19,6 +32,7 @@ async def wx_login(req: WxLoginRequest, db: AsyncSession = Depends(get_db)):
     if not openid:
         raise HTTPException(status_code=400, detail="微信登录失败")
     user = await get_or_create_user(db, openid)
+    await _issue_daily_bonus(db, user.id)
     return TokenResponse(
         access_token=create_access_token(user.id),
         refresh_token=create_refresh_token(user.id),
@@ -32,6 +46,7 @@ async def dev_login(req: DevLoginRequest = None, db: AsyncSession = Depends(get_
         raise HTTPException(status_code=403, detail="仅开发环境可用")
     openid = req.openid if req else "dev_test_user"
     user = await get_or_create_user(db, openid)
+    await _issue_daily_bonus(db, user.id)
     return TokenResponse(
         access_token=create_access_token(user.id),
         refresh_token=create_refresh_token(user.id),

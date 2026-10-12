@@ -16,4 +16,4 @@ class CanteenRecord(Base):
     parsed_at: Mapped[datetime | None] = mapped_column(nullable=True)
     parse_status: Mapped[str] = mapped_column(String(16), default="pending")  # pending / success / failed
     recorded_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("community_workers.id"))
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now, server_default=func.now())

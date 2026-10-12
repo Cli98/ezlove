@@ -12,6 +12,7 @@ from app.models.community_event import CommunityEvent
 from app.models.canteen import CanteenRecord
 from app.models.view_event import ViewEvent
 from app.models.user import User
+from app.utils import datetime as ez_dt
 
 HEADER_FONT = Font(bold=True, size=11)
 HEADER_FILL = PatternFill(start_color="F5EFE7", end_color="F5EFE7", fill_type="solid")
@@ -188,13 +189,12 @@ async def export_activity_summary(
     result = await db.execute(stmt)
     elders = result.all()
 
-    today = date.today()
-    date_range = [today - timedelta(days=i) for i in range(days - 1, -1, -1)]
+    date_range = [datetime.now().date() - timedelta(days=i) for i in range(days - 1, -1, -1)]
 
     active_data = {}
     for d in date_range:
-        day_start = datetime.combine(d, datetime.min.time())
-        day_end = datetime.combine(d + timedelta(days=1), datetime.min.time())
+        day_start = ez_dt.day_floor(d)
+        day_end = ez_dt.day_floor(d) + timedelta(days=1)
         active_stmt = (
             select(ViewEvent.viewer_id)
             .where(ViewEvent.viewed_at >= day_start, ViewEvent.viewed_at < day_end)

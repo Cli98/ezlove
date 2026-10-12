@@ -20,6 +20,11 @@ async def notify_family_unread(
     elder_name: str,
     hours: int,
 ):
+    # dry-run 静默开关：关闭时只落表不发通知（P3 §3.5）
+    if not settings.ALERT_NOTIFY_ENABLED:
+        logger.info("ALERT_NOTIFY_ENABLED=false，跳过未读通知发送")
+        return
+
     template_id = settings.WECHAT_UNREAD_TEMPLATE_ID
     if not template_id:
         logger.debug("WECHAT_UNREAD_TEMPLATE_ID 未配置，跳过未读通知")
@@ -34,10 +39,10 @@ async def notify_family_unread(
     if not openid:
         return
 
+    # 模板「互助服务进度通知」：thing2 服务名称 / thing4 温馨提示
     data = {
-        "thing1": {"value": f"{elder_name}的牵挂"},
-        "number2": {"value": str(hours)},
-        "thing3": {"value": "您发送的牵挂还未被查看，请留意"},
+        "thing2": {"value": f"{elder_name}的牵挂"},
+        "thing4": {"value": f"已{hours}小时未查看，点开看看吧"},
     }
     await send_subscribe_message(openid, template_id, data, page="pages/alerts/index")
 
@@ -46,6 +51,11 @@ async def notify_worker_alert(
     db: AsyncSession,
     alert_id: uuid.UUID,
 ):
+    # dry-run 静默开关：关闭时只落表不发通知（P3 §3.5，覆盖社区侧防误触）
+    if not settings.ALERT_NOTIFY_ENABLED:
+        logger.info("ALERT_NOTIFY_ENABLED=false，跳过告警通知发送")
+        return
+
     template_id = settings.WECHAT_ALERT_TEMPLATE_ID
     if not template_id:
         logger.debug("WECHAT_ALERT_TEMPLATE_ID 未配置，跳过告警通知")
@@ -64,9 +74,10 @@ async def notify_worker_alert(
     if not openid:
         return
 
+    # 模板「报告生成通知」：thing1 报告主题 / thing2 风险等级 / thing4 温馨提示
     data = {
-        "thing1": {"value": alert.message[:20] if alert.message else "新告警"},
-        "thing2": {"value": {"urgent": "紧急", "warning": "警告", "info": "信息"}.get(alert.alert_level, "信息")},
-        "thing3": {"value": "请及时处理"},
+        "thing1": {"value": alert.message[:20] if alert.message else "新提醒"},
+        "thing2": {"value": {"urgent": "高风险", "warning": "中风险", "info": "低风险"}.get(alert.alert_level, "低风险")},
+        "thing4": {"value": "请尽快核实处理"},
     }
-    await send_subscribe_message(openid, template_id, data)
+    await send_subscribe_message(openid, template_id, data, page="pages/alerts/index")

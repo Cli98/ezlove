@@ -1,0 +1,25 @@
+{
+  "phases": [
+    {"n": 1, "name": "intake", "title": "需求澄清"},
+    {"n": 2, "name": "product", "title": "产品化设计"},
+    {"n": 3, "name": "tech-design", "title": "技术方案"},
+    {"n": 4, "name": "implement", "title": "研发实现"},
+    {"n": 5, "name": "verify", "title": "验证"},
+    {"n": 6, "name": "review", "title": "评审"},
+    {"n": 7, "name": "release", "title": "发布"},
+    {"n": 8, "name": "alpha-test", "title": "阿尔法测试"},
+    {"n": 9, "name": "evolve", "title": "自进化复盘"}
+  ],
+  "gate": {
+    "threshold": 95.0,
+    "strategy": "all",
+    "min_per_model": 90.0,
+    "max_iterations": 5,
+    "veto_policy": "hard_fail",
+    "evidence_required": true,
+    "no_evidence_cap": 90.0
+  },
+  "run": {"state_dir": ".autoloop"},
+  "safety": {"auto_deploy": false},
+  "evolve": {"auto_apply_rubric_patch": false}
+}

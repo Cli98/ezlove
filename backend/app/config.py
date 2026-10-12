@@ -32,6 +32,14 @@ class Settings(BaseSettings):
     VIDEO_GEN_API_KEY: str = ""
     PHOTO_RESTORE_API_KEY: str = ""
 
+    # 调度与通知开关（上线 dry-run 时序控制，P3 §3.5；默认值=行为与现状一致）
+    SCHEDULER_ENABLED: bool = True
+    ALERT_NOTIFY_ENABLED: bool = True
+    # >0 时家属侧未读告警仅对 created_at >= now-N小时 的未读牵挂生效（R3 冷启动上限）
+    ALERT_COLD_START_UNREAD_HOURS: int = 0
+    # >0 时工作台 timed_out 查询仅回看 now-N小时 内产生的告警（R9 冷启动限制）
+    WORKSTATION_TIMED_OUT_LOOKBACK_HOURS: int = 0
+
     class Config:
         env_file = ".env"
 

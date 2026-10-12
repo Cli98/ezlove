@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -59,7 +59,7 @@ async def resolve_alert(alert_id: UUID, user: User = Depends(get_current_user), 
     result = await db.execute(select(Alert).where(Alert.id == alert_id))
     alert = result.scalar_one_or_none()
     if not alert:
-        raise HTTPException(status_code=404, detail="告警不存在")
+        raise HTTPException(status_code=404, detail="提醒不存在")
 
     relation_ids_result = await db.execute(
         select(CareRelation.id).where(
@@ -68,9 +68,9 @@ async def resolve_alert(alert_id: UUID, user: User = Depends(get_current_user), 
     )
     relation_ids = [r[0] for r in relation_ids_result.all()]
     if alert.care_relation_id not in relation_ids:
-        raise HTTPException(status_code=403, detail="无权操作此告警")
+        raise HTTPException(status_code=403, detail="无权操作此提醒")
 
     alert.is_resolved = True
-    alert.resolved_at = datetime.now(timezone.utc)
+    alert.resolved_at = datetime.now()
     await db.commit()
     return {"ok": True}

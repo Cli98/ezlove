@@ -122,7 +122,7 @@ async def get_elder_timeline(
                 "id": str(a.id),
                 "type": "alert",
                 "time": a.created_at.isoformat(),
-                "label": "告警" if not a.is_resolved else "告警(已处理)",
+                "label": "提醒" if not a.is_resolved else "提醒(已处理)",
                 "description": a.message,
                 "severity": a.alert_level,
                 "source_id": str(a.id),
@@ -145,7 +145,7 @@ async def get_elder_timeline(
                     "id": str(a.id),
                     "type": "alert",
                     "time": a.created_at.isoformat(),
-                    "label": "家属告警" if not a.is_resolved else "家属告警(已处理)",
+                    "label": "家属提醒" if not a.is_resolved else "家属提醒(已处理)",
                     "description": a.message,
                     "severity": a.alert_level,
                     "source_id": str(a.id),
@@ -374,7 +374,7 @@ async def get_day_activity(
             "hour": a.created_at.hour if a.created_at else 0,
             "minute": a.created_at.minute if a.created_at else 0,
             "type": "alert",
-            "label": a.message[:20] if a.message else "告警",
+            "label": a.message[:20] if a.message else "提醒",
             "severity": a.alert_level,
         })
 

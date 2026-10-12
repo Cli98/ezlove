@@ -1,3 +1,6 @@
+--index-url https://mirrors.aliyun.com/pypi/simple/
+# 索引源声明：服务器构建环境直连官方 PyPI 超时（实测约 12.7 kB/s 导致构建失败），
+# 故在依赖清单内声明国内镜像源；命令行 -i 参数优先级更高，可被管理员侧策略覆盖。
 fastapi==0.115.0
 uvicorn[standard]==0.30.0
 sqlalchemy==2.0.35
@@ -7,10 +10,18 @@ pydantic==2.9.0
 pydantic-settings==2.5.0
 python-jose[cryptography]==3.3.0
 httpx==0.27.2
+# httpx2：openai 3.x 的底层 HTTP 客户端；app/utils/llm.py 注入强制 IPv4 transport 时直接引用
+httpx2==2.13.0
 apscheduler==3.10.4
 redis==5.1.0
 python-multipart==0.0.9
 anthropic==0.39.0
+# openai：AI 文案建议客户端（app/utils/llm.py:2 from openai import AsyncOpenAI）。
+# 版本按本地 venv 实测钉版（pip show openai = 3.14.1）——P4-iter1 评审指令 D1/D8 授权补录
+openai==3.14.1
 passlib[bcrypt]==1.7.4
+# bcrypt 4.1+ 与 passlib 1.7.4 不兼容：passlib 初始化后端时的兼容探测会抛
+# ValueError: password cannot be longer than 72 bytes（新版 bcrypt 对 >72 字节直接报错而非截断），故钉在 4.0.1
+bcrypt==4.0.1
 openpyxl==3.1.5
 Pillow==12.0.0

@@ -10,6 +10,22 @@ export const useUserStore = defineStore("user", () => {
   const isFamily = computed(() => profile.value?.role === "family");
   const isElder = computed(() => profile.value?.role === "elder");
 
+  // 启动流程（含静默登录）的就绪 Promise，供直达页等待后再发请求
+  let loginReadyPromise = null;
+
+  function markLoginReady(promise) {
+    loginReadyPromise = promise;
+  }
+
+  async function waitLoginReady() {
+    if (!loginReadyPromise) return;
+    try {
+      await loginReadyPromise;
+    } catch {
+      // 启动流程异常由各页面自行兜底
+    }
+  }
+
   async function checkLogin() {
     const token = uni.getStorageSync("access_token");
     if (!token) return;
@@ -55,5 +71,5 @@ export const useUserStore = defineStore("user", () => {
     uni.reLaunch({ url: "/pages/login/index" });
   }
 
-  return { profile, isLoggedIn, hasRole, isFamily, isElder, checkLogin, login, setRole, logout };
+  return { profile, isLoggedIn, hasRole, isFamily, isElder, checkLogin, login, setRole, logout, markLoginReady, waitLoginReady };
 });

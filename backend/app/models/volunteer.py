@@ -37,7 +37,7 @@ class HelpTask(Base):
     verified_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("community_workers.id"), nullable=True)
     verified_at: Mapped[datetime | None] = mapped_column(nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(default=datetime.now, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 
 

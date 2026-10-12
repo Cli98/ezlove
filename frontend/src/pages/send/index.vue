@@ -4,7 +4,7 @@
     <view class="top-app-bar">
       <view class="top-app-bar__status-spacer" />
       <view class="top-app-bar__content">
-        <view class="top-app-bar__nav" @tap="uni.navigateBack()">
+        <view class="top-app-bar__nav" @tap="goBack">
           <text class="nav-icon">‹</text>
         </view>
         <text class="top-app-bar__title">发送牵挂</text>
@@ -18,7 +18,7 @@
         <text class="section__label">发送给</text>
         <view v-if="!relationStore.relations.length && !relationStore.loading" class="no-relation-hint">
           <text class="no-relation-text">还没有绑定家人</text>
-          <view class="no-relation-link" @tap="uni.navigateTo({ url: '/pages/bind/invite' })">
+          <view class="no-relation-link" @tap="goInvite">
             <text class="no-relation-link-text">去邀请绑定 →</text>
           </view>
         </view>
@@ -110,7 +110,7 @@
         <!-- AI Assist Button -->
         <view
           class="action-btn action-btn--outline"
-          @tap="uni.navigateTo({ url: `/pages/send/ai-suggest?elderId=${selectedElderId}` })"
+          @tap="goAiSuggest"
         >
           <image class="action-btn__sparkle" src="/static/icons/sparkle.svg" mode="aspectFit" />
           <text class="action-btn__text">AI 帮我写</text>
@@ -118,7 +118,7 @@
         <!-- AI Media Button -->
         <view
           class="action-btn action-btn--outline action-btn--accent"
-          @tap="uni.navigateTo({ url: `/pages/send/ai-media?elderId=${selectedElderId}` })"
+          @tap="goAiMedia"
         >
           <image class="action-btn__icon-img" src="/static/icons/video.svg" mode="aspectFit" />
           <text class="action-btn__text">AI 创作</text>
@@ -253,6 +253,22 @@ async function handleGenerate() {
       sending.value = false;
     }
   }
+}
+
+function goBack() {
+  uni.navigateBack();
+}
+
+function goInvite() {
+  uni.navigateTo({ url: "/pages/bind/invite" });
+}
+
+function goAiSuggest() {
+  uni.navigateTo({ url: `/pages/send/ai-suggest?elderId=${selectedElderId.value}` });
+}
+
+function goAiMedia() {
+  uni.navigateTo({ url: `/pages/send/ai-media?elderId=${selectedElderId.value}` });
 }
 </script>
 

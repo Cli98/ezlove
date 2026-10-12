@@ -60,6 +60,20 @@
           </view>
           <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
         </view>
+        <view class="menu-card" @tap="goSwitchRole">
+          <view class="menu-left">
+            <image class="menu-icon-img" src="/static/icons/swap.svg" mode="aspectFit" />
+            <text class="menu-text">切换身份</text>
+          </view>
+          <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
+        </view>
+        <view class="menu-card" @tap="goPrivacyCenter">
+          <view class="menu-left">
+            <image class="menu-icon-img" src="/static/icons/key.svg" mode="aspectFit" />
+            <text class="menu-text">隐私与协议</text>
+          </view>
+          <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
+        </view>
       </view>
 
       <view class="logout-section fade-in stagger-3">
@@ -144,6 +158,34 @@ function goInvite() {
 
 function goVolunteer() {
   uni.navigateTo({ url: "/pages/volunteer/index" });
+}
+
+function goSwitchRole() {
+  uni.navigateTo({ url: "/pages/login/role?mode=switch" });
+}
+
+function goPrivacyCenter() {
+  uni.showActionSheet({
+    itemList: ["用户协议", "隐私政策", "撤回同意"],
+    success: (res) => {
+      if (res.tapIndex === 0) uni.navigateTo({ url: "/pages/about/agreement" });
+      else if (res.tapIndex === 1) uni.navigateTo({ url: "/pages/about/privacy" });
+      else if (res.tapIndex === 2) confirmWithdraw();
+    },
+  });
+}
+
+function confirmWithdraw() {
+  uni.showModal({
+    title: "撤回同意",
+    content: "撤回后您将退出登录，我们将停止处理您的个人信息；如需删除已收集的信息，可通过隐私政策中的联系方式联系我们。确定撤回吗？",
+    confirmText: "确定撤回",
+    success: (res) => {
+      if (!res.confirm) return;
+      userStore.logout();
+      uni.showToast({ title: "已撤回同意，重新使用需再次勾选确认", icon: "none", duration: 3000 });
+    },
+  });
 }
 
 function handleLogout() {

@@ -11,7 +11,8 @@ export const useEventsStore = defineStore('events', () => {
     loading.value = true
     error.value = null
     try {
-      events.value = await getEvents(params)
+      const data = await getEvents(params)
+      events.value = data.items || []
     } catch (e) {
       error.value = e.response?.data?.detail || e.message || '加载失败'
     } finally {

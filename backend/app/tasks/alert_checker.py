@@ -5,6 +5,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 from sqlalchemy import select, or_, func, desc
 
+from app.config import settings
 from app.database import async_session
 from app.models.care_relation import CareRelation
 from app.models.care_moment import CareMoment
@@ -21,6 +22,11 @@ scheduler = AsyncIOScheduler()
 
 # 老人姓名缓存，避免同一轮检测中重复查询 User 表
 _name_cache: dict = {}
+
+# 构成"老人有活动迹象"的社区事件类型白名单（P3 §3.4 契约）：
+# 排除 absent（负向信号）与 other（含告警同步事件与备注，保守不算信号）；
+# source="alert"（告警同步产生的事件）另行排除——修复"同步告警事件压制晨检"（OP-1）
+SIGNAL_EVENT_TYPES = frozenset({"visit", "manual_confirm"})
 
 
 # ── Job 1: 多维度规则引擎（社区侧） ──
@@ -188,12 +194,13 @@ async def _check_no_signal(db, elder, community_id, threshold_hours, now) -> tup
             if att.get("elder_id") == elder_id_str and att.get("present") is True:
                 return False, ""
 
-    # 社区事件
+    # 社区事件：仅真实活动信号（白名单类型且非告警同步产生，OP-1）
     event = (await db.execute(
         select(CommunityEvent.id).where(
             CommunityEvent.elder_id == elder.elder_id,
             CommunityEvent.created_at >= cutoff,
-            CommunityEvent.event_type.in_(["visit", "manual"]),
+            CommunityEvent.event_type.in_(SIGNAL_EVENT_TYPES),
+            CommunityEvent.source != "alert",
         ).limit(1)
     )).scalar_one_or_none()
     if event:
@@ -213,76 +220,104 @@ async def _get_elder_name(db, elder_user_id) -> str:
     return name
 
 
-# ── Job 2: 家属侧未读告警（保留现有逻辑） ──
+# ── Job 2: 家属侧未读告警（§3.8 修复口径：跨天盲区 + 查看即活跃 + 24h 滚动去重 + 冷启动过滤） ──
+
+async def _iter_unread_alert_candidates(db, cold_start_hours: int) -> list:
+    """未读告警候选集判定链（P3 §3.8 步骤 1-5）。
+
+    正式调度（check_unread_alerts）与 scripts/dry_run_family_check.py --readonly
+    预估统计共用本实现，防双份漂移；只做查询判定，不做 db.add/commit、
+    不发通知——readonly 调用方仅对返回值计数。
+
+    返回 [(relation, earliest_unread_moment, hours_since), ...]：
+    - 步骤 1：最早未读牵挂 E1——NOT EXISTS 查看子查询，不限今日
+      （跨天盲区根因：原实现限定 created_at >= 今日零点）
+    - 步骤 2：冷启动过滤——cold_start_hours > 0 且 E1 早于 now-N小时 则跳过
+    - 步骤 3：查看即活跃——老人在 E1 产生之后有过查看行为则跳过
+    - 步骤 4：阈值——hours_since < relation.alert_threshold 跳过
+    - 步骤 5：24h 滚动去重——近 24h 已有未解决 unread 告警则跳过
+    """
+    now = datetime.now()
+    result = await db.execute(
+        select(CareRelation).where(
+            CareRelation.status == "active",
+            or_(
+                CareRelation.alert_paused_until.is_(None),
+                CareRelation.alert_paused_until < now,
+            ),
+        )
+    )
+    relations = result.scalars().all()
+
+    candidates = []
+    for rel in relations:
+        # 步骤 1：最早未读牵挂（全部历史，不限今日——OP-6）
+        earliest = (await db.execute(
+            select(CareMoment).where(
+                CareMoment.sender_id == rel.family_user_id,
+                CareMoment.elder_id == rel.elder_user_id,
+                ~select(ViewEvent.id).where(
+                    ViewEvent.moment_id == CareMoment.id,
+                    ViewEvent.viewer_id == rel.elder_user_id,
+                ).exists(),
+            ).order_by(CareMoment.created_at.asc()).limit(1)
+        )).scalar_one_or_none()
+        if earliest is None:
+            continue
+
+        # 步骤 2：冷启动过滤（默认 0 不启用，R3 冷启动上限）
+        if cold_start_hours > 0 and earliest.created_at < now - timedelta(hours=cold_start_hours):
+            continue
+
+        # 步骤 3：查看即活跃——老人在最早未读产生之后有过查看行为
+        last_view = (await db.execute(
+            select(func.max(ViewEvent.viewed_at))
+            .join(CareMoment, ViewEvent.moment_id == CareMoment.id)
+            .where(
+                CareMoment.sender_id == rel.family_user_id,
+                CareMoment.elder_id == rel.elder_user_id,
+                ViewEvent.viewer_id == rel.elder_user_id,
+            )
+        )).scalar_one_or_none()
+        if last_view is not None and last_view >= earliest.created_at:
+            continue
+
+        # 步骤 4：阈值
+        hours_since = (now - earliest.created_at).total_seconds() / 3600
+        if hours_since < rel.alert_threshold:
+            continue
+
+        # 步骤 5：24h 滚动去重（原"今日零点起"改滚动窗口，OP-6）
+        existing = await db.execute(
+            select(Alert.id).where(
+                Alert.care_relation_id == rel.id,
+                Alert.alert_type == "unread",
+                Alert.is_resolved == False,
+                Alert.created_at >= now - timedelta(hours=24),
+            ).limit(1)
+        )
+        if existing.scalar_one_or_none() is not None:
+            continue
+
+        candidates.append((rel, earliest, hours_since))
+    return candidates
+
 
 async def check_unread_alerts():
     _name_cache.clear()
     async with async_session() as db:
-        now = datetime.now()
-        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        # 判定链与 --readonly 预估共用 _iter_unread_alert_candidates（P3 §3.8 工程化落点）
+        candidates = await _iter_unread_alert_candidates(db, settings.ALERT_COLD_START_UNREAD_HOURS)
 
-        result = await db.execute(
-            select(CareRelation).where(
-                CareRelation.status == "active",
-                or_(
-                    CareRelation.alert_paused_until.is_(None),
-                    CareRelation.alert_paused_until < now,
-                ),
-            )
-        )
-        relations = result.scalars().all()
-
-        for rel in relations:
-            moments_result = await db.execute(
-                select(CareMoment).where(
-                    CareMoment.sender_id == rel.family_user_id,
-                    CareMoment.elder_id == rel.elder_user_id,
-                    CareMoment.created_at >= today_start,
-                )
-            )
-            today_moments = moments_result.scalars().all()
-            if not today_moments:
-                continue
-
-            has_view = False
-            # 批量查询查看记录，避免逐条 N+1
-            moment_ids = [m.id for m in today_moments]
-            viewed_result = await db.execute(
-                select(ViewEvent.moment_id)
-                .where(
-                    ViewEvent.moment_id.in_(moment_ids),
-                    ViewEvent.viewer_id == rel.elder_user_id,
-                )
-                .limit(1)
-            )
-            has_view = viewed_result.scalar_one_or_none() is not None
-
-            if has_view:
-                continue
-
-            earliest_moment = min(today_moments, key=lambda m: m.created_at)
-            hours_since = (now - earliest_moment.created_at).total_seconds() / 3600
-
-            if hours_since < rel.alert_threshold:
-                continue
-
-            existing = await db.execute(
-                select(Alert).where(
-                    Alert.care_relation_id == rel.id,
-                    Alert.alert_type == "unread",
-                    Alert.is_resolved == False,
-                    Alert.created_at >= today_start,
-                )
-            )
-            if existing.scalar_one_or_none():
-                continue
-
+        for rel, earliest_moment, hours_since in candidates:
+            # 步骤 6：级别（≥48h urgent / ≥24h warning / 其余 info）
             level = "info"
             if hours_since >= 48:
                 level = "urgent"
             elif hours_since >= 24:
                 level = "warning"
 
+            # 步骤 7：INSERT 不传 created_at——走模型 Python default（naive 本地，AC-7.8）
             message = f"已发送的牵挂内容超过{int(hours_since)}小时未被查看，建议联系确认"
             alert = Alert(
                 care_relation_id=rel.id,
@@ -294,6 +329,7 @@ async def check_unread_alerts():
             db.add(alert)
             await db.flush()
 
+            # 步骤 8：通知（try/except 保留；ALERT_NOTIFY_ENABLED=false 时函数内部静默）
             try:
                 from app.services.notification import notify_family_unread
                 elder_name = await _get_elder_name(db, rel.elder_user_id)
@@ -394,10 +430,14 @@ async def morning_silence_check():
                 if view:
                     continue
 
+                # 社区事件：仅真实活动信号（白名单类型且非告警同步产生，
+                # 修复"同步告警事件压制晨检"，OP-1）
                 event = (await db.execute(
                     select(CommunityEvent.id).where(
                         CommunityEvent.elder_id == elder.elder_id,
                         CommunityEvent.created_at >= cutoff,
+                        CommunityEvent.event_type.in_(SIGNAL_EVENT_TYPES),
+                        CommunityEvent.source != "alert",
                     ).limit(1)
                 )).scalar_one_or_none()
                 if event:
