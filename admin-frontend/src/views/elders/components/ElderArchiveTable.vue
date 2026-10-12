@@ -12,7 +12,7 @@
       empty-text="暂无符合条件的老人档案"
       class="archive-table-view"
     >
-      <template #cell-elder="{ row, index }"><div class="elder-cell"><img :src="getElderAvatar(row, index)" :alt="row.elder_name || '老人头像'" /><div><b>{{ row.elder_name || '未命名老人' }}</b><small>{{ demographics(row) }}</small></div></div></template>
+      <template #cell-elder="{ row }"><div class="elder-cell"><img v-if="getElderAvatar(row)" :src="getElderAvatar(row)" :alt="row.elder_name || '老人头像'" /><span v-else class="avatar-fallback" aria-hidden="true">{{ initialOf(row) }}</span><div><b>{{ row.elder_name || '未命名老人' }}</b><small>{{ demographics(row) }}</small></div></div></template>
       <template #cell-level="{ row }"><span :class="`level level--${row.care_level || 'C'}`">{{ row.care_level || 'C' }} 级</span></template>
       <template #cell-address="{ row }"><div class="stack"><b>{{ row.address || '未分配地址' }}</b><small>{{ areaName(row.address) }}</small></div></template>
       <template #cell-status="{ row }"><div :class="['status', `status--${statusInfo(row).tone}`]"><span class="material-symbols-outlined">{{ statusInfo(row).icon }}</span><div><b>{{ statusInfo(row).label }}</b><small>{{ statusInfo(row).detail }}</small></div></div></template>
@@ -65,6 +65,7 @@ function areaName(address) {
 }
 
 function demographics(row) { return row.elder_phone || '手机号待补充' }
+function initialOf(row) { return (row.elder_name || '长').trim().slice(0, 1) }
 </script>
 
 <style scoped>
@@ -72,7 +73,7 @@ function demographics(row) { return row.elder_phone || '手机号待补充' }
 .archive-panel__head { display: flex; min-height: 62px; align-items: center; padding: 10px 18px 6px; }
 .archive-panel__head h2 { margin: 0; color: #272624; font: 700 20px 'Songti SC','STSong',serif; }.archive-panel__head span { margin-left: 8px; color: #5f6670; font: 13px sans-serif; }.archive-panel__head span b { color: #c75a3d; }
 .archive-table-view { min-height: 0; flex: 1; margin: 0 14px; }
-.elder-cell, .status, .signal { display: flex; align-items: center; gap: 10px; min-width: 0; }.elder-cell img { width: 45px; height: 48px; flex: none; object-fit: cover; border-radius: 7px; }.elder-cell div, .stack, .status div, .signal div { min-width: 0; }.elder-cell b, .stack b, .status b, .signal b { display: block; overflow: hidden; color: #302e2c; font-size: 13px; white-space: nowrap; text-overflow: ellipsis; }.elder-cell small, .stack small, .status small, .signal small { display: block; margin-top: 4px; color: #89909a; font-size: 11px; white-space: nowrap; }
+.elder-cell, .status, .signal { display: flex; align-items: center; gap: 10px; min-width: 0; }.elder-cell img, .avatar-fallback { width: 45px; height: 48px; flex: none; border-radius: 7px; }.elder-cell img { object-fit: cover; }.avatar-fallback { display: grid; place-items: center; color: #fff; background: #c68a42; font: 700 17px 'Songti SC','STSong',serif; }.elder-cell div, .stack, .status div, .signal div { min-width: 0; }.elder-cell b, .stack b, .status b, .signal b { display: block; overflow: hidden; color: #302e2c; font-size: 13px; white-space: nowrap; text-overflow: ellipsis; }.elder-cell small, .stack small, .status small, .signal small { display: block; margin-top: 4px; color: #89909a; font-size: 11px; white-space: nowrap; }
 .level { display: inline-flex; min-width: 46px; height: 31px; align-items: center; justify-content: center; border-radius: 7px; font-size: 13px; font-weight: 800; }.level--A { color: #c6533d; background: #fae9e1; }.level--B { color: #c17b25; background: #fbefdd; }.level--C { color: #56826a; background: #e6f0e9; }
 .status .material-symbols-outlined, .signal .material-symbols-outlined { font-size: 28px; }.status--danger, .care-note.danger { color: #cb4f3a; }.status--warning, .care-note.warning { color: #cf852d; }.status--normal, .signal .material-symbols-outlined { color: #4d8b69; }.status--muted { color: #7d8490; }.status b, .signal b { color: currentColor; }
 .care-note { color: #7b8088; line-height: 1.35; }

@@ -36,8 +36,7 @@ async def wx_login(req: WxLoginRequest, db: AsyncSession = Depends(get_db)):
     return TokenResponse(
         access_token=create_access_token(user.id),
         refresh_token=create_refresh_token(user.id),
-        user={"id": str(user.id), "nickname": user.nickname, "role": user.role,
-              "gender": user.gender, "avatar_url": user.avatar_url},
+        user={"id": str(user.id), "nickname": user.nickname, "role": user.role},
     )
 
 
@@ -51,8 +50,7 @@ async def dev_login(req: DevLoginRequest = None, db: AsyncSession = Depends(get_
     return TokenResponse(
         access_token=create_access_token(user.id),
         refresh_token=create_refresh_token(user.id),
-        user={"id": str(user.id), "nickname": user.nickname, "role": user.role,
-              "gender": user.gender, "avatar_url": user.avatar_url},
+        user={"id": str(user.id), "nickname": user.nickname, "role": user.role},
     )
 
 
@@ -76,6 +74,5 @@ async def refresh(req: RefreshRequest, db: AsyncSession = Depends(get_db)):
     return TokenResponse(
         access_token=create_access_token(user.id),
         refresh_token=create_refresh_token(user.id),
-        user={"id": str(user.id), "nickname": user.nickname, "role": user.role,
-              "gender": user.gender, "avatar_url": user.avatar_url},
+        user={"id": str(user.id), "nickname": user.nickname, "role": user.role},
     )

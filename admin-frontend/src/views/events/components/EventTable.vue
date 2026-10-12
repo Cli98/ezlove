@@ -3,7 +3,7 @@
     <header class="event-table-panel__head"><h2>关怀事项列表 <span>共 {{ total }} 条</span></h2></header>
     <AppTable :columns="columns" :rows="rows" :loading="loading" min-width="1040px" class="event-table" loading-text="正在整理关怀事项…" empty-text="暂无符合条件的关怀事项">
       <template #cell-elder="{ row }">
-        <div class="elder-cell"><img :src="row.avatar_url" :alt="row.elder_name" /><div><b>{{ row.elder_name }}</b><small>{{ row.elder_address }}</small></div></div>
+        <div class="elder-cell"><img v-if="row.avatar_url" :src="row.avatar_url" :alt="row.elder_name" /><span v-else class="avatar-fallback" aria-hidden="true">{{ initialOf(row.elder_name) }}</span><div><b>{{ row.elder_name }}</b><small>{{ row.elder_address }}</small></div></div>
       </template>
       <template #cell-description="{ row }"><span class="truncate-cell" :title="row.description">{{ row.description || '—' }}</span></template>
       <template #cell-source="{ row }"><div class="stack"><b>{{ row.source_label }}</b><small>{{ row.created_label }}</small></div></template>
@@ -39,6 +39,10 @@ const columns = [
   { key: 'assignee', label: '负责人', width: '9%' },
   { key: 'actions', label: '操作', width: '16%' },
 ]
+
+function initialOf(name) {
+  return (name || '长').trim().charAt(0) || '长'
+}
 </script>
 
 <style scoped>
@@ -50,6 +54,7 @@ const columns = [
 .event-table :deep(.app-table td) { height: 62px; }
 .elder-cell { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .elder-cell img { width: 43px; height: 43px; flex: none; object-fit: cover; border-radius: 7px; }
+.avatar-fallback { display: grid; width: 43px; height: 43px; flex: none; place-items: center; border-radius: 7px; color: #fff; background: #c44d3e; font: 700 17px 'Songti SC','STSong',serif; }
 .elder-cell div, .stack { min-width: 0; }
 .elder-cell b, .stack b { display: block; overflow: hidden; color: #343230; font-size: 12.5px; white-space: nowrap; text-overflow: ellipsis; }
 .elder-cell small, .stack small { display: block; margin-top: 4px; color: #7f8895; font-size: 10.5px; white-space: nowrap; }

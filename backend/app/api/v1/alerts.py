@@ -22,12 +22,9 @@ async def list_alerts(
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    if user.role != "family":
-        raise HTTPException(status_code=403, detail="仅家人可查看提醒")
-
     relation_ids_result = await db.execute(
         select(CareRelation.id).where(
-            CareRelation.family_user_id == user.id
+            (CareRelation.family_user_id == user.id) | (CareRelation.elder_user_id == user.id)
         )
     )
     relation_ids = [r[0] for r in relation_ids_result.all()]
@@ -59,17 +56,19 @@ async def list_alerts(
 
 @router.put("/{alert_id}/resolve")
 async def resolve_alert(alert_id: UUID, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    if user.role != "family":
-        raise HTTPException(status_code=403, detail="仅家人可处理提醒")
-
-    result = await db.execute(
-        select(Alert)
-        .join(CareRelation, Alert.care_relation_id == CareRelation.id)
-        .where(Alert.id == alert_id, CareRelation.family_user_id == user.id)
-    )
+    result = await db.execute(select(Alert).where(Alert.id == alert_id))
     alert = result.scalar_one_or_none()
     if not alert:
         raise HTTPException(status_code=404, detail="提醒不存在")
+
+    relation_ids_result = await db.execute(
+        select(CareRelation.id).where(
+            (CareRelation.family_user_id == user.id) | (CareRelation.elder_user_id == user.id)
+        )
+    )
+    relation_ids = [r[0] for r in relation_ids_result.all()]
+    if alert.care_relation_id not in relation_ids:
+        raise HTTPException(status_code=403, detail="无权操作此提醒")
 
     alert.is_resolved = True
     alert.resolved_at = datetime.now()

@@ -47,7 +47,10 @@
             @tap="goElderStatus(elder)"
           >
             <view class="elder-card__left">
-              <image class="elder-card__avatar-image" :src="elderAvatar(elder, index)" mode="aspectFill" />
+              <image v-if="elderAvatar(elder)" class="elder-card__avatar-image" :src="elderAvatar(elder)" mode="aspectFill" />
+              <view v-else class="elder-card__avatar-image elder-card__avatar-fallback">
+                <text>{{ elderInitial(elder) }}</text>
+              </view>
               <view class="elder-card__info">
                 <view class="elder-card__name-row">
                   <text class="elder-card__name">{{ elder.elder_name || elder.relation_label || '家人' }}</text>
@@ -77,7 +80,10 @@
           </view>
           <view v-for="(m, index) in familyRecentMoments" :key="m.id" class="recent-item">
             <view class="recent-item__dot" :class="{ 'recent-item__dot--read': m.is_read }" />
-            <image class="recent-item__avatar" :src="elderAvatar(m, index)" mode="aspectFill" />
+            <image v-if="elderAvatar(m)" class="recent-item__avatar" :src="elderAvatar(m)" mode="aspectFill" />
+            <view v-else class="recent-item__avatar recent-item__avatar--fallback">
+              <text>{{ elderInitial(m) }}</text>
+            </view>
             <view class="recent-item__body">
               <text class="recent-item__title">{{ elderDisplayName(m) }}{{ m.is_read ? ' 看到了你的牵挂' : ' 还没看到这条牵挂' }}</text>
               <text class="recent-item__content">{{ m.text_content || '你发送了一份牵挂' }}</text>
@@ -234,6 +240,10 @@ function elderAvatar(person, index = 0) {
 function elderDisplayName(person) {
   const relation = relatedElder(person);
   return relation?.elder_name || relation?.relation_label || person?.elder_nickname || person?.elder_label || "家人";
+}
+
+function elderInitial(person) {
+  return elderDisplayName(person).trim().charAt(0) || "家";
 }
 
 function senderAvatar(moment) {
@@ -1387,6 +1397,16 @@ function goVolunteer() {
   box-shadow: 0 3rpx 10rpx rgba(80, 53, 37, 0.08);
 }
 
+.elder-card__avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $c-text-inverse;
+  background: $c-primary;
+  font-size: 40rpx;
+  font-weight: $fw-bold;
+}
+
 .family-focus-card .elder-card__name { max-width: none; font-size: 32rpx; }
 .elder-card__status { display: flex; align-items: center; gap: 8rpx; color: #7E8790; font-size: 24rpx; white-space: nowrap; }
 .elder-card__status--read { color: #5F8E68; }
@@ -1454,6 +1474,16 @@ function goVolunteer() {
   height: 72rpx;
   flex: none;
   border-radius: 50%;
+}
+
+.recent-item__avatar--fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $c-text-inverse;
+  background: $c-primary;
+  font-size: 28rpx;
+  font-weight: $fw-bold;
 }
 
 .recent-item__title { font-size: 25rpx; }

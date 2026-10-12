@@ -1,9 +1,9 @@
+const BASE_URL = import.meta.env.VITE_API_BASE_URL
 import { ElMessage } from 'element-plus'
-import { API_BASE_URL, ensureFreshToken } from './request'
 
-export async function downloadExport(path, params = {}) {
-  const token = await ensureFreshToken()
-  const url = new URL(`${API_BASE_URL}${path}`, window.location.origin)
+export function downloadExport(path, params = {}) {
+  const token = localStorage.getItem('community_access_token')
+  const url = new URL(`${window.location.origin}${BASE_URL}${path}`)
   Object.entries(params).forEach(([k, v]) => {
     if (v != null && v !== '') url.searchParams.set(k, v)
   })

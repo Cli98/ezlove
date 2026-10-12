@@ -20,7 +20,7 @@
         <DashboardIcon name="bell" />
         <b v-if="pendingEvents"></b>
       </button>
-      <img class="page-topbar__avatar" src="@/assets/dashboard-reference/worker-avatar.png" :alt="workerName" />
+      <span class="page-topbar__avatar" aria-hidden="true">{{ workerInitial }}</span>
       <div class="page-topbar__profile">
         <strong>{{ workerName }}</strong>
         <small>和社区，一起守护</small>
@@ -35,12 +35,14 @@ import { computed } from 'vue'
 import DashboardIcon from '@/components/DashboardIcon.vue'
 
 defineEmits(['events', 'search', 'update:search'])
-defineProps({
+const props = defineProps({
   workerName: { type: String, default: '社工' },
   pendingEvents: { type: Number, default: 0 },
   search: { type: String, default: '' },
   placeholder: { type: String, default: '搜索老人姓名、楼栋或关键词…' },
 })
+
+const workerInitial = computed(() => props.workerName.trim().slice(0, 1) || '社')
 
 const now = new Date()
 const weekday = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'][now.getDay()]
@@ -64,7 +66,7 @@ const greeting = computed(() => now.getHours() < 12 ? '早上好' : now.getHours
 .page-topbar__notice { position: relative; display: grid; width: 38px; height: 38px; place-items: center; border: 0; color: #2f302f; background: transparent; cursor: pointer; }
 .page-topbar__notice :deep(.dashboard-icon) { font-size: 21px; }
 .page-topbar__notice b { position: absolute; top: 4px; right: 4px; width: 7px; height: 7px; border: 1px solid #fff; border-radius: 50%; background: #c64f3a; }
-.page-topbar__avatar { width: 51px; height: 51px; object-fit: cover; border: 1px solid rgba(255,255,255,.9); border-radius: 50%; box-shadow: 0 1px 5px rgba(50,40,32,.09); }
+.page-topbar__avatar { display: grid; width: 51px; height: 51px; flex: none; place-items: center; border: 1px solid rgba(255,255,255,.9); border-radius: 50%; color: #fff; background: #b65b47; box-shadow: 0 1px 5px rgba(50,40,32,.09); font: 700 18px 'Songti SC','STSong',serif; }
 .page-topbar__profile { display: grid; width: 82px; gap: 3px; margin-left: -5px; white-space: nowrap; }
 .page-topbar__profile strong { color: #272625; font-size: 13px; }.page-topbar__profile small { color: #8d8a86; font-size: 10.5px; }
 .page-topbar__chevron { color: #65707c; font-size: 13px; transform: scale(1.2); }
