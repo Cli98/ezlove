@@ -149,6 +149,10 @@ app.include_router(api_router, prefix="/api/v1")
 static_dir = Path(__file__).resolve().parents[1] / "static"
 static_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
+# 线上 nginx 将外部 /ezlove-api/X 重写为后端 /api/X，静态资源请求实际落到
+# /api/static/...；无此路由会 404，导致海报等线上图片全部空白。
+# 别名挂载同一目录，兼容直连（/static）与反代（/api/static）两种链路。
+app.mount("/api/static", StaticFiles(directory=str(static_dir)), name="api-static")
 
 
 _start_time = time.time()
