@@ -19,7 +19,7 @@
           <text class="role-text">{{ userStore.isFamily ? '子女 / 亲属' : '长辈' }}</text>
         </view>
       </view>
-      <image class="hero-slogan" src="/static/brand/profile-slogan-handwritten.png" mode="widthFix" />
+      <image class="hero-slogan" src="/static/brand/profile-slogan-handwritten.webp" mode="widthFix" />
     </view>
 
     <view class="profile-content">

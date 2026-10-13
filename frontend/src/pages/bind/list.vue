@@ -12,7 +12,7 @@
         <text class="family-hero__title">家人就在身边</text>
         <text class="family-hero__subtitle">管理已绑定的家人</text>
       </view>
-      <image class="family-hero__art" src="/static/brand/family-header-art.png" mode="aspectFit" />
+      <image class="family-hero__art" src="/static/brand/family-header-art.webp" mode="aspectFit" />
     </view>
 
     <view class="family-body">
