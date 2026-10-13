@@ -20,6 +20,7 @@ export const useMomentStore = defineStore("moment", () => {
 
   async function loadMoments(params = {}) {
     loading.value = true;
+    moments.value = [];
     try {
       const res = await getMoments(params);
       moments.value = res.items || [];

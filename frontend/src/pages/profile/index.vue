@@ -1,26 +1,29 @@
 <template>
-  <view class="page-gradient">
-    <view class="profile-content">
-      <!-- 渐变 Hero Header -->
-      <view class="profile-hero fade-in">
-        <view class="hero-deco hero-deco-1" />
-        <view class="hero-deco hero-deco-2" />
-        <view class="hero-inner">
-          <view class="avatar-circle">
-            <text class="avatar-letter">{{ (userStore.profile?.nickname || '我')[0] }}</text>
+  <view class="profile-page">
+    <view class="profile-hero fade-in">
+      <view class="hero-deco hero-deco--bottom" />
+      <image class="hero-mark" src="/static/brand/logo-mark.png" mode="aspectFit" />
+
+      <view class="tab-nav" :style="navMetrics.barStyle" />
+
+      <view class="hero-profile" @tap="goEditProfile">
+        <view class="profile-avatar-wrap">
+          <image v-if="avatarSrc" class="profile-avatar" :src="avatarSrc" mode="aspectFill" />
+          <view v-else class="profile-avatar profile-avatar--fallback">
+            <text>{{ (userStore.profile?.nickname || '我')[0] }}</text>
           </view>
-          <view class="nickname-row" @tap="openNicknameEditor">
-            <text class="nickname">{{ userStore.profile?.nickname || '未设置昵称' }}</text>
-            <image class="nickname-edit-icon" src="/static/icons/edit-white.svg" mode="aspectFit" />
-          </view>
-          <view class="role-tag">
-            <text>{{ userStore.isFamily ? '子女/亲属' : '长辈' }}</text>
-          </view>
+          <view class="profile-edit-badge">编辑</view>
+        </view>
+        <view class="hero-copy">
+          <text class="nickname">{{ userStore.profile?.nickname || '未设置昵称' }}</text>
+          <text class="role-text">{{ userStore.isFamily ? '子女 / 亲属' : '长辈' }}</text>
         </view>
       </view>
-      <text class="greeting-text fade-in stagger-1">{{ greeting }}</text>
+      <image class="hero-slogan" src="/static/brand/profile-slogan-handwritten.png" mode="widthFix" />
+    </view>
 
-      <view v-if="userStore.isFamily && statsLoaded" class="stats-row fade-in stagger-1">
+    <view class="profile-content">
+      <view v-if="userStore.isFamily" class="stats-row fade-in stagger-1">
         <view class="stat-item">
           <text class="stat-num">{{ elderCount }}</text>
           <text class="stat-label">守护家人</text>
@@ -37,48 +40,67 @@
         </view>
       </view>
 
-      <view class="menu-section fade-in stagger-2">
+      <view class="menu-panel fade-in stagger-2">
         <!-- 家庭分组：子女可查看/邀请绑定；长辈可查看家人/输入邀请码绑定 -->
         <template v-if="userStore.isFamily || userStore.isElder">
-          <text class="menu-group-label">家庭</text>
-          <view class="menu-card" @tap="goBindList">
+          <view class="menu-row" @tap="goBindList">
             <view class="menu-left">
-              <image class="menu-icon-img" src="/static/icons/family.svg" mode="aspectFit" />
-              <text class="menu-text">我的家人</text>
+              <view class="menu-icon">
+                <image src="/static/icons/family.svg" mode="aspectFit" />
+              </view>
+              <view class="menu-copy">
+                <text class="menu-text">我的家人</text>
+                <text class="menu-desc">查看和管理已绑定的家人</text>
+              </view>
             </view>
             <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
           </view>
-          <view class="menu-card" @tap="goInvite">
+          <view class="menu-row" @tap="goInvite">
             <view class="menu-left">
-              <image
-                class="menu-icon-img"
-                :src="userStore.isElder ? '/static/icons/key.svg' : '/static/icons/link.svg'"
-                mode="aspectFit"
-              />
-              <text class="menu-text">{{ userStore.isElder ? '绑定家人' : '邀请绑定' }}</text>
+              <view class="menu-icon">
+                <image :src="userStore.isElder ? '/static/icons/key.svg' : '/static/icons/invite.svg'" mode="aspectFit" />
+              </view>
+              <view class="menu-copy">
+                <text class="menu-text">{{ userStore.isElder ? '绑定家人' : '邀请绑定' }}</text>
+                <text class="menu-desc">{{ userStore.isElder ? '输入家人发来的邀请码' : '邀请更多家人一起加入' }}</text>
+              </view>
             </view>
             <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
           </view>
         </template>
-        <text class="menu-group-label">更多</text>
-        <view class="menu-card" @tap="goVolunteer">
+        <view class="menu-row" @tap="goVolunteer">
           <view class="menu-left">
-            <image class="menu-icon-img" src="/static/icons/heart-send.svg" mode="aspectFit" />
-            <text class="menu-text">邻里帮</text>
+            <view class="menu-icon">
+              <image src="/static/icons/neighbor-help.svg" mode="aspectFit" />
+            </view>
+            <view class="menu-copy">
+              <text class="menu-text">邻里帮</text>
+              <text class="menu-desc">与邻里互助，传递温暖</text>
+            </view>
           </view>
           <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
         </view>
-        <view class="menu-card" @tap="goSwitchRole">
+        <view class="menu-row" @tap="goSwitchRole">
           <view class="menu-left">
-            <image class="menu-icon-img" src="/static/icons/swap.svg" mode="aspectFit" />
-            <text class="menu-text">切换身份</text>
+            <view class="menu-icon">
+              <image src="/static/icons/login-family.svg" mode="aspectFit" />
+            </view>
+            <view class="menu-copy">
+              <text class="menu-text">切换身份</text>
+              <text class="menu-desc">在子女/亲属与长辈身份间切换</text>
+            </view>
           </view>
           <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
         </view>
-        <view class="menu-card" @tap="goPrivacyCenter">
+        <view class="menu-row" @tap="goPrivacyCenter">
           <view class="menu-left">
-            <image class="menu-icon-img" src="/static/icons/key.svg" mode="aspectFit" />
-            <text class="menu-text">隐私与协议</text>
+            <view class="menu-icon">
+              <image src="/static/icons/key.svg" mode="aspectFit" />
+            </view>
+            <view class="menu-copy">
+              <text class="menu-text">隐私与协议</text>
+              <text class="menu-desc">查看用户协议与隐私政策</text>
+            </view>
           </view>
           <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
         </view>
@@ -92,8 +114,6 @@
       </view>
     </view>
 
-    <!-- 昵称编辑弹窗 -->
-    <NicknameEditor v-if="showNicknameEditor" @close="showNicknameEditor = false" />
   </view>
 </template>
 
@@ -103,30 +123,20 @@ import { onShow } from "@dcloudio/uni-app";
 import { useUserStore } from "@/stores/user";
 import { getRelations } from "@/api/relation";
 import { getMoments } from "@/api/moment";
-import NicknameEditor from "@/components/NicknameEditor.vue";
+import { getFullUrl } from "@/api/config";
+import { getNavigationBarMetrics } from "@/utils/navigation";
+import { getFamilyAvatar } from "@/utils/avatar";
 
 const userStore = useUserStore();
+const navMetrics = getNavigationBarMetrics();
 const elderCount = ref(0);
 const momentCount = ref(0);
 const careStreak = ref(0);
-const statsLoaded = ref(false);
-const showNicknameEditor = ref(false);
-
-// 昵称为空时不输出前导逗号，避免出现“，晚上好”
-const greeting = computed(() => {
-  const h = new Date().getHours();
-  const name = userStore.profile?.nickname || "";
-  const prefix = name ? `${name}，` : "";
-  if (h < 6) return `${prefix}夜深了，注意休息`;
-  if (h < 11) return `${prefix}早上好`;
-  if (h < 14) return `${prefix}中午好`;
-  if (h < 18) return `${prefix}下午好`;
-  return `${prefix}晚上好`;
+const avatarSrc = computed(() => {
+  const avatar = userStore.profile?.avatar_url;
+  if (avatar) return getFullUrl(avatar);
+  return userStore.isElder ? "" : getFamilyAvatar(userStore.profile);
 });
-
-function openNicknameEditor() {
-  showNicknameEditor.value = true;
-}
 
 onShow(() => {
   if (userStore.isFamily) loadStats();
@@ -139,11 +149,10 @@ async function loadStats() {
       getMoments({ page: 1, page_size: 100 }),
     ]);
     // /moments 返回分页对象 { items, total }：总数用 total，连续天数用明细
-    const momentList = moments?.items || [];
+    const momentItems = moments.items || [];
     elderCount.value = Array.isArray(relations) ? relations.length : 0;
-    momentCount.value = moments?.total ?? momentList.length;
-    careStreak.value = calcStreak(momentList);
-    statsLoaded.value = true;
+    momentCount.value = moments.total ?? momentItems.length;
+    careStreak.value = calcStreak(momentItems);
   } catch {
     uni.showToast({ title: '数据加载失败', icon: 'none' });
   }
@@ -182,7 +191,11 @@ function goVolunteer() {
 }
 
 function goSwitchRole() {
-  uni.navigateTo({ url: "/pages/login/role?mode=switch" });
+  uni.navigateTo({ url: "/pages/login/role" });
+}
+
+function goEditProfile() {
+  uni.navigateTo({ url: "/pages/profile/edit" });
 }
 
 function goPrivacyCenter() {
@@ -221,241 +234,37 @@ function handleLogout() {
 </script>
 
 <style lang="scss" scoped>
-.profile-content {
-  padding: 0 $sp-24;
-  padding-bottom: 200rpx;
-}
-
-.profile-hero {
-  position: relative;
-  margin: 0 (-$sp-24);
-  padding: 120rpx $sp-24 $sp-48;
-  background: $gradient-warm;
-  border-radius: 0 0 $r-2xl $r-2xl;
-  overflow: hidden;
-  margin-bottom: $sp-24;
-}
-
-.hero-deco {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-}
-
-.hero-deco-1 {
-  width: 400rpx;
-  height: 400rpx;
-  top: -100rpx;
-  right: -120rpx;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.hero-deco-2 {
-  width: 300rpx;
-  height: 300rpx;
-  bottom: -60rpx;
-  left: -80rpx;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.hero-inner {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.avatar-circle {
-  width: 180rpx;
-  height: 180rpx;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(12rpx);
-  -webkit-backdrop-filter: blur(12rpx);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: $sp-20;
-  border: 6rpx solid rgba(255, 255, 255, 0.5);
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
-}
-
-.avatar-letter {
-  font-size: $fs-display;
-  font-weight: $fw-bold;
-  color: $c-text-inverse;
-}
-
-.nickname-row {
-  display: flex;
-  align-items: center;
-  gap: $sp-12;
-  &:active {
-    opacity: 0.8;
-  }
-}
-
-.nickname-edit-icon {
-  width: 40rpx;
-  height: 40rpx;
-  opacity: 0.9;
-}
-
-.nickname {
-  font-size: $fs-headline;
-  font-weight: $fw-bold;
-  color: $c-text-inverse;
-  display: block;
-}
-
-.role-tag {
-  margin-top: $sp-12;
-  padding: $sp-6 $sp-20;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8rpx);
-  -webkit-backdrop-filter: blur(8rpx);
-  border-radius: $r-full;
-  border: 1rpx solid rgba(255, 255, 255, 0.3);
-  font-size: $fs-body-sm;
-  color: $c-text-inverse;
-  font-weight: $fw-medium;
-}
-
-.greeting-text {
-  display: block;
-  text-align: center;
-  font-size: $fs-body;
-  color: $c-text-sub;
-  margin-bottom: $sp-24;
-}
-
-.stats-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  background: $c-surface;
-  border-radius: $r-xl;
-  padding: $sp-24 $sp-16;
-  margin-bottom: $sp-20;
-  box-shadow: $shadow-md;
-  border: $border-subtle;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: $sp-6;
-}
-
-.stat-num {
-  font-size: $fs-headline;
-  font-weight: $fw-bold;
-  color: $c-primary;
-}
-
-.stat-label {
-  font-size: $fs-body-sm;
-  color: $c-text-sub;
-}
-
-.stat-divider {
-  width: 1rpx;
-  height: 60rpx;
-  background: $c-border-light;
-}
-
-.menu-section {
-  display: flex;
-  flex-direction: column;
-  gap: $sp-12;
-}
-
-.menu-card {
-  background: $c-surface;
-  border-radius: $r-lg;
-  padding: $sp-32;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-shadow: $shadow-md;
-  border: $border-subtle;
-  border-left: 6rpx solid $c-primary-soft;
-  transition: all $duration-normal $ease-out;
-  &:active {
-    transform: scale(0.98);
-    background: $c-surface-warm;
-    box-shadow: $shadow-sm;
-  }
-}
-
-.menu-left {
-  display: flex;
-  align-items: center;
-  gap: $sp-16;
-}
-
-.menu-icon-img {
-  width: 48rpx;
-  height: 48rpx;
-}
-
-.menu-text {
-  font-size: $fs-title;
-  font-weight: $fw-medium;
-  color: $c-text;
-}
-
-.menu-arrow-icon {
-  width: 36rpx;
-  height: 36rpx;
-  opacity: 0.4;
-}
-
-.menu-group-label {
-  font-size: $fs-caption;
-  color: $c-text-hint;
-  display: block;
-  padding-left: $sp-8;
-  margin-bottom: $sp-4;
-  margin-top: $sp-8;
-
-  &:first-child {
-    margin-top: 0;
-  }
-}
-
-.logout-section {
-  margin-top: $sp-48;
-}
-
-.logout-btn {
-  text-align: center;
-  padding: $sp-20;
-  border-radius: $r-full;
-  background: $c-surface;
-  border: 2rpx solid $c-warn-soft;
-  box-shadow: $shadow-sm;
-  transition: all $duration-normal $ease-out;
-  &:active {
-    background: $c-warn-bg;
-    transform: scale(0.97);
-  }
-}
-
-.logout-text {
-  font-size: $fs-body;
-  color: $c-warn;
-  font-weight: $fw-medium;
-}
-
-.version-text {
-  display: block;
-  text-align: center;
-  margin-top: $sp-24;
-  font-size: $fs-caption;
-  color: $c-text-hint;
-  opacity: 0.5;
-}
+.profile-page { min-height: 100vh; padding-bottom: 200rpx; background: $gradient-page; }
+.profile-hero { position: relative; min-height: 488rpx; overflow: hidden; color: $c-text-inverse; background: linear-gradient(135deg, #C95746 0%, #D96A55 55%, #E38265 100%); }
+.tab-nav { position: relative; z-index: 2; box-sizing: content-box; }
+.hero-mark { position: absolute; top: 124rpx; right: 18rpx; width: 260rpx; height: 260rpx; opacity: 0.14; filter: brightness(8); }
+.hero-deco { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.07); }
+.hero-deco--bottom { left: -120rpx; bottom: -190rpx; width: 420rpx; height: 420rpx; }
+.hero-profile { position: relative; z-index: 1; display: flex; align-items: center; gap: $sp-20; padding: 0 $sp-32; }
+.profile-avatar-wrap { position: relative; flex: none; }
+.profile-avatar { width: 142rpx; height: 142rpx; flex: none; border-radius: 50%; border: 6rpx solid rgba(255, 255, 255, 0.82); box-shadow: 0 10rpx 30rpx rgba(78, 36, 24, 0.2); }
+.profile-avatar--fallback { display: flex; align-items: center; justify-content: center; color: $c-primary; background: $c-primary-bg; font-size: 54rpx; font-weight: $fw-bold; }
+.profile-edit-badge { position: absolute; right: -4rpx; bottom: 2rpx; padding: 4rpx 10rpx; border: 2rpx solid rgba(255, 255, 255, 0.9); border-radius: $r-full; color: $c-text-inverse; background: $c-primary; font-size: 20rpx; line-height: 1.4; box-shadow: $shadow-sm; }
+.hero-copy { display: flex; flex-direction: column; gap: $sp-6; }
+.nickname { font-family: "Songti SC", "STSong", serif; font-size: 46rpx; font-weight: $fw-bold; }
+.role-text { position: relative; top: -8rpx; font-size: $fs-body-sm; font-weight: 600; color: rgba(255, 250, 247, 0.9); }
+.hero-slogan { position: relative; z-index: 1; display: block; width: 186rpx; margin: -44rpx $sp-32 0 238rpx; }
+.profile-content { position: relative; z-index: 3; margin-top: -72rpx; padding: 0 $sp-24; }
+.stats-row { display: flex; align-items: center; justify-content: space-around; padding: 34rpx $sp-16; margin-bottom: $sp-24; border: $border-subtle; border-radius: $r-xl; background: rgba(255, 255, 255, 0.94); box-shadow: $shadow-lg; }
+.stat-item { display: flex; flex: 1; flex-direction: column; align-items: center; gap: $sp-4; }
+.stat-num { font-family: "Songti SC", "STSong", serif; font-size: 48rpx; font-weight: $fw-bold; color: $c-text; }
+.stat-label { font-size: $fs-caption; color: $c-text-sub; }
+.stat-divider { width: 1rpx; height: 62rpx; background: $c-border; }
+.menu-panel { overflow: hidden; border: $border-subtle; border-radius: $r-xl; background: rgba(255, 255, 255, 0.92); box-shadow: $shadow-md; }
+.menu-row { display: flex; align-items: center; justify-content: space-between; min-height: 128rpx; margin-left: $sp-24; padding: $sp-16 $sp-24 $sp-16 0; border-bottom: 1rpx solid $c-border-light; &:last-child { border-bottom: 0; } &:active { background: $c-surface-warm; } }
+.menu-left { display: flex; align-items: center; gap: $sp-16; }
+.menu-icon { width: 72rpx; height: 72rpx; display: flex; align-items: center; justify-content: center; border-radius: $r-md; background: $c-primary-bg; image { width: 42rpx; height: 42rpx; } }
+.menu-copy { display: flex; flex-direction: column; gap: $sp-2; }
+.menu-text { font-size: $fs-title; font-weight: $fw-semibold; color: $c-text; }
+.menu-desc { font-size: $fs-caption; color: $c-text-hint; }
+.menu-arrow-icon { width: 32rpx; height: 32rpx; opacity: 0.4; }
+.logout-section { margin-top: $sp-24; }
+.logout-btn { padding: $sp-20; text-align: center; border-radius: $r-lg; background: rgba(255, 255, 255, 0.72); &:active { background: $c-warn-bg; } }
+.logout-text { font-size: $fs-body; font-weight: $fw-medium; color: $c-primary; }
+.version-text { display: block; margin-top: $sp-20; text-align: center; font-size: $fs-caption; color: $c-text-hint; opacity: 0.55; }
 </style>

@@ -1,5 +1,13 @@
 <template>
-  <view class="page">
+  <view class="invite-page">
+    <view class="invite-nav" :style="navMetrics.barStyle">
+      <view class="invite-nav__back" @tap="goBack">
+        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+      </view>
+      <text class="app-nav-title-center" :style="navMetrics.titleStyle">邀请家人加入</text>
+    </view>
+
+    <view class="invite-body">
     <!-- 子女端：生成邀请码发给老人 -->
     <view v-if="!userStore.isElder" class="invite-section fade-in">
       <view class="section-icon-wrap">
@@ -11,6 +19,7 @@
       <view v-if="inviteCode" class="code-display">
         <text class="code-value">{{ inviteCode }}</text>
         <view class="btn-primary copy-btn" @tap="copyCode">复制邀请码</view>
+        <text class="regenerate" @tap="generate">重新生成</text>
       </view>
       <view v-else class="generate-area">
         <view class="btn-primary generate-btn" @tap="generate">生成邀请码</view>
@@ -29,15 +38,15 @@
           v-model="inputCode"
           type="text"
           placeholder="输入邀请码"
+          placeholder-class="code-input-placeholder"
           class="code-input"
           :adjust-position="true"
           maxlength="20"
         />
       </view>
+      <text class="paste-hint" @tap="pasteCode">复制了邀请码？点此粘贴</text>
       <view class="btn-primary bind-btn" @tap="handleBind">绑定</view>
-      <view class="paste-area">
-        <text class="paste-hint" @tap="pasteCode">复制了邀请码？点此粘贴</text>
-      </view>
+    </view>
     </view>
   </view>
 </template>
@@ -47,6 +56,7 @@ import { ref } from "vue";
 import { onShow } from "@dcloudio/uni-app";
 import { useUserStore } from "@/stores/user";
 import { useRelationStore } from "@/stores/relation";
+import { getNavigationBarMetrics } from "@/utils/navigation";
 
 const userStore = useUserStore();
 const relationStore = useRelationStore();
@@ -54,6 +64,11 @@ const inviteCode = ref("");
 const inputCode = ref("");
 const generating = ref(false);
 const binding = ref(false);
+const navMetrics = getNavigationBarMetrics();
+
+function goBack() {
+  uni.navigateBack();
+}
 
 // 长辈视角只需输入邀请码，标题与入口文案保持一致
 onShow(() => {
@@ -79,17 +94,12 @@ function copyCode() {
 
 function pasteCode() {
   uni.getClipboardData({
-    success: (res) => {
-      const code = (res.data || "").trim();
-      if (code) {
-        inputCode.value = code;
-      } else {
-        uni.showToast({ title: "剪贴板为空", icon: "none" });
-      }
+    success: ({ data }) => {
+      const code = (data || "").trim();
+      if (code) inputCode.value = code;
+      else uni.showToast({ title: "剪贴板为空", icon: "none" });
     },
-    fail: () => {
-      uni.showToast({ title: "读取剪贴板失败", icon: "none" });
-    },
+    fail: () => uni.showToast({ title: "读取剪贴板失败", icon: "none" }),
   });
 }
 
@@ -114,10 +124,43 @@ async function handleBind() {
 </script>
 
 <style lang="scss" scoped>
+.invite-page {
+  min-height: 100vh;
+  padding-bottom: calc(48rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at 8% 16%, rgba($c-primary-soft, 0.08), transparent 26%),
+    $c-bg;
+}
+
+.invite-nav {
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 36rpx;
+  font-weight: 800;
+
+  &__back {
+    width: 72rpx;
+    height: 100%;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  image { width: 34rpx; height: 34rpx; }
+}
+
+.invite-body { padding: 34rpx 28rpx 0; }
+
 .invite-section, .bind-section {
-  background: $c-surface;
-  border-radius: $r-xl;
-  padding: $sp-40 $sp-32;
+  background: rgba(255, 255, 255, 0.86);
+  border-radius: 32rpx;
+  padding: 40rpx 32rpx;
   margin-bottom: $sp-24;
   box-shadow: $shadow-md;
   border: $border-subtle;
@@ -146,7 +189,8 @@ async function handleBind() {
 }
 
 .section-title {
-  font-size: $fs-title;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 40rpx;
   font-weight: $fw-bold;
   color: $c-text;
   display: block;
@@ -172,12 +216,19 @@ async function handleBind() {
   display: block;
   margin-bottom: $sp-32;
   padding: $sp-24;
-  background: $c-primary-bg;
+  background: linear-gradient(135deg, #FFF7F2, $c-primary-bg);
   border-radius: $r-lg;
 }
 
 .copy-btn {
   width: 100%;
+}
+
+.regenerate {
+  display: block;
+  margin-top: 22rpx;
+  color: $c-text-hint;
+  font-size: 25rpx;
 }
 
 .generate-area {
@@ -192,6 +243,14 @@ async function handleBind() {
   margin: $sp-24 0 $sp-8;
 }
 
+.paste-hint {
+  display: block;
+  margin-bottom: $sp-24;
+  color: $c-primary;
+  font-size: $fs-body-sm;
+  text-decoration: underline;
+}
+
 .code-input {
   width: 100%;
   height: 88rpx;
@@ -199,6 +258,7 @@ async function handleBind() {
   text-align: center;
   font-size: $fs-title;
   letter-spacing: 8rpx;
+  line-height: 88rpx;
   padding: 0 $sp-20;
   background: $c-bg;
   border-radius: $r-lg;
@@ -206,14 +266,8 @@ async function handleBind() {
   transition: border-color $duration-normal $ease-out;
 }
 
-.paste-area {
-  margin-bottom: $sp-24;
-}
-
-.paste-hint {
-  font-size: $fs-body-sm;
-  color: $c-primary;
-  text-decoration: underline;
+.code-input-placeholder {
+  letter-spacing: 2rpx;
 }
 
 .bind-btn {

@@ -10,7 +10,7 @@ export const useUserStore = defineStore("user", () => {
   const isFamily = computed(() => profile.value?.role === "family");
   const isElder = computed(() => profile.value?.role === "elder");
 
-  // 启动流程（含静默登录）的就绪 Promise，供直达页等待后再发请求
+  // 分享卡片直达页需要等待启动时的静默登录完成后再请求内容
   let loginReadyPromise = null;
 
   function markLoginReady(promise) {
@@ -22,7 +22,7 @@ export const useUserStore = defineStore("user", () => {
     try {
       await loginReadyPromise;
     } catch {
-      // 启动流程异常由各页面自行兜底
+      // 启动异常由页面自己的错误态兜底
     }
   }
 
@@ -61,11 +61,12 @@ export const useUserStore = defineStore("user", () => {
   }
 
   async function setRole(role) {
-    profile.value = await updateMe({ role });
+    return updateProfile({ role });
   }
 
-  async function updateNickname(nickname) {
-    profile.value = await updateMe({ nickname });
+  async function updateProfile(data) {
+    profile.value = await updateMe(data);
+    return profile.value;
   }
 
   function logout() {
@@ -75,5 +76,18 @@ export const useUserStore = defineStore("user", () => {
     uni.reLaunch({ url: "/pages/login/index" });
   }
 
-  return { profile, isLoggedIn, hasRole, isFamily, isElder, checkLogin, login, setRole, updateNickname, logout, markLoginReady, waitLoginReady };
+  return {
+    profile,
+    isLoggedIn,
+    hasRole,
+    isFamily,
+    isElder,
+    checkLogin,
+    login,
+    setRole,
+    updateProfile,
+    logout,
+    markLoginReady,
+    waitLoginReady,
+  };
 });

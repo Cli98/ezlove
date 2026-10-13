@@ -1,6 +1,16 @@
 <template>
   <view class="page-tasks">
-    <view class="tasks-content">
+    <view class="tasks-nav" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
+      <view class="tasks-nav__back" @tap="goBack">
+        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+      </view>
+      <text class="tasks-nav__title app-nav-title-center" :style="navMetrics.titleStyle">邻里任务</text>
+    </view>
+    <view class="tasks-content" :style="{ paddingTop: `${navMetrics.totalHeight + 14}px` }">
+      <view class="tasks-hero">
+        <text class="tasks-hero__title">附近可以帮上的忙</text>
+        <text class="tasks-hero__desc">一份帮忙，一份温暖，让邻里更亲近</text>
+      </view>
       <!-- 加载中 -->
       <view v-if="volunteerStore.loading" class="loading-center fade-in">
         <view class="loading-dot-wrap">
@@ -13,7 +23,7 @@
       <!-- 空状态 -->
       <view v-else-if="availableTasks.length === 0" class="empty-state fade-in">
         <view class="empty-icon-wrap">
-          <text class="empty-icon">&#x2615;</text>
+          <image class="empty-icon" src="/static/icons/neighbor-help.svg" mode="aspectFit" />
         </view>
         <text class="empty-title">暂时没有可接任务</text>
         <text class="empty-desc">社区会不定期发布任务，请稍后再来看看</text>
@@ -64,8 +74,14 @@
 import { computed } from "vue";
 import { onShow, onPullDownRefresh } from "@dcloudio/uni-app";
 import { useVolunteerStore } from "@/stores/volunteer";
+import { getNavigationBarMetrics } from "@/utils/navigation";
 
 const volunteerStore = useVolunteerStore();
+const navMetrics = getNavigationBarMetrics();
+
+function goBack() {
+  uni.navigateBack();
+}
 
 const availableTasks = computed(() => {
   return volunteerStore.tasks.filter((t) => t.status === "pending");
@@ -173,8 +189,8 @@ onPullDownRefresh(async () => {
 }
 
 .empty-icon {
-  font-size: 72rpx;
-  line-height: 1;
+  width: 72rpx;
+  height: 72rpx;
 }
 
 .empty-title {
@@ -334,4 +350,61 @@ onPullDownRefresh(async () => {
     color: $c-text-inverse;
   }
 }
+</style>
+
+<style lang="scss" scoped>
+.page-tasks {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 92% 8%, rgba($c-accent,.11), transparent 24%),
+    $gradient-page;
+}
+.tasks-nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 30;
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  padding-left: $sp-16;
+  background: rgba($c-bg,.92);
+  backdrop-filter: blur(24rpx);
+}
+.tasks-nav__back {
+  width: 76rpx;
+  height: 76rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  image { width: 34rpx; height: 34rpx; }
+}
+.tasks-nav__title {
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 36rpx;
+  font-weight: 800;
+}
+.tasks-content { padding-left: $sp-24; padding-right: $sp-24; }
+.tasks-hero { margin: 22rpx 8rpx 34rpx; }
+.tasks-hero__title {
+  display: block;
+  color: $c-text;
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 52rpx;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.tasks-hero__desc { display: block; margin-top: 10rpx; color: $c-text-sub; font-size: 27rpx; }
+.task-list { gap: 18rpx; }
+.task-card {
+  padding: 26rpx;
+  border: 1rpx solid rgba($c-border,.74);
+  border-radius: 26rpx;
+  background: rgba(255,255,255,.82);
+  box-shadow: $shadow-sm;
+}
+.task-card__title { font-family: "Songti SC", "STSong", serif; font-size: 34rpx; font-weight: 800; }
+.task-card__desc-row { border-radius: 16rpx; background: $c-bg-warm; }
+.btn-accept { min-width: 168rpx; border-radius: $r-full; background: $gradient-warm; box-shadow: 0 8rpx 20rpx rgba($c-primary,.18); }
+.empty-state { padding-top: 90rpx; }
 </style>

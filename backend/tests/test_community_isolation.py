@@ -107,6 +107,10 @@ async def test_update_readback_consistency(client, db):
 
     # 档案：PUT 后 GET /community/elders/{id} 读回
     put_body = {
+        "elder_name": "李阿姨",
+        "elder_age": 83,
+        "elder_gender": "女",
+        "living_status": "独居",
         "care_level": "C",
         "address": "幸福路 8 号",
         "emergency_contact_name": "张三",
@@ -122,6 +126,10 @@ async def test_update_readback_consistency(client, db):
         f"/api/v1/community/elders/{record.id}", headers=worker_headers(worker)
     )).json()
     assert detail["care_level"] == "C"
+    assert detail["elder_name"] == "李阿姨"
+    assert detail["elder_age"] == 83
+    assert detail["elder_gender"] == "女"
+    assert detail["living_status"] == "独居"
     assert detail["address"] == "幸福路 8 号"
     assert detail["emergency_contact_name"] == "张三"
     assert detail["emergency_contact_phone"] == "13800000000"

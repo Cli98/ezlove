@@ -1,16 +1,12 @@
 <template>
-  <view class="elder-page">
+  <view class="elder-page" :style="{ paddingTop: `${navMetrics.totalHeight + 8}px` }">
     <!-- Top Bar -->
-    <view class="top-bar">
-      <view class="top-bar-left">
-        <view class="back-btn" @tap="goBack">
-          <text class="back-icon">←</text>
-        </view>
-        <text class="top-bar-title">牵挂</text>
+    <view class="top-bar" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
+      <view class="back-btn" @tap="goBack">
+        <image class="back-icon" src="/static/icons/arrow-back.svg" mode="aspectFit" />
       </view>
-      <view class="top-bar-avatar">
-        <text class="top-bar-initial">{{ (moment.elder_nickname || moment.sender_name || '我')[0] }}</text>
-      </view>
+      <text class="top-bar-title app-nav-title-center" :style="navMetrics.titleStyle">牵挂详情</text>
+      <view class="top-bar-spacer" />
     </view>
 
     <!-- Loading -->
@@ -40,10 +36,11 @@
       <view class="sender-header">
         <view class="sender-info">
           <view class="sender-avatar-sm">
-            <text class="sender-avatar-initial">{{ (moment.sender_nickname || moment.sender_name || '家')[0] }}</text>
+            <image v-if="moment.sender_avatar_url" :src="getFullUrl(moment.sender_avatar_url)" mode="aspectFill" class="sender-avatar-image" />
+            <text v-else class="sender-avatar-initial">{{ (moment.sender_name || '家')[0] }}</text>
           </view>
           <view class="sender-meta">
-            <text class="sender-name">{{ moment.sender_nickname || moment.sender_name || '家人' }}</text>
+            <text class="sender-name">{{ moment.sender_name || '家人' }}</text>
             <text class="sender-time">{{ timeText }}</text>
           </view>
         </view>
@@ -125,7 +122,6 @@
       </view>
     </view>
 
-    <!-- Share -->
     <view class="share-section reactions-enter">
       <button class="share-btn" open-type="share">
         <text class="share-btn-text">转发给家人看看</text>
@@ -140,6 +136,7 @@ import { ref, computed } from "vue";
 import { onLoad, onShareAppMessage } from "@dcloudio/uni-app";
 import { getMomentDetail, recordView, sendResponse } from "@/api/moment";
 import { getFullUrl } from "@/api/config";
+import { getNavigationBarMetrics } from "@/utils/navigation";
 import { useUserStore } from "@/stores/user";
 
 const userStore = useUserStore();
@@ -149,6 +146,7 @@ const loading = ref(true);
 const error = ref(false);
 const reacting = ref(false);
 const selectedReaction = ref(null);
+const navMetrics = getNavigationBarMetrics();
 
 // 回应按钮为老人（接收方）专属：后端仅允许 elder 本人回应（W-04，家属调用 403），
 // 家属/发送者本人打开自己的发送记录时不展示，避免出现点了必失败的按钮
@@ -188,7 +186,6 @@ onLoad((query) => {
 });
 
 async function init() {
-  // 分享卡片直达场景：等待启动流程（含静默登录）完成后再请求
   await userStore.waitLoginReady();
   if (!momentId.value) {
     error.value = true;
@@ -198,7 +195,6 @@ async function init() {
   loadMoment();
 }
 
-// 转发卡片：家人点开直达本页查看
 onShareAppMessage(() => {
   const name = moment.value.sender_nickname || moment.value.sender_name || "家人";
   const preview = (moment.value.text_content || "").slice(0, 24);
@@ -262,7 +258,6 @@ async function sendReaction(type) {
 <style lang="scss" scoped>
 .elder-page {
   min-height: 100vh;
-  padding-top: calc(var(--status-bar-height, 50rpx) + 128rpx);
   padding-bottom: 200rpx;
   padding-left: $sp-24;
   padding-right: $sp-24;
@@ -279,18 +274,11 @@ async function sendReaction(type) {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-sizing: content-box;
   padding: 0 $sp-24;
-  padding-top: var(--status-bar-height, 50rpx);
-  height: calc(var(--status-bar-height, 50rpx) + 112rpx);
   background: rgba($c-bg, 0.9);
   backdrop-filter: blur(24rpx);
   -webkit-backdrop-filter: blur(24rpx);
-}
-
-.top-bar-left {
-  display: flex;
-  align-items: center;
-  gap: $sp-16;
 }
 
 .back-btn {
@@ -308,8 +296,8 @@ async function sendReaction(type) {
 }
 
 .back-icon {
-  font-size: 60rpx;
-  color: $c-text;
+  width: 38rpx;
+  height: 38rpx;
 }
 
 .top-bar-title {
@@ -394,13 +382,13 @@ async function sendReaction(type) {
 }
 
 .error-hint {
-  font-size: $fs-title;
-  color: $c-text-hint;
-  margin-top: $sp-12;
   display: block;
-  text-align: center;
+  margin-top: $sp-12;
   padding: 0 $sp-32;
+  color: $c-text-hint;
+  font-size: $fs-title;
   line-height: $lh-relaxed;
+  text-align: center;
 }
 
 .retry-btn {
@@ -481,6 +469,12 @@ async function sendReaction(type) {
   font-size: 36rpx;
   font-weight: $fw-bold;
   color: $c-primary;
+}
+
+.sender-avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
 }
 
 .sender-meta {
@@ -706,32 +700,77 @@ async function sendReaction(type) {
   }
 }
 
-/* Share */
 .share-section {
   display: flex;
   justify-content: center;
-  margin-top: $sp-40;
+  margin-top: $sp-32;
 }
 
 .share-btn {
+  min-height: 96rpx;
   padding: $sp-16 $sp-48;
-  background: rgba($c-primary, 0.08);
   border: 2rpx solid rgba($c-primary, 0.25);
   border-radius: $r-full;
-  line-height: 1.5;
-  transition: all $duration-normal $ease-out;
+  background: rgba($c-primary, 0.08);
 
   &::after { border: none; }
-
-  &:active {
-    background: rgba($c-primary, 0.15);
-    transform: scale(0.97);
-  }
 }
 
 .share-btn-text {
+  color: $c-primary;
   font-size: $fs-elder-body;
   font-weight: $fw-medium;
-  color: $c-primary;
 }
+</style>
+
+<style lang="scss" scoped>
+.elder-page {
+  background:
+    radial-gradient(circle at 90% 8%, rgba($c-accent,.11), transparent 22%),
+    $gradient-page;
+}
+.top-bar { background: rgba($c-bg,.92); }
+.back-btn { width: 76rpx; height: 76rpx; }
+.back-icon { width: 34rpx; height: 34rpx; }
+.top-bar-title { color: $c-text; font-family: "Songti SC", "STSong", serif; font-size: 36rpx; font-weight: 800; }
+.top-bar-spacer { width: 48rpx; height: 48rpx; }
+.message-card {
+  position: relative;
+  overflow: hidden;
+  margin-top: 22rpx;
+  padding: 30rpx;
+  border: 1rpx solid rgba($c-border,.78);
+  border-radius: 30rpx;
+  background:
+    radial-gradient(circle at 94% 6%, rgba($c-accent,.12), transparent 24%),
+    rgba(255,255,255,.84);
+  box-shadow: $shadow-md;
+}
+.sender-avatar-sm { background: $c-primary-surface; color: $c-primary; }
+.sender-name { color: $c-text; font-family: "Songti SC", "STSong", serif; font-size: 34rpx; font-weight: 800; }
+.family-badge { border-radius: $r-full; background: $c-safe-bg; }
+.family-badge-text { color: $c-safe; }
+.message-body {
+  margin-top: 28rpx;
+  padding: 26rpx;
+  border-radius: 22rpx;
+  background: $c-bg;
+  border: 1rpx solid $c-border-light;
+}
+.body-text { color: $c-text; font-family: "Songti SC", "STSong", serif; font-size: 42rpx; line-height: 1.75; }
+.image-area,
+.video-area { margin-top: 24rpx; border-radius: 24rpx; overflow: hidden; box-shadow: $shadow-sm; }
+.content-image { width: 100%; border-radius: 24rpx; }
+.image-caption { margin-top: 22rpx; color: $c-text-hint; }
+.reaction-section {
+  margin-top: 24rpx;
+  padding: 28rpx 18rpx;
+  border: 1rpx solid rgba($c-border,.72);
+  border-radius: 28rpx;
+  background: rgba(255,255,255,.76);
+  box-shadow: $shadow-sm;
+}
+.reaction-circle { background: $c-bg-warm; border-color: transparent; }
+.reaction-btn--selected .reaction-circle { background: $c-primary-surface; border-color: $c-primary; box-shadow: 0 8rpx 20rpx rgba($c-primary,.12); }
+.reaction-btn--selected .reaction-label { color: $c-primary; }
 </style>

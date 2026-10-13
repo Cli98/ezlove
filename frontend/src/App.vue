@@ -24,6 +24,11 @@ async function bootstrap(userStore) {
     return;
   }
 
+  // 开发环境允许直接预览身份选择页，避免启动守卫立即跳回登录页
+  if (import.meta.env.DEV && entryPath === "pages/login/role") {
+    return;
+  }
+
   // 分享卡片直达页：微信端先静默登录，让长辈无需操作即可查看
   // #ifdef MP-WEIXIN
   if (isShareTarget(entryPath)) {

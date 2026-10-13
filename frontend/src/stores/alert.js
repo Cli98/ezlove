@@ -34,5 +34,9 @@ export const useAlertStore = defineStore("alert", () => {
     if (alert) alert.is_resolved = true;
   }
 
-  return { alerts, loading, unresolvedCount, loadAlerts, resolve };
+  function clear() {
+    alerts.value = [];
+  }
+
+  return { alerts, loading, unresolvedCount, loadAlerts, resolve, clear };
 });

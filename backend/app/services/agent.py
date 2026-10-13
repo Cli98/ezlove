@@ -232,6 +232,8 @@ async def _building_summary(db, community_id, today_start, inp):
 
 
 async def _elder_status(db, community_id, inp):
+    from app.utils.elder_profile import read_elder_profile
+
     name = inp.get("name", "")
     result = await db.execute(
         select(CommunityElder, User.nickname)
@@ -250,6 +252,7 @@ async def _elder_status(db, community_id, inp):
 
     elders = []
     for elder, ename in rows[:5]:
+        profile = read_elder_profile(elder.health_notes)
         elders.append({
             "id": str(elder.id),
             "name": ename,
@@ -258,7 +261,9 @@ async def _elder_status(db, community_id, inp):
             "risk_score": elder.risk_score,
             "risk_level": elder.risk_level,
             "today_active": elder.elder_id in active_ids,
-            "health_notes": elder.health_notes,
+            "age": profile["elder_age"],
+            "gender": profile["elder_gender"],
+            "living_status": profile["living_status"],
         })
 
     return json.dumps({"results": elders}, ensure_ascii=False)
