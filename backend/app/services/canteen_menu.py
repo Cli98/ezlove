@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.canteen_menu import CanteenMenu
-from app.utils.llm import get_client, get_model
+from app.utils.llm import get_client, get_model, no_thinking_kwargs
 
 logger = logging.getLogger("ezlove.canteen_menu")
 
@@ -77,6 +77,7 @@ async def generate_menu(
             response = await client.chat.completions.create(
                 model=get_model(),
                 max_tokens=1024,
+                **no_thinking_kwargs(),
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": f"请生成{menu_date.isoformat()} {meal_label}的菜单"},

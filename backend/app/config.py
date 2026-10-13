@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     LLM_API_KEY: str = ""
     LLM_BASE_URL: str = ""
     LLM_MODEL: str = "qwen-plus"
+    # 视觉理解模型（海报照片分析等）：文本模型不支持图片输入，需独立多模态模型；
+    # 留空则用代码默认值（qwen3.8-omni-flash），可在部署配置中覆盖
+    LLM_VISION_MODEL: str = ""
 
     # AI 媒体生成（暂未接入）
     VIDEO_GEN_API_KEY: str = ""

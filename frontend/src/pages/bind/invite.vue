@@ -44,6 +44,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { onShow } from "@dcloudio/uni-app";
 import { useUserStore } from "@/stores/user";
 import { useRelationStore } from "@/stores/relation";
 
@@ -53,6 +54,11 @@ const inviteCode = ref("");
 const inputCode = ref("");
 const generating = ref(false);
 const binding = ref(false);
+
+// 长辈视角只需输入邀请码，标题与入口文案保持一致
+onShow(() => {
+  uni.setNavigationBarTitle({ title: userStore.isElder ? "绑定家人" : "邀请绑定" });
+});
 
 async function generate() {
   if (generating.value) return;

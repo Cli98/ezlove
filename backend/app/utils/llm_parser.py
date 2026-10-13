@@ -1,7 +1,7 @@
 import json
 import re
 
-from app.utils.llm import get_client, get_model
+from app.utils.llm import get_client, get_model, no_thinking_kwargs
 
 
 async def parse_canteen_text(
@@ -45,6 +45,7 @@ async def parse_canteen_text(
         response = await client.chat.completions.create(
             model=get_model(),
             max_tokens=2048,
+            **no_thinking_kwargs(),
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": raw_text},

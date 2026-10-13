@@ -1,9 +1,13 @@
 import base64
 import json
+import logging
+import time
 from datetime import datetime
 from pathlib import Path
 
-from app.utils.llm import get_client, get_model
+from app.utils.llm import get_client, get_model, get_vision_model, no_thinking_kwargs
+
+logger = logging.getLogger("ezlove.ai_content")
 
 
 PHOTO_ANALYSIS_PROMPT = """你是一个温暖的家庭关怀助手。一位子女拍了一张日常生活照片想分享给独居的老人。
@@ -56,6 +60,31 @@ PROMPT_TEMPLATE = """你是一个温暖的家庭关怀助手。请为一位子�
 """
 
 
+def _extract_json(text: str) -> dict | list:
+    """从模型返回中提取 JSON：兼容 markdown 代码块围栏与前后缀说明文字。
+
+    qwen 系模型常把 JSON 包在 ```json ... ``` 中（实测 omni-flash 高概率如此），
+    直接 json.loads 会在首个反引号处失败、白白降级为本地兜底文案。
+    """
+    s = (text or "").strip()
+    if s.startswith("```"):
+        first_nl = s.find("\n")
+        if first_nl != -1:
+            s = s[first_nl + 1:]
+        if s.rstrip().endswith("```"):
+            s = s.rstrip()[:-3]
+    s = s.strip()
+    try:
+        return json.loads(s)
+    except json.JSONDecodeError:
+        # 兜底：截取第一个括号对（对象或数组）之间的内容
+        for open_ch, close_ch in (("{", "}"), ("[", "]")):
+            i, j = s.find(open_ch), s.rfind(close_ch)
+            if i != -1 and j > i:
+                return json.loads(s[i:j + 1])
+        raise
+
+
 async def generate_suggestions() -> list[dict]:
     now = datetime.now()
     prompt = PROMPT_TEMPLATE.format(
@@ -71,10 +100,11 @@ async def generate_suggestions() -> list[dict]:
         response = await client.chat.completions.create(
             model=get_model(),
             max_tokens=512,
+            **no_thinking_kwargs(),
             messages=[{"role": "user", "content": prompt}],
         )
         text = response.choices[0].message.content
-        return json.loads(text)
+        return _extract_json(text)
     except Exception:
         return _fallback_suggestions()
 
@@ -95,6 +125,7 @@ async def analyze_photo_and_suggest(image_path: str, user_text: str | None = Non
     if not client:
         return _fallback_photo_analysis(user_text)
 
+    t0 = time.monotonic()
     try:
         img_path = Path(image_path)
         if not img_path.exists():
@@ -107,8 +138,12 @@ async def analyze_photo_and_suggest(image_path: str, user_text: str | None = Non
         media_type = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "gif": "image/gif", "webp": "image/webp"}.get(suffix.lstrip("."), "image/jpeg")
 
         response = await client.chat.completions.create(
-            model=get_model(),
+            # 视觉理解需独立的多模态模型，不能复用文本 LLM_MODEL
+            model=get_vision_model(),
             max_tokens=512,
+            # 单请求超时兜底：模型侧慢/挂起时快速降级为本地文案，避免海报页长时间等待
+            timeout=45.0,
+            **no_thinking_kwargs(),
             messages=[{
                 "role": "user",
                 "content": [
@@ -118,8 +153,11 @@ async def analyze_photo_and_suggest(image_path: str, user_text: str | None = Non
             }],
         )
         text = response.choices[0].message.content
-        return json.loads(text)
-    except Exception:
+        result = _extract_json(text)
+        logger.info("photo analysis ok: model=%s %.1fs", get_vision_model(), time.monotonic() - t0)
+        return result
+    except Exception as e:
+        logger.warning("photo analysis failed after %.1fs, fallback: %s: %s", time.monotonic() - t0, type(e).__name__, e)
         return _fallback_photo_analysis(user_text)
 
 

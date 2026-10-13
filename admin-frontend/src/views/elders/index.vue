@@ -123,6 +123,29 @@
           </tr>
         </tbody>
       </table>
+
+      <!-- Pagination -->
+      <div v-if="store.total > 0" class="flex items-center justify-between px-6 py-4 border-t border-outline-variant/10">
+        <span class="text-xs text-on-surface-variant">共 <span class="font-semibold text-on-surface">{{ store.total }}</span> 位老人</span>
+        <div class="flex items-center gap-3">
+          <button
+            :disabled="store.loading || store.page <= 1"
+            class="px-4 py-2 rounded-xl text-sm font-semibold border border-outline-variant text-on-surface-variant transition-colors enabled:hover:bg-surface-container enabled:hover:text-on-surface disabled:opacity-40 disabled:cursor-not-allowed"
+            @click="store.goToPage(store.page - 1)"
+          >
+            上一页
+          </button>
+          <span class="text-sm text-on-surface-variant tabular-nums">{{ store.page }} / {{ store.totalPages }}</span>
+          <button
+            :disabled="store.loading || store.page >= store.totalPages"
+            class="px-4 py-2 rounded-xl text-sm font-semibold border border-outline-variant text-on-surface-variant transition-colors enabled:hover:bg-surface-container enabled:hover:text-on-surface disabled:opacity-40 disabled:cursor-not-allowed"
+            @click="store.goToPage(store.page + 1)"
+          >
+            下一页
+          </button>
+        </div>
+      </div>
+
       <div v-if="store.loading" class="text-center py-16">
         <div class="inline-flex items-center gap-2 text-on-surface-variant">
           <svg class="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>
@@ -200,7 +223,7 @@ function debouncedSearch() {
   searchTimer = setTimeout(() => store.load(filters), 300)
 }
 
-onMounted(() => store.load())
+onMounted(() => store.load(filters))
 
 function handleEscape(e) {
   if (e.key === 'Escape') showDialog.value = false

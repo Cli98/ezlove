@@ -9,7 +9,10 @@
           <view class="avatar-circle">
             <text class="avatar-letter">{{ (userStore.profile?.nickname || '我')[0] }}</text>
           </view>
-          <text class="nickname">{{ userStore.profile?.nickname || '未设置昵称' }}</text>
+          <view class="nickname-row" @tap="openNicknameEditor">
+            <text class="nickname">{{ userStore.profile?.nickname || '未设置昵称' }}</text>
+            <image class="nickname-edit-icon" src="/static/icons/edit-white.svg" mode="aspectFit" />
+          </view>
           <view class="role-tag">
             <text>{{ userStore.isFamily ? '子女/亲属' : '长辈' }}</text>
           </view>
@@ -25,7 +28,7 @@
         <view class="stat-divider" />
         <view class="stat-item">
           <text class="stat-num">{{ momentCount }}</text>
-          <text class="stat-label">牵挂已送</text>
+          <text class="stat-label">送出牵挂</text>
         </view>
         <view class="stat-divider" />
         <view class="stat-item">
@@ -35,7 +38,8 @@
       </view>
 
       <view class="menu-section fade-in stagger-2">
-        <template v-if="userStore.isFamily">
+        <!-- 家庭分组：子女可查看/邀请绑定；长辈可查看家人/输入邀请码绑定 -->
+        <template v-if="userStore.isFamily || userStore.isElder">
           <text class="menu-group-label">家庭</text>
           <view class="menu-card" @tap="goBindList">
             <view class="menu-left">
@@ -46,8 +50,12 @@
           </view>
           <view class="menu-card" @tap="goInvite">
             <view class="menu-left">
-              <image class="menu-icon-img" src="/static/icons/link.svg" mode="aspectFit" />
-              <text class="menu-text">邀请绑定</text>
+              <image
+                class="menu-icon-img"
+                :src="userStore.isElder ? '/static/icons/key.svg' : '/static/icons/link.svg'"
+                mode="aspectFit"
+              />
+              <text class="menu-text">{{ userStore.isElder ? '绑定家人' : '邀请绑定' }}</text>
             </view>
             <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
           </view>
@@ -83,6 +91,9 @@
         <text class="version-text">易挂念 v1.0.0</text>
       </view>
     </view>
+
+    <!-- 昵称编辑弹窗 -->
+    <NicknameEditor v-if="showNicknameEditor" @close="showNicknameEditor = false" />
   </view>
 </template>
 
@@ -92,22 +103,30 @@ import { onShow } from "@dcloudio/uni-app";
 import { useUserStore } from "@/stores/user";
 import { getRelations } from "@/api/relation";
 import { getMoments } from "@/api/moment";
+import NicknameEditor from "@/components/NicknameEditor.vue";
 
 const userStore = useUserStore();
 const elderCount = ref(0);
 const momentCount = ref(0);
 const careStreak = ref(0);
 const statsLoaded = ref(false);
+const showNicknameEditor = ref(false);
 
+// 昵称为空时不输出前导逗号，避免出现“，晚上好”
 const greeting = computed(() => {
   const h = new Date().getHours();
   const name = userStore.profile?.nickname || "";
-  if (h < 6) return `${name}，夜深了，注意休息`;
-  if (h < 11) return `${name}，早上好`;
-  if (h < 14) return `${name}，中午好`;
-  if (h < 18) return `${name}，下午好`;
-  return `${name}，晚上好`;
+  const prefix = name ? `${name}，` : "";
+  if (h < 6) return `${prefix}夜深了，注意休息`;
+  if (h < 11) return `${prefix}早上好`;
+  if (h < 14) return `${prefix}中午好`;
+  if (h < 18) return `${prefix}下午好`;
+  return `${prefix}晚上好`;
 });
+
+function openNicknameEditor() {
+  showNicknameEditor.value = true;
+}
 
 onShow(() => {
   if (userStore.isFamily) loadStats();
@@ -117,11 +136,13 @@ async function loadStats() {
   try {
     const [relations, moments] = await Promise.all([
       getRelations(),
-      getMoments({ limit: 200 }),
+      getMoments({ page: 1, page_size: 100 }),
     ]);
-    elderCount.value = relations.length;
-    momentCount.value = moments.length;
-    careStreak.value = calcStreak(moments);
+    // /moments 返回分页对象 { items, total }：总数用 total，连续天数用明细
+    const momentList = moments?.items || [];
+    elderCount.value = Array.isArray(relations) ? relations.length : 0;
+    momentCount.value = moments?.total ?? momentList.length;
+    careStreak.value = calcStreak(momentList);
     statsLoaded.value = true;
   } catch {
     uni.showToast({ title: '数据加载失败', icon: 'none' });
@@ -129,7 +150,7 @@ async function loadStats() {
 }
 
 function calcStreak(moments) {
-  if (!moments.length) return 0;
+  if (!Array.isArray(moments) || !moments.length) return 0;
   const days = new Set();
   moments.forEach((m) => {
     if (m.created_at) days.add(m.created_at.slice(0, 10));
@@ -264,6 +285,21 @@ function handleLogout() {
   font-size: $fs-display;
   font-weight: $fw-bold;
   color: $c-text-inverse;
+}
+
+.nickname-row {
+  display: flex;
+  align-items: center;
+  gap: $sp-12;
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.nickname-edit-icon {
+  width: 40rpx;
+  height: 40rpx;
+  opacity: 0.9;
 }
 
 .nickname {

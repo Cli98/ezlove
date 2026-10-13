@@ -87,8 +87,8 @@
       <text class="image-caption">— 来自家人的温馨分享 —</text>
     </view>
 
-    <!-- Reaction Section -->
-    <view class="reaction-section reactions-enter">
+    <!-- Reaction Section: 回应按钮为接收方（老人）专属，家属/发送者本人打开时不展示 -->
+    <view v-if="isElderViewer" class="reaction-section reactions-enter">
       <!-- Divider with text -->
       <view class="reaction-divider">
         <view class="divider-line" />
@@ -149,6 +149,12 @@ const loading = ref(true);
 const error = ref(false);
 const reacting = ref(false);
 const selectedReaction = ref(null);
+
+// 回应按钮为老人（接收方）专属：后端仅允许 elder 本人回应（W-04，家属调用 403），
+// 家属/发送者本人打开自己的发送记录时不展示，避免出现点了必失败的按钮
+const isElderViewer = computed(
+  () => !!userStore.profile?.id && moment.value.elder_id === userStore.profile.id
+);
 
 const isVideoContent = computed(() => {
   if (moment.value.content_type === "video") return true;

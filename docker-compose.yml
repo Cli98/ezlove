@@ -6,6 +6,8 @@ services:
       POSTGRES_DB: ezlove
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      TZ: Asia/Shanghai
+    command: ["postgres", "-c", "timezone=Asia/Shanghai"]
     ports:
       - "5433:5432"
     volumes:
@@ -22,6 +24,9 @@ services:
     restart: unless-stopped
     ports:
       - "8001:8000"
+    environment:
+      # 时间口径契约（utils/datetime.py）：naive 本地时间直比，容器必须与业务时区一致
+      TZ: Asia/Shanghai
     env_file:
       - ./backend/.env
     depends_on:

@@ -319,7 +319,7 @@ async def get_ai_analysis(
 请用 JSON 格式回复：
 {{"summary": "一句话总结", "trend": "improving/stable/deteriorating", "concern_points": ["关注点1"], "suggested_action": "建议行动", "confidence": 0.0-1.0}}"""
 
-    from app.utils.llm import get_client, get_model
+    from app.utils.llm import get_client, get_model, no_thinking_kwargs
 
     client = get_client()
     if not client:
@@ -337,6 +337,7 @@ async def get_ai_analysis(
         response = await client.chat.completions.create(
             model=get_model(),
             max_tokens=512,
+            **no_thinking_kwargs(),
             messages=[{"role": "user", "content": prompt}],
         )
         text = response.choices[0].message.content

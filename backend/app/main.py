@@ -18,6 +18,12 @@ from app.api.v1.router import api_router
 access_logger = logging.getLogger("ezlove.access")
 logger = logging.getLogger("ezlove")
 
+# 应用日志可见性：uvicorn 只配置自身 logger，root 默认 WARNING 会让
+# 应用 INFO 级访问/诊断日志（请求耗时、AI 分段打点等）被静默丢弃，
+# 导致线上问题无法取证；显式初始化 root handler（幂等，防重复挂载）。
+if not logging.getLogger().handlers:
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

@@ -64,6 +64,10 @@ export const useUserStore = defineStore("user", () => {
     profile.value = await updateMe({ role });
   }
 
+  async function updateNickname(nickname) {
+    profile.value = await updateMe({ nickname });
+  }
+
   function logout() {
     uni.removeStorageSync("access_token");
     uni.removeStorageSync("refresh_token");
@@ -71,5 +75,5 @@ export const useUserStore = defineStore("user", () => {
     uni.reLaunch({ url: "/pages/login/index" });
   }
 
-  return { profile, isLoggedIn, hasRole, isFamily, isElder, checkLogin, login, setRole, logout, markLoginReady, waitLoginReady };
+  return { profile, isLoggedIn, hasRole, isFamily, isElder, checkLogin, login, setRole, updateNickname, logout, markLoginReady, waitLoginReady };
 });

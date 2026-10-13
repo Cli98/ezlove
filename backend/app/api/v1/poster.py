@@ -1,4 +1,6 @@
+import logging
 import os
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -16,6 +18,8 @@ from app.services.ai_content import analyze_photo_and_suggest
 from app.services.poster_generator import generate_all_posters, generate_single_poster, TEMPLATE_REGISTRY
 
 router = APIRouter(prefix="/poster", tags=["poster"])
+
+logger = logging.getLogger("ezlove.poster")
 
 STATIC_DIR = Path(__file__).resolve().parents[3] / "static"
 # 预计算允许的目录真实路径，用于路径遍历校验
@@ -45,7 +49,9 @@ async def generate_poster(
     if not Path(photo_path).exists():
         raise HTTPException(status_code=400, detail="图片不存在，请重新上传")
 
+    t0 = time.monotonic()
     ai_result = await analyze_photo_and_suggest(photo_path, req.user_text)
+    ai_ms = int((time.monotonic() - t0) * 1000)
 
     captions = ai_result.get("captions", [])
     recommended_template = ai_result.get("recommended_template", "warm_letter")
@@ -55,7 +61,10 @@ async def generate_poster(
     sender_name = user.nickname or "家人"
     date_str = datetime.now().strftime("%Y年%m月%d日")
 
+    t1 = time.monotonic()
     poster_results = generate_all_posters(photo_path, selected_caption, date_str, sender_name)
+    render_ms = int((time.monotonic() - t1) * 1000)
+    logger.info("poster/generate ok: ai_ms=%d render_ms=%d", ai_ms, render_ms)
 
     variants = []
     recommended_index = 0

@@ -12,9 +12,9 @@
       <view class="empty-icon-wrap">
         <image class="empty-icon-img" src="/static/icons/family.svg" mode="aspectFit" />
       </view>
-      <text class="empty-title">家人还没加入呢</text>
-      <text class="empty-desc">把邀请码分享给家人，一起连接彼此的日常</text>
-      <view class="btn-primary empty-btn" @tap="goInvite">邀请家人</view>
+      <text class="empty-title">{{ userStore.isElder ? '还没有绑定家人' : '家人还没加入呢' }}</text>
+      <text class="empty-desc">{{ userStore.isElder ? '让家人把邀请码发给你，输入后就能绑定' : '把邀请码分享给家人，一起连接彼此的日常' }}</text>
+      <view class="btn-primary empty-btn" @tap="goInvite">{{ userStore.isElder ? '输入邀请码' : '邀请家人' }}</view>
     </view>
 
     <view v-else class="relation-list">
@@ -26,11 +26,11 @@
       >
         <view class="relation-left">
           <view class="relation-avatar">
-            <text class="relation-initial">{{ (r.relation_label || '家')[0] }}</text>
+            <text class="relation-initial">{{ (partnerName(r) || r.relation_label || '家')[0] }}</text>
           </view>
           <view class="relation-info">
-            <text class="relation-label">{{ r.relation_label || '家人' }}</text>
-            <text v-if="r.nickname" class="relation-nickname">{{ r.nickname }}</text>
+            <text class="relation-label">{{ relationTitle(r) }}</text>
+            <text v-if="relationSubtitle(r)" class="relation-nickname">{{ relationSubtitle(r) }}</text>
           </view>
         </view>
         <view class="relation-action" @tap="confirmRemove(r.id)">
@@ -41,7 +41,7 @@
 
     <view v-if="relationStore.relations.length > 0" class="add-area fade-in stagger-3">
       <view class="btn-secondary add-btn" @tap="goInvite">
-        <text>+ 添加家人</text>
+        <text>{{ userStore.isElder ? '+ 绑定家人' : '+ 添加家人' }}</text>
       </view>
     </view>
   </view>
@@ -50,8 +50,28 @@
 <script setup>
 import { onShow, onPullDownRefresh } from "@dcloudio/uni-app";
 import { useRelationStore } from "@/stores/relation";
+import { useUserStore } from "@/stores/user";
 
 const relationStore = useRelationStore();
+const userStore = useUserStore();
+
+// “对方”昵称：长辈取家人昵称、子女取老人昵称；另一侧兼容兜底（含自绑等数据）
+function partnerName(r) {
+  if (userStore.isElder) return r.family_name || r.elder_name || "";
+  return r.elder_name || r.family_name || "";
+}
+
+// 卡片主标题：对方昵称优先；无昵称退关系备注，最后提示未设置
+function relationTitle(r) {
+  return partnerName(r) || r.relation_label || "未设置昵称";
+}
+
+// 卡片副标题：子女视角展示关系备注（与主标题不重复），长辈视角不展示
+function relationSubtitle(r) {
+  if (userStore.isElder) return "";
+  const label = r.relation_label || "";
+  return label && label !== relationTitle(r) ? label : "";
+}
 
 onShow(() => {
   relationStore.loadRelations();
@@ -67,9 +87,12 @@ function goInvite() {
 }
 
 function confirmRemove(id) {
+  const content = userStore.isElder
+    ? "解除后你将收不到对方发来的牵挂，确定解除吗？"
+    : "解除后将无法查看对方状态";
   uni.showModal({
     title: "确认解除",
-    content: "解除后将无法查看对方状态",
+    content,
     success: async (res) => {
       if (res.confirm) {
         try {

@@ -10,18 +10,41 @@ export const useEldersStore = defineStore('elders', () => {
   const timelineHasMore = ref(false)
   const loading = ref(false)
   const error = ref(null)
+  const total = ref(0)
+  const page = ref(1)
+  const totalPages = ref(1)
+  const pageSize = ref(20)
+  let lastParams = {}
 
+  // 参数语义：传 params（筛选/搜索变化）时回到第 1 页；不传时用上次条件刷新（配合 goToPage 翻页）
   async function load(params) {
     loading.value = true
     error.value = null
     try {
-      const data = await getElders(params)
+      if (params) {
+        lastParams = { ...params }
+        page.value = 1
+      }
+      const data = await getElders({ page: page.value, page_size: pageSize.value, ...lastParams })
       elders.value = data.items || []
+      total.value = data.total || 0
+      totalPages.value = data.total_pages || 1
+      page.value = data.page || page.value
+      return true
     } catch (e) {
       error.value = e.response?.data?.detail || e.message || '加载失败'
+      return false
     } finally {
       loading.value = false
     }
+  }
+
+  function goToPage(target) {
+    const p = Math.min(Math.max(1, target), totalPages.value)
+    if (p === page.value) return
+    const prev = page.value
+    page.value = p
+    load().then((ok) => { if (!ok) page.value = prev })
   }
 
   async function loadDetail(id) {
@@ -83,6 +106,7 @@ export const useEldersStore = defineStore('elders', () => {
   return {
     elders, current, timeline, timelineTotal, timelineHasMore,
     loading, error,
-    load, loadDetail, loadTimeline, loadMoreTimeline, create, update,
+    total, page, totalPages, pageSize,
+    load, loadDetail, loadTimeline, loadMoreTimeline, create, update, goToPage,
   }
 })

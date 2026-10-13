@@ -37,8 +37,12 @@ async def list_relations(user: User = Depends(get_current_user), db: AsyncSessio
     result = []
     for r in relations:
         resp = RelationResponse.model_validate(r)
-        elder_id = r.elder_user_id
-        if elder_id:
+        if r.elder_user_id == user.id:
+            # 长辈视角：补充家人（子女）昵称，供“我的家人”列表展示
+            family_result = await db.execute(select(User.nickname).where(User.id == r.family_user_id))
+            resp.family_name = family_result.scalar_one_or_none()
+        elif r.elder_user_id:
+            elder_id = r.elder_user_id
             # 查询老人昵称，用于前端展示
             elder_result = await db.execute(select(User.nickname).where(User.id == elder_id))
             resp.elder_name = elder_result.scalar_one_or_none()

@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db, async_session
 from app.deps import get_current_worker
 from app.models.community import CommunityWorker
-from app.utils.llm import get_client, get_model
+from app.utils.llm import get_client, get_model, no_thinking_kwargs
 
 logger = logging.getLogger("ezlove.agent")
 
@@ -87,6 +87,7 @@ async def _stream_response(
             model=get_model(),
             max_tokens=1024,
             tools=openai_tools,
+            **no_thinking_kwargs(),
             messages=api_messages,
         )
 
@@ -121,6 +122,7 @@ async def _stream_response(
                 model=get_model(),
                 max_tokens=1024,
                 tools=openai_tools,
+                **no_thinking_kwargs(),
                 messages=api_messages,
             )
 
