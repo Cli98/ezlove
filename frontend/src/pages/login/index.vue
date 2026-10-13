@@ -1,7 +1,7 @@
 <template>
   <view class="login-page">
     <view class="brand-area">
-      <image class="brand-art" src="/static/brand/login-hero-v5.webp" mode="widthFix" />
+      <image class="brand-art" src="/static/brand/login-hero-v5.jpg" mode="widthFix" />
     </view>
 
     <view class="login-actions">
