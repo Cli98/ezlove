@@ -17,7 +17,7 @@
     <!-- Empty State -->
     <view v-else-if="momentStore.moments.length === 0" class="empty-state fade-in">
       <view class="empty-icon-wrap">
-        <image class="empty-icon" src="/static/icons/edit-note.svg" mode="aspectFit" />
+        <image class="empty-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/edit-note.png" mode="aspectFit" />
       </view>
       <text class="empty-title">{{ userStore.isElder ? '还没有收到牵挂' : '第一份牵挂从这里开始' }}</text>
       <text class="empty-desc">{{ userStore.isElder ? '家人正在想你呢，耐心等等~' : '一句简单的问候，也能让家人感到温暖' }}</text>

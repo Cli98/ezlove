@@ -2,7 +2,7 @@
   <view class="page-gradient">
     <view class="status-nav" :style="navMetrics.barStyle">
       <view class="status-nav__back" @tap="goBack">
-        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="app-nav-title-center" :style="navMetrics.titleStyle">家人状态</text>
     </view>
@@ -42,7 +42,7 @@
       <view class="pause-card fade-in stagger-2">
         <view class="pause-header">
           <view class="pause-left">
-            <image class="pause-icon" src="/static/icons/clock.svg" mode="aspectFit" />
+            <image class="pause-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/clock.png" mode="aspectFit" />
             <view class="pause-info">
               <text class="pause-title">暂停提醒</text>
               <text class="pause-desc">{{ pausedUntil ? '提醒已暂停至 ' + formatDate(pausedUntil) : '老人有事时可暂停几天' }}</text>

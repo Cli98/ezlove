@@ -57,7 +57,7 @@
     <!-- Empty State -->
     <view v-else class="empty-state fade-in">
       <view class="empty-icon-circle">
-        <image class="empty-icon-img" src="/static/icons/checkmark.svg" mode="aspectFit" />
+        <image class="empty-icon-img" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/checkmark.png" mode="aspectFit" />
       </view>
       <text class="empty-title">暂无提醒，一切安好</text>
       <view class="empty-divider" />

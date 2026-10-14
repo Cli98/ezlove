@@ -6,7 +6,7 @@
     </view>
 
     <view class="elder-reminder-card" @tap="goHistory">
-      <image class="elder-reminder-icon" src="/static/brand/logo-mark.png" mode="aspectFit" />
+      <image class="elder-reminder-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
       <view class="elder-reminder-copy">
         <text class="elder-reminder-card-title">看看家人的牵挂</text>
         <text class="elder-reminder-card-desc">收到的问候都保存在记录里</text>

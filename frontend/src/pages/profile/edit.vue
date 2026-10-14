@@ -2,7 +2,7 @@
   <view class="edit-page">
     <view class="edit-nav" :style="navMetrics.barStyle">
       <view class="edit-nav__back" @tap="goBack">
-        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="edit-nav__title app-nav-title-center" :style="navMetrics.titleStyle">编辑资料</text>
     </view>

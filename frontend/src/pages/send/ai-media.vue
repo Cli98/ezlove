@@ -3,7 +3,7 @@
     <!-- Top Bar -->
     <view class="top-bar" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
       <view class="back-btn" @tap="goBack">
-        <image class="back-icon" src="/static/icons/arrow-back.svg" mode="aspectFit" />
+        <image class="back-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="top-bar-title app-nav-title-center" :style="navMetrics.titleStyle">AI 创作</text>
     </view>
@@ -35,7 +35,7 @@
         <!-- 照片生成视频 -->
         <view class="feature-card" :class="{ 'feature-card--active': selectedFeature === 'video', 'feature-card--disabled': processing }" @tap="selectFeature('video')">
           <view class="feature-card__icon feature-card__icon--video">
-            <image class="feature-icon-img" src="/static/icons/video.svg" mode="aspectFit" />
+            <image class="feature-icon-img" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/video.png" mode="aspectFit" />
           </view>
           <view class="feature-card__body">
             <text class="feature-card__title">照片生成视频</text>
@@ -50,7 +50,7 @@
         <!-- 老照片修复 -->
         <view class="feature-card" :class="{ 'feature-card--active': selectedFeature === 'restore', 'feature-card--disabled': processing }" @tap="selectFeature('restore')">
           <view class="feature-card__icon feature-card__icon--restore">
-            <image class="feature-icon-img" src="/static/icons/photo-restore.svg" mode="aspectFit" />
+            <image class="feature-icon-img" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/photo-restore.png" mode="aspectFit" />
           </view>
           <view class="feature-card__body">
             <text class="feature-card__title">老照片修复</text>
@@ -65,7 +65,7 @@
         <!-- 照片动画化 -->
         <view class="feature-card" :class="{ 'feature-card--active': selectedFeature === 'animate', 'feature-card--disabled': processing }" @tap="selectFeature('animate')">
           <view class="feature-card__icon feature-card__icon--animate">
-            <image class="feature-icon-img" src="/static/icons/sparkle.svg" mode="aspectFit" />
+            <image class="feature-icon-img" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/sparkle.png" mode="aspectFit" />
           </view>
           <view class="feature-card__body">
             <text class="feature-card__title">照片动画化</text>
@@ -82,7 +82,7 @@
       <view class="section-label" style="margin-top: 32rpx;">选择照片</view>
       <view class="photo-area">
         <view v-if="!localImage" class="photo-picker" @tap="choosePhoto">
-          <image class="photo-picker__icon" src="/static/icons/add-photo.svg" mode="aspectFit" />
+          <image class="photo-picker__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/add-photo.png" mode="aspectFit" />
           <text class="photo-picker__text">选择一张照片</text>
         </view>
         <view v-else class="photo-preview">
@@ -132,7 +132,7 @@
     <!-- 错误/模型不可用弹窗 -->
     <view v-if="showError" class="modal-overlay" @tap="showError = false">
       <view class="modal-card" @tap.stop>
-        <image class="modal-icon-img" src="/static/icons/wrench.svg" mode="aspectFit" />
+        <image class="modal-icon-img" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/wrench.png" mode="aspectFit" />
         <text class="modal-title">功能暂未开放</text>
         <text class="modal-desc">{{ errorMessage }}</text>
         <view class="modal-btn" @tap="showError = false">

@@ -2,7 +2,7 @@
   <view class="invite-page">
     <view class="invite-nav" :style="navMetrics.barStyle">
       <view class="invite-nav__back" @tap="goBack">
-        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="app-nav-title-center" :style="navMetrics.titleStyle">邀请家人加入</text>
     </view>
@@ -11,7 +11,7 @@
     <!-- 子女端：生成邀请码发给老人 -->
     <view v-if="!userStore.isElder" class="invite-section fade-in">
       <view class="section-icon-wrap">
-        <image class="section-icon-img" src="/static/icons/invite.svg" mode="aspectFit" />
+        <image class="section-icon-img" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/invite.png" mode="aspectFit" />
       </view>
       <text class="section-title">邀请家人加入</text>
       <text class="section-desc">生成邀请码，让老人或其他家人输入即可绑定</text>
@@ -29,7 +29,7 @@
     <!-- 双方都能输入邀请码绑定 -->
     <view class="bind-section fade-in" :class="userStore.isElder ? '' : 'stagger-1'">
       <view class="section-icon-wrap small">
-        <image class="section-icon-img" src="/static/icons/key.svg" mode="aspectFit" />
+        <image class="section-icon-img" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/key.png" mode="aspectFit" />
       </view>
       <text class="section-title">{{ userStore.isElder ? '绑定家人' : '我有邀请码' }}</text>
       <text v-if="userStore.isElder" class="section-desc">输入子女发给你的邀请码</text>

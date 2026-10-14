@@ -2,7 +2,7 @@
   <view class="profile-page">
     <view class="profile-hero fade-in">
       <view class="hero-deco hero-deco--bottom" />
-      <image class="hero-mark" src="/static/brand/logo-mark.png" mode="aspectFit" />
+      <image class="hero-mark" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
 
       <view class="tab-nav" :style="navMetrics.barStyle" />
 
@@ -19,7 +19,7 @@
           <text class="role-text">{{ userStore.isFamily ? '子女 / 亲属' : '长辈' }}</text>
         </view>
       </view>
-      <image class="hero-slogan" src="/static/brand/profile-slogan-handwritten.png" mode="widthFix" />
+      <image class="hero-slogan" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/brand/profile-slogan-handwritten.png" mode="widthFix" />
     </view>
 
     <view class="profile-content">
@@ -46,63 +46,63 @@
           <view class="menu-row" @tap="goBindList">
             <view class="menu-left">
               <view class="menu-icon">
-                <image src="/static/icons/family.svg" mode="aspectFit" />
+                <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/family.png" mode="aspectFit" />
               </view>
               <view class="menu-copy">
                 <text class="menu-text">我的家人</text>
                 <text class="menu-desc">查看和管理已绑定的家人</text>
               </view>
             </view>
-            <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
+            <image class="menu-arrow-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/chevron-right.png" mode="aspectFit" />
           </view>
           <view class="menu-row" @tap="goInvite">
             <view class="menu-left">
               <view class="menu-icon">
-                <image :src="userStore.isElder ? '/static/icons/key.svg' : '/static/icons/invite.svg'" mode="aspectFit" />
+                <image :src="userStore.isElder ? 'https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/key.png' : 'https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/invite.png'" mode="aspectFit" />
               </view>
               <view class="menu-copy">
                 <text class="menu-text">{{ userStore.isElder ? '绑定家人' : '邀请绑定' }}</text>
                 <text class="menu-desc">{{ userStore.isElder ? '输入家人发来的邀请码' : '邀请更多家人一起加入' }}</text>
               </view>
             </view>
-            <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
+            <image class="menu-arrow-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/chevron-right.png" mode="aspectFit" />
           </view>
         </template>
         <view class="menu-row" @tap="goVolunteer">
           <view class="menu-left">
             <view class="menu-icon">
-              <image src="/static/icons/neighbor-help.svg" mode="aspectFit" />
+              <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/neighbor-help.png" mode="aspectFit" />
             </view>
             <view class="menu-copy">
               <text class="menu-text">邻里帮</text>
               <text class="menu-desc">与邻里互助，传递温暖</text>
             </view>
           </view>
-          <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
+          <image class="menu-arrow-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/chevron-right.png" mode="aspectFit" />
         </view>
         <view class="menu-row" @tap="goSwitchRole">
           <view class="menu-left">
             <view class="menu-icon">
-              <image src="/static/icons/login-family.svg" mode="aspectFit" />
+              <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/login-family.png" mode="aspectFit" />
             </view>
             <view class="menu-copy">
               <text class="menu-text">切换身份</text>
               <text class="menu-desc">在子女/亲属与长辈身份间切换</text>
             </view>
           </view>
-          <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
+          <image class="menu-arrow-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/chevron-right.png" mode="aspectFit" />
         </view>
         <view class="menu-row" @tap="goPrivacyCenter">
           <view class="menu-left">
             <view class="menu-icon">
-              <image src="/static/icons/key.svg" mode="aspectFit" />
+              <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/key.png" mode="aspectFit" />
             </view>
             <view class="menu-copy">
               <text class="menu-text">隐私与协议</text>
               <text class="menu-desc">查看用户协议与隐私政策</text>
             </view>
           </view>
-          <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
+          <image class="menu-arrow-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/chevron-right.png" mode="aspectFit" />
         </view>
       </view>
 

@@ -20,7 +20,7 @@
               <text class="family-focus-card__title">今天的牵挂</text>
               <text class="family-focus-card__sub">家人的近况，一目了然</text>
             </view>
-            <image class="family-focus-card__heart" src="/static/brand/logo-mark.png" mode="aspectFit" />
+            <image class="family-focus-card__heart" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
           </view>
         <view v-if="relationStore.loading" class="loading-center fade-in">
           <view class="loading-dot-wrap">
@@ -31,7 +31,7 @@
         </view>
         <view v-else-if="displayRelations.length === 0" class="empty-state fade-in stagger-1">
           <view class="empty-icon-wrap">
-            <image class="empty-icon" src="/static/icons/invite.svg" mode="aspectFit" />
+            <image class="empty-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/invite.png" mode="aspectFit" />
           </view>
           <text class="empty-title">思念需要一个出口</text>
           <text class="empty-desc">邀请家人加入，让关心不再只放在心里</text>
@@ -65,7 +65,7 @@
           </view>
           </view>
           <view v-if="displayRelations.length > 0" class="family-send-btn" @tap="goSend">
-            <image class="family-send-btn__icon" src="/static/icons/send.svg" mode="aspectFit" />
+            <image class="family-send-btn__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/send.png" mode="aspectFit" />
             <view>
               <text class="family-send-btn__title">发一条牵挂</text>
               <text class="family-send-btn__sub">一句问候，让爱不缺席</text>
@@ -142,7 +142,7 @@
         </view>
 
         <view v-if="!momentStore.loading && !latestMoment" class="empty-state-elder fade-in stagger-1">
-          <image class="empty-icon-elder" src="/static/brand/logo-mark.png" mode="aspectFit" />
+          <image class="empty-icon-elder" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
           <view class="empty-copy-elder">
             <text class="empty-title-elder">今天还没有新的牵挂</text>
             <text class="empty-desc-elder">家人正在准备给您的问候呢</text>
@@ -183,7 +183,7 @@
         <!-- 邻里帮入口 -->
         <view class="volunteer-entry fade-in stagger-3" @tap="goVolunteer">
           <view class="volunteer-entry__left">
-            <image class="volunteer-entry__icon" src="/static/icons/neighbor-help.svg" mode="aspectFit" />
+            <image class="volunteer-entry__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/neighbor-help.png" mode="aspectFit" />
             <view class="volunteer-entry__info">
               <text class="volunteer-entry__title">邻里帮</text>
               <text class="volunteer-entry__desc">帮助邻居，赚取积分</text>

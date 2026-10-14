@@ -1,7 +1,7 @@
 <template>
   <view class="login-page">
     <view class="brand-area">
-      <image class="brand-art" src="/static/brand/login-hero-v5.jpg" mode="widthFix" />
+      <image class="brand-art" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/brand/login-hero-v5.jpg" mode="widthFix" />
     </view>
 
     <view class="login-actions">
@@ -23,12 +23,12 @@
 
       <view v-if="isDev" class="dev-login-group">
         <button class="dev-login-btn" @tap="handleLogin('demo_family')">
-          <image class="dev-icon" src="/static/icons/login-family.svg" mode="aspectFit" />
+          <image class="dev-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/login-family.png" mode="aspectFit" />
           <text class="dev-btn-text">子女端</text>
           <text class="dev-btn-desc">关心家人</text>
         </button>
         <button class="dev-login-btn" @tap="handleLogin('demo_elder')">
-          <image class="dev-icon" src="/static/icons/login-elder.svg" mode="aspectFit" />
+          <image class="dev-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/login-elder.png" mode="aspectFit" />
           <text class="dev-btn-text">长辈端</text>
           <text class="dev-btn-desc">大字更友好</text>
         </button>
