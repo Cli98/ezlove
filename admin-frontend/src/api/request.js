@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import router from '@/router'
+import { shouldRefreshAuth } from './auth-refresh'
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 
@@ -40,7 +41,7 @@ request.interceptors.response.use(
   response => response.data,
   async error => {
     const originalRequest = error.config
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (shouldRefreshAuth(error)) {
       const refreshToken = localStorage.getItem('community_refresh_token')
       if (!refreshToken) {
         clearAuth()
