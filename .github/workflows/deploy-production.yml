@@ -1,0 +1,87 @@
+name: Deploy production
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - backend/**
+      - admin-frontend/**
+      - .github/workflows/deploy-production.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ezlove-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: 检查部署凭据
+        id: deploy_config
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.EZLOVE_DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.EZLOVE_DEPLOY_KNOWN_HOSTS }}
+        run: |
+          if [[ -z "$DEPLOY_SSH_KEY" || -z "$DEPLOY_KNOWN_HOSTS" ]]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::部署 Secrets 尚未配置，本次安全跳过。"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 检出 main
+        if: steps.deploy_config.outputs.configured == 'true'
+        uses: actions/checkout@v7
+
+      - name: 配置部署密钥
+        if: steps.deploy_config.outputs.configured == 'true'
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.EZLOVE_DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.EZLOVE_DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/ezlove_deploy
+          chmod 600 ~/.ssh/ezlove_deploy
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: 制作受控发布包
+        if: steps.deploy_config.outputs.configured == 'true'
+        run: git archive --format=tar --output=ezlove-release.tar HEAD backend admin-frontend
+
+      - name: 上传发布包
+        if: steps.deploy_config.outputs.configured == 'true'
+        run: |
+          scp -i ~/.ssh/ezlove_deploy \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            ezlove-release.tar \
+            ezlove-deploy@118.178.169.245:uploads/ezlove-release.tar
+
+      - name: 检查并部署
+        if: steps.deploy_config.outputs.configured == 'true'
+        run: |
+          ssh -i ~/.ssh/ezlove_deploy \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            ezlove-deploy@118.178.169.245 \
+            'sudo -n /usr/local/sbin/ezlove-release check < ~/uploads/ezlove-release.tar'
+          ssh -i ~/.ssh/ezlove_deploy \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            ezlove-deploy@118.178.169.245 \
+            'sudo -n /usr/local/sbin/ezlove-release deploy < ~/uploads/ezlove-release.tar'
+          ssh -i ~/.ssh/ezlove_deploy \
+            -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes \
+            ezlove-deploy@118.178.169.245 \
+            'sudo -n /usr/local/sbin/ezlove-release status'
+
+      - name: 验证线上服务
+        if: steps.deploy_config.outputs.configured == 'true'
+        run: |
+          test "$(curl -sS --retry 5 --retry-delay 3 -o /dev/null -w '%{http_code}' \
+            https://yiguanian.ysgy.org.cn/ezlove/login)" = "200"
+          test "$(curl -sS --retry 5 --retry-delay 3 -o /dev/null -w '%{http_code}' \
+            https://yiguanian.ysgy.org.cn/ezlove-api/v1/users/me)" = "403"
