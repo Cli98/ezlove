@@ -96,6 +96,7 @@ import { useUserStore } from "@/stores/user";
 import { formatRelativeTime } from "@/utils/date";
 import { getFullUrl } from "@/api/config";
 import { getElderAvatar } from "@/utils/avatar";
+import { syncTabBar } from "@/utils/tabbar";
 
 const momentStore = useMomentStore();
 const userStore = useUserStore();
@@ -122,6 +123,7 @@ function formatTime(isoStr) {
 }
 
 onShow(() => {
+  syncTabBar();
   momentStore.loadMoments();
 });
 

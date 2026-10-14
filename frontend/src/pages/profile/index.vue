@@ -126,6 +126,7 @@ import { getMoments } from "@/api/moment";
 import { getFullUrl } from "@/api/config";
 import { getNavigationBarMetrics } from "@/utils/navigation";
 import { getFamilyAvatar } from "@/utils/avatar";
+import { syncTabBar } from "@/utils/tabbar";
 
 const userStore = useUserStore();
 const navMetrics = getNavigationBarMetrics();
@@ -139,6 +140,7 @@ const avatarSrc = computed(() => {
 });
 
 onShow(() => {
+  syncTabBar();
   if (userStore.isFamily) loadStats();
 });
 

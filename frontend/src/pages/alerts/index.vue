@@ -72,6 +72,7 @@ import { onShow, onPullDownRefresh } from "@dcloudio/uni-app";
 import { useAlertStore } from "@/stores/alert";
 import { useUserStore } from "@/stores/user";
 import { requestSubscribe } from "@/utils/subscribe";
+import { syncTabBar } from "@/utils/tabbar";
 import ElderReminderPage from "./components/ElderReminderPage.vue";
 
 const alertStore = useAlertStore();
@@ -80,6 +81,7 @@ const resolving = ref(new Set());
 let subscribeRequested = false;
 
 onShow(() => {
+  syncTabBar();
   if (!userStore.isFamily) {
     alertStore.clear();
     return;
