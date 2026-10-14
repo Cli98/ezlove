@@ -1,7 +1,7 @@
 <template>
   <section class="panel care-overview">
     <div class="panel__head">
-      <h2>片区关怀概览</h2>
+      <h2>片区今日活跃率</h2>
       <button @click="$emit('all')">查看全部 <DashboardIcon name="chevron-right" /></button>
     </div>
     <div class="areas">
