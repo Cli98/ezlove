@@ -209,6 +209,7 @@ import { getTodayMenu } from "@/api/canteen";
 import { getFullUrl } from "@/api/config";
 import { getElderAvatar, getFamilyAvatar } from "@/utils/avatar";
 import { formatRelativeTime } from "@/utils/date";
+import { syncTabBar } from "@/utils/tabbar";
 
 const userStore = useUserStore();
 const relationStore = useRelationStore();
@@ -306,6 +307,7 @@ async function handleCheckIn() {
 }
 
 onShow(() => {
+  syncTabBar();
   if (userStore.isFamily) {
     alertStore.loadAlerts();
     relationStore.loadRelations();
