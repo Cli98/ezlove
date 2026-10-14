@@ -20,7 +20,9 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  // 部署子路径（/ezlove/）下必须用 BASE_URL 作为 base，否则 URL 会丢失 /ezlove/ 前缀打到根路径的其他系统
+  // （181c20b 修复过、13e76ba 误改回，已再次修复——改动前请确认线上部署前缀）
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 })
 
