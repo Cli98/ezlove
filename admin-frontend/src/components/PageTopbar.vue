@@ -20,19 +20,33 @@
         <DashboardIcon name="bell" />
         <b v-if="pendingEvents"></b>
       </button>
-      <span class="page-topbar__avatar" aria-hidden="true">{{ workerInitial }}</span>
-      <div class="page-topbar__profile">
-        <strong>{{ workerName }}</strong>
-        <small>和社区，一起守护</small>
-      </div>
-      <DashboardIcon class="page-topbar__chevron" name="chevron-down" />
+      <ElDropdown placement="bottom-end" trigger="click">
+        <button class="page-topbar__account" type="button" aria-label="打开账号菜单">
+          <span class="page-topbar__avatar" aria-hidden="true">{{ workerInitial }}</span>
+          <span class="page-topbar__profile">
+            <strong>{{ workerName }}</strong>
+            <small>和社区，一起守护</small>
+          </span>
+          <DashboardIcon class="page-topbar__chevron" name="chevron-down" />
+        </button>
+        <template #dropdown>
+          <ElDropdownMenu>
+            <ElDropdownItem @click="userStore.logout()">
+              <span class="material-symbols-outlined page-topbar__logout-icon">logout</span>
+              退出登录
+            </ElDropdownItem>
+          </ElDropdownMenu>
+        </template>
+      </ElDropdown>
     </div>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
+import { ElDropdown, ElDropdownItem, ElDropdownMenu } from 'element-plus'
 import DashboardIcon from '@/components/DashboardIcon.vue'
+import { useUserStore } from '@/stores/user'
 
 defineEmits(['events', 'search', 'update:search'])
 const props = defineProps({
@@ -41,6 +55,7 @@ const props = defineProps({
   search: { type: String, default: '' },
   placeholder: { type: String, default: '搜索老人姓名、楼栋或关键词…' },
 })
+const userStore = useUserStore()
 
 const workerInitial = computed(() => props.workerName.trim().slice(0, 1) || '社')
 
@@ -66,10 +81,12 @@ const greeting = computed(() => now.getHours() < 12 ? '早上好' : now.getHours
 .page-topbar__notice { position: relative; display: grid; width: 38px; height: 38px; place-items: center; border: 0; color: #2f302f; background: transparent; cursor: pointer; }
 .page-topbar__notice :deep(.dashboard-icon) { font-size: 21px; }
 .page-topbar__notice b { position: absolute; top: 4px; right: 4px; width: 7px; height: 7px; border: 1px solid #fff; border-radius: 50%; background: #c64f3a; }
+.page-topbar__account { display: flex; align-items: center; gap: 13px; padding: 0; border: 0; outline: none; background: transparent; cursor: pointer; }
 .page-topbar__avatar { display: grid; width: 51px; height: 51px; flex: none; place-items: center; border: 1px solid rgba(255,255,255,.9); border-radius: 50%; color: #fff; background: #b65b47; box-shadow: 0 1px 5px rgba(50,40,32,.09); font: 700 18px 'Songti SC','STSong',serif; }
 .page-topbar__profile { display: grid; width: 82px; gap: 3px; margin-left: -5px; white-space: nowrap; }
 .page-topbar__profile strong { color: #272625; font-size: 13px; }.page-topbar__profile small { color: #8d8a86; font-size: 10.5px; }
 .page-topbar__chevron { color: #65707c; font-size: 13px; transform: scale(1.2); }
+.page-topbar__logout-icon { margin-right: 7px; font-size: 18px; }
 @media (max-width: 1180px) { .page-topbar__search { width: 235px; }.page-topbar__profile, .page-topbar__chevron { display: none; } }
 @media (max-width: 860px) { .page-topbar__search { display: none; } }
 </style>
