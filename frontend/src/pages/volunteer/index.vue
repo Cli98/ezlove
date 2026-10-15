@@ -2,7 +2,7 @@
   <view class="page-volunteer">
     <view class="volunteer-nav" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
       <view class="volunteer-nav__back" @tap="goBack">
-        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/arrow-back.png" mode="aspectFit" />
+        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="volunteer-nav__title app-nav-title-center" :style="navMetrics.titleStyle">邻里帮</text>
     </view>
@@ -36,7 +36,7 @@
       <view v-else-if="!volunteerStore.profile" class="invite-section fade-in">
         <view class="invite-card">
           <view class="invite-icon-wrap">
-            <image class="invite-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/neighbor-help.png" mode="aspectFit" />
+            <image class="invite-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/neighbor-help.png" mode="aspectFit" />
           </view>
           <text class="invite-title">加入邻里帮</text>
           <text class="invite-desc">
@@ -44,15 +44,15 @@
           </text>
           <view class="invite-features">
             <view class="invite-feature">
-              <image class="invite-feature__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/utensils.png" mode="aspectFit" />
+              <image class="invite-feature__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/utensils.png" mode="aspectFit" />
               <text class="invite-feature__text">探访长辈</text>
             </view>
             <view class="invite-feature">
-              <image class="invite-feature__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/family.png" mode="aspectFit" />
+              <image class="invite-feature__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/family.png" mode="aspectFit" />
               <text class="invite-feature__text">陪伴聊天</text>
             </view>
             <view class="invite-feature">
-              <image class="invite-feature__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/star.png" mode="aspectFit" />
+              <image class="invite-feature__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/star.png" mode="aspectFit" />
               <text class="invite-feature__text">积分兑换</text>
             </view>
           </view>

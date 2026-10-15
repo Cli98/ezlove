@@ -2,7 +2,7 @@
   <view class="family-page">
     <view class="family-nav" :style="navMetrics.barStyle">
       <view class="family-nav__back" @tap="goBack">
-        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/arrow-back.png" mode="aspectFit" />
+        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="family-nav__title app-nav-title-center" :style="navMetrics.titleStyle">我的家人</text>
     </view>
@@ -26,7 +26,7 @@
 
     <view v-else-if="relationStore.relations.length === 0" class="empty-state fade-in">
       <view class="empty-icon-wrap">
-        <image class="empty-icon-img" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/family.png" mode="aspectFit" />
+        <image class="empty-icon-img" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/family.png" mode="aspectFit" />
       </view>
       <text class="empty-title">{{ userStore.isElder ? '还没有绑定家人' : '家人还没加入呢' }}</text>
       <text class="empty-desc">{{ userStore.isElder ? '让家人把邀请码发给你，输入后就能绑定' : '把邀请码分享给家人，一起连接彼此的日常' }}</text>
@@ -42,7 +42,7 @@
       >
         <view class="relation-left">
           <view class="relation-avatar">
-            <text class="relation-initial">{{ (partnerName(r) || r.relation_label || '家')[0] }}</text>
+            <image :src="partnerAvatar(r)" mode="aspectFill" class="relation-avatar__image" />
           </view>
           <view class="relation-info">
             <text class="relation-label">{{ relationTitle(r) }}</text>
@@ -68,6 +68,7 @@
 import { onShow, onPullDownRefresh } from "@dcloudio/uni-app";
 import { useRelationStore } from "@/stores/relation";
 import { useUserStore } from "@/stores/user";
+import { getElderAvatar, getFamilyAvatar } from "@/utils/avatar";
 import { getNavigationBarMetrics } from "@/utils/navigation";
 
 const relationStore = useRelationStore();
@@ -78,6 +79,10 @@ const navMetrics = getNavigationBarMetrics();
 function partnerName(r) {
   if (userStore.isElder) return r.family_name || r.elder_name || "";
   return r.elder_name || r.family_name || "";
+}
+
+function partnerAvatar(r) {
+  return userStore.isElder ? getFamilyAvatar({ avatar_url: r.family_avatar_url }) : getElderAvatar(r);
 }
 
 // 卡片主标题：对方昵称优先；无昵称退关系备注，最后提示未设置
@@ -287,11 +292,7 @@ function confirmRemove(id) {
   box-shadow: 0 0 0 4rpx rgba($c-primary, 0.08);
 }
 
-.relation-initial {
-  font-size: $fs-subtitle;
-  font-weight: $fw-bold;
-  color: $c-primary;
-}
+.relation-avatar__image { width: 92rpx; height: 92rpx; border-radius: $r-xl; }
 
 .relation-label {
   font-size: 32rpx;

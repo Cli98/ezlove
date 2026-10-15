@@ -3,7 +3,7 @@
     <view class="top-app-bar" :style="{ paddingTop: `${navMetrics.top}px`, paddingBottom: `${navMetrics.gap}px` }">
       <view class="top-app-bar__content" :style="{ height: `${navMetrics.height}px` }">
         <view class="top-app-bar__nav" @tap="goBack">
-          <image class="nav-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/arrow-back.png" mode="aspectFit" />
+          <image class="nav-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/arrow-back.png" mode="aspectFit" />
         </view>
         <view class="top-app-bar__heading app-nav-title-center">
           <text class="top-app-bar__title">发送牵挂</text>
@@ -19,7 +19,7 @@
         </view>
         <view v-if="!relationStore.relations.length && !relationStore.loading" class="empty-recipient" @tap="goInvite">
           <view class="empty-recipient__mark">
-            <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/invite.png" mode="aspectFit" />
+            <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/invite.png" mode="aspectFit" />
           </view>
           <view class="empty-recipient__copy">
             <text class="empty-recipient__title">还没有绑定家人</text>
@@ -79,7 +79,7 @@
         </view>
         <view v-if="!imageUrl" class="photo-add" @tap="chooseImage">
           <view class="photo-add__icon-wrap">
-            <image class="photo-add__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/add-photo.png" mode="aspectFit" />
+            <image class="photo-add__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/add-photo.png" mode="aspectFit" />
           </view>
           <text class="photo-add__title">选择一张生活照</text>
           <text class="photo-add__desc">日常小事，就是最温暖的问候</text>
@@ -94,14 +94,14 @@
 
       <view class="tips-row fade-in stagger-3">
         <view class="tip-card tip-card--amber">
-          <image class="tip-card__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/sun.png" mode="aspectFit" />
+          <image class="tip-card__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/sun.png" mode="aspectFit" />
           <view class="tip-card__copy">
             <text class="tip-card__title">{{ timeOfDayHint }}</text>
             <text class="tip-card__desc">{{ timeOfDayValue }}</text>
           </view>
         </view>
         <view class="tip-card tip-card--sage">
-          <image class="tip-card__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/clock.png" mode="aspectFit" />
+          <image class="tip-card__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/clock.png" mode="aspectFit" />
           <view class="tip-card__copy">
             <text class="tip-card__title">发送小贴士</text>
             <text class="tip-card__desc">{{ sendTip }}</text>

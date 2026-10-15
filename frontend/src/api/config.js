@@ -41,6 +41,7 @@ const ENDPOINTS = {
 };
 
 function pickEndpoint() {
+  if (IS_PROD_BUILD) return ENDPOINTS.prod;
   try {
     // 运行时开关优先生效（Storage 面板设置后可免编译切换线上/本地）
     const saved = uni.getStorageSync("use_prod_backend");
@@ -50,7 +51,7 @@ function pickEndpoint() {
     if (info.platform === "devtools") {
       return USE_PROD_IN_DEVTOOLS ? ENDPOINTS.prod : ENDPOINTS.local;
     }
-    return (USE_PROD_ON_DEVICE || IS_PROD_BUILD) ? ENDPOINTS.prod : ENDPOINTS.device;
+    return USE_PROD_ON_DEVICE ? ENDPOINTS.prod : ENDPOINTS.device;
   } catch (_) {
     return ENDPOINTS.local;
   }
@@ -64,6 +65,7 @@ export const BASE_URL = ENDPOINT.api;
 
 export function getFullUrl(url) {
   if (!url) return "";
+  if (url.startsWith("/static/avatars/") || url.startsWith("/static/tabbar/")) return url;
   if (url.startsWith("http")) return url;
   return `${MEDIA_BASE_URL}${url}`;
 }

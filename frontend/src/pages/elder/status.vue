@@ -2,7 +2,7 @@
   <view class="page-gradient">
     <view class="status-nav" :style="navMetrics.barStyle">
       <view class="status-nav__back" @tap="goBack">
-        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/arrow-back.png" mode="aspectFit" />
+        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="app-nav-title-center" :style="navMetrics.titleStyle">家人状态</text>
     </view>
@@ -16,7 +16,7 @@
     <view v-else class="status-content">
       <view class="status-header fade-in">
         <view class="elder-avatar-lg">
-          <text class="avatar-letter">{{ elderName[0] || '家' }}</text>
+          <image :src="elderAvatar" mode="aspectFill" class="elder-avatar-image" />
         </view>
         <view class="elder-heading">
           <text class="elder-name">{{ elderName }}</text>
@@ -42,7 +42,7 @@
       <view class="pause-card fade-in stagger-2">
         <view class="pause-header">
           <view class="pause-left">
-            <image class="pause-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/clock.png" mode="aspectFit" />
+            <image class="pause-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/clock.png" mode="aspectFit" />
             <view class="pause-info">
               <text class="pause-title">暂停提醒</text>
               <text class="pause-desc">{{ pausedUntil ? '提醒已暂停至 ' + formatDate(pausedUntil) : '老人有事时可暂停几天' }}</text>
@@ -104,9 +104,11 @@ import { onLoad } from "@dcloudio/uni-app";
 import { getElderStatus, getElderActivity, manualCheckin } from "@/api/elder";
 import { updateRelation, getRelations } from "@/api/relation";
 import { getNavigationBarMetrics } from "@/utils/navigation";
+import { getElderAvatar } from "@/utils/avatar";
 
 const elderId = ref("");
 const elderName = ref("家人");
+const elderAvatar = ref(getElderAvatar());
 const todayRead = ref(false);
 const lastActiveText = ref("暂无记录");
 const pausedUntil = ref(null);
@@ -141,6 +143,7 @@ async function loadData() {
 
     const rel = relations.find((r) => r.elder_user_id === elderId.value);
     if (rel) {
+      elderAvatar.value = getElderAvatar(rel);
       relationId.value = rel.id;
       alertThreshold.value = rel.alert_threshold ?? null;
     }
@@ -286,11 +289,7 @@ async function resumeAlert() {
   border: 6rpx solid rgba(255, 255, 255, 0.8);
 }
 
-.avatar-letter {
-  font-size: $fs-display;
-  font-weight: $fw-bold;
-  color: $c-text-inverse;
-}
+.elder-avatar-image { width: 122rpx; height: 122rpx; border-radius: 50%; }
 
 .elder-name {
   font-family: "Songti SC", "STSong", serif;

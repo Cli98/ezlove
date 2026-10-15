@@ -39,13 +39,17 @@ async def list_relations(user: User = Depends(get_current_user), db: AsyncSessio
         resp = RelationResponse.model_validate(r)
         if r.elder_user_id == user.id:
             # 长辈视角：补充家人（子女）昵称，供“我的家人”列表展示
-            family_result = await db.execute(select(User.nickname).where(User.id == r.family_user_id))
-            resp.family_name = family_result.scalar_one_or_none()
+            family_result = await db.execute(select(User.nickname, User.avatar_url).where(User.id == r.family_user_id))
+            family = family_result.one_or_none()
+            if family:
+                resp.family_name, resp.family_avatar_url = family
         elif r.elder_user_id:
             elder_id = r.elder_user_id
             # 查询老人昵称，用于前端展示
-            elder_result = await db.execute(select(User.nickname).where(User.id == elder_id))
-            resp.elder_name = elder_result.scalar_one_or_none()
+            elder_result = await db.execute(select(User.nickname, User.avatar_url).where(User.id == elder_id))
+            elder = elder_result.one_or_none()
+            if elder:
+                resp.elder_name, resp.elder_avatar_url = elder
 
             view_result = await db.execute(
                 select(ViewEvent)

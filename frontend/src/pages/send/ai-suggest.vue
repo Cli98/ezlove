@@ -2,7 +2,7 @@
   <view class="ai-page">
     <view class="top-bar" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
       <view class="back-btn" @tap="goBack">
-        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/arrow-back.png" mode="aspectFit" />
+        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="top-bar__title app-nav-title-center" :style="navMetrics.titleStyle">AI 帮我写</text>
     </view>

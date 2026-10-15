@@ -24,6 +24,8 @@ class RelationResponse(BaseModel):
     relation_label: str | None
     elder_name: str | None = None
     family_name: str | None = None
+    elder_avatar_url: str | None = None
+    family_avatar_url: str | None = None
     alert_threshold: int
     alert_paused_until: datetime | None = None
     status: str

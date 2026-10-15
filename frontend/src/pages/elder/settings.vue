@@ -2,7 +2,7 @@
   <view class="settings-page">
     <view class="settings-nav" :style="navMetrics.barStyle">
       <view class="settings-nav__back" @tap="goBack">
-        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/arrow-back.png" mode="aspectFit" />
+        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="settings-nav__title app-nav-title-center" :style="navMetrics.titleStyle">提醒设置</text>
     </view>
@@ -13,7 +13,7 @@
     <view class="settings-card fade-in">
       <view class="setting-row">
         <view class="setting-left">
-          <image class="setting-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/clock.png" mode="aspectFit" />
+          <image class="setting-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/clock.png" mode="aspectFit" />
           <text class="setting-label">未读提醒时间</text>
         </view>
         <picker :value="thresholdIndex" :range="thresholdOptions" :disabled="saving" @change="onThresholdChange">
@@ -26,7 +26,7 @@
     </view>
 
     <view class="settings-note">
-      <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/sun.png" mode="aspectFit" />
+      <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/sun.png" mode="aspectFit" />
       <text>提醒是为了及时问候，不代表家人遇到危险。</text>
     </view>
   </view>

@@ -14,6 +14,7 @@ export const useRelationStore = defineStore("relation", () => {
       relations.value = result.map((relation) => ({
         ...relation,
         elder_avatar_url: getFullUrl(relation.elder_avatar_url),
+        family_avatar_url: getFullUrl(relation.family_avatar_url),
       }));
     } finally {
       loading.value = false;

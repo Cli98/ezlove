@@ -31,7 +31,7 @@
         </view>
         <view v-else-if="displayRelations.length === 0" class="empty-state fade-in stagger-1">
           <view class="empty-icon-wrap">
-            <image class="empty-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/invite.png" mode="aspectFit" />
+            <image class="empty-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/invite.png" mode="aspectFit" />
           </view>
           <text class="empty-title">思念需要一个出口</text>
           <text class="empty-desc">邀请家人加入，让关心不再只放在心里</text>
@@ -183,7 +183,7 @@
         <!-- 邻里帮入口 -->
         <view class="volunteer-entry fade-in stagger-3" @tap="goVolunteer">
           <view class="volunteer-entry__left">
-            <image class="volunteer-entry__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/neighbor-help.png" mode="aspectFit" />
+            <image class="volunteer-entry__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/neighbor-help.png" mode="aspectFit" />
             <view class="volunteer-entry__info">
               <text class="volunteer-entry__title">邻里帮</text>
               <text class="volunteer-entry__desc">帮助邻居，赚取积分</text>
@@ -248,7 +248,7 @@ function elderInitial(person) {
 }
 
 function senderAvatar(moment) {
-  return moment?.sender_avatar_url ? getFullUrl(moment.sender_avatar_url) : "";
+  return getFamilyAvatar(moment);
 }
 
 const menuMealLabel = computed(() => {
@@ -309,7 +309,7 @@ async function handleCheckIn() {
 onShow(() => {
   syncTabBar();
   if (userStore.isFamily) {
-    alertStore.loadAlerts();
+    alertStore.loadAlerts().catch(() => uni.showToast({ title: "提醒加载失败", icon: "none" }));
     relationStore.loadRelations();
     momentStore.loadMoments();
   } else {
@@ -330,6 +330,8 @@ onPullDownRefresh(async () => {
       await loadCheckinStatus();
       await loadTodayMenu();
     }
+  } catch {
+    uni.showToast({ title: "刷新失败，请稍后重试", icon: "none" });
   } finally {
     uni.stopPullDownRefresh();
   }

@@ -5,7 +5,7 @@
     <view class="role-content">
       <view class="role-nav" :style="navMetrics.barStyle">
         <view class="role-nav__back" @tap="goBack">
-          <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/arrow-back.png" mode="aspectFit" />
+          <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/arrow-back.png" mode="aspectFit" />
         </view>
       </view>
 

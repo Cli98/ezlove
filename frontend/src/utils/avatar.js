@@ -1,3 +1,16 @@
-export const getFamilyAvatar = (person = {}) => person?.sender_avatar_url || person?.avatar_url || "";
+import { getFullUrl } from "@/api/config";
 
-export const getElderAvatar = (person = {}) => person?.elder_avatar_url || person?.avatar_url || "";
+export const DEFAULT_AVATAR = "/static/avatars/default-avatar.png";
+
+export function getPresetAvatars(role) {
+  const prefix = role === "elder" ? "elder" : "family";
+  return ["female", "male"].flatMap((gender) =>
+    [1, 2, 3].map((index) => `/static/avatars/${prefix}-${gender}-${index}.png`)
+  );
+}
+
+export const getFamilyAvatar = (person = {}) =>
+  getFullUrl(person?.sender_avatar_url || person?.family_avatar_url || person?.avatar_url) || DEFAULT_AVATAR;
+
+export const getElderAvatar = (person = {}) =>
+  getFullUrl(person?.elder_avatar_url || person?.avatar_url) || DEFAULT_AVATAR;

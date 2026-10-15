@@ -3,7 +3,7 @@
     <!-- Top Bar -->
     <view class="top-bar" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
       <view class="back-btn" @tap="goBack">
-        <image class="back-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/arrow-back.png" mode="aspectFit" />
+        <image class="back-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="top-bar-title app-nav-title-center" :style="navMetrics.titleStyle">AI 创作</text>
     </view>
@@ -82,7 +82,7 @@
       <view class="section-label" style="margin-top: 32rpx;">选择照片</view>
       <view class="photo-area">
         <view v-if="!localImage" class="photo-picker" @tap="choosePhoto">
-          <image class="photo-picker__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/add-photo.png" mode="aspectFit" />
+          <image class="photo-picker__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/add-photo.png" mode="aspectFit" />
           <text class="photo-picker__text">选择一张照片</text>
         </view>
         <view v-else class="photo-preview">
@@ -132,7 +132,7 @@
     <!-- 错误/模型不可用弹窗 -->
     <view v-if="showError" class="modal-overlay" @tap="showError = false">
       <view class="modal-card" @tap.stop>
-        <image class="modal-icon-img" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/wrench.png" mode="aspectFit" />
+        <image class="modal-icon-img" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/wrench.png" mode="aspectFit" />
         <text class="modal-title">功能暂未开放</text>
         <text class="modal-desc">{{ errorMessage }}</text>
         <view class="modal-btn" @tap="showError = false">
