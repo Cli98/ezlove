@@ -1,6 +1,6 @@
 import { getFullUrl } from "@/api/config";
 
-export const DEFAULT_AVATAR = "/static/avatars/default-avatar.png";
+export const DEFAULT_AVATAR = "https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/avatars/default-avatar.png";
 
 export function getPresetAvatars(role) {
   const prefix = role === "elder" ? "elder" : "family";
