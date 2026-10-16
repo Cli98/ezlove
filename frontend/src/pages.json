@@ -27,7 +27,8 @@
     { "path": "pages/login/index", "style": { "navigationBarTitleText": "", "navigationStyle": "custom", "navigationBarTextStyle": "white" } },
     { "path": "pages/login/role", "style": { "navigationBarTitleText": "", "navigationStyle": "custom" } },
     { "path": "pages/about/agreement", "style": { "navigationBarTitleText": "用户协议" } },
-    { "path": "pages/about/privacy", "style": { "navigationBarTitleText": "隐私政策" } }
+    { "path": "pages/about/privacy", "style": { "navigationBarTitleText": "隐私政策" } },
+    { "path": "pages/about/contributors", "style": { "navigationBarTitleText": "联系我们" } }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",

@@ -52,7 +52,7 @@ const router = useRouter()
 const userStore = useUserStore()
 const dashboardStore = useDashboardStore()
 const eldersStore = useEldersStore()
-const isImmersivePage = computed(() => route.path === '/dashboard' || route.path.startsWith('/elders') || route.path === '/canteen' || route.path === '/events' || route.path === '/volunteers' || route.path === '/agent')
+const isImmersivePage = computed(() => route.path === '/dashboard' || route.path.startsWith('/elders') || route.path === '/canteen' || route.path === '/events' || route.path === '/volunteers' || route.path === '/agent' || route.path === '/contributors')
 const communityOptions = computed(() => userStore.communities.map(community => ({ value: community.community_id, label: community.community_name })))
 onMounted(() => {
   userStore.loadCommunities()
@@ -78,6 +78,7 @@ const navItems = computed(() => [
   { path: '/canteen', label: '食堂记录', icon: 'bowl' },
   { path: '/events', label: '关怀事件', icon: 'heart', badge: dashboardStore.data?.pending_events || 0 },
   { path: '/volunteers', label: '邻里帮', icon: 'people' },
+  { path: '/contributors', label: '公益贡献', icon: 'handshake' },
   { path: '/agent', label: 'AI 助手', icon: 'sparkle' },
 ])
 
@@ -88,6 +89,7 @@ const pageNameMap = {
   '/events': '关怀事件',
   '/agent': 'AI 助手',
   '/volunteers': '邻里帮',
+  '/contributors': '公益贡献',
 }
 
 const currentPageName = computed(() => {
