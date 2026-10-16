@@ -2,7 +2,7 @@
   <view class="profile-page">
     <view class="profile-hero fade-in">
       <view class="hero-deco hero-deco--bottom" />
-      <image class="hero-mark" src="/static/brand/logo-mark.png" mode="aspectFit" />
+      <image class="hero-mark" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
 
       <view class="tab-nav" :style="navMetrics.barStyle" />
 
@@ -19,7 +19,7 @@
           <text class="role-text">{{ userStore.isFamily ? '子女 / 亲属' : '长辈' }}</text>
         </view>
       </view>
-      <image class="hero-slogan" src="/static/brand/profile-slogan-handwritten.png" mode="widthFix" />
+      <image class="hero-slogan" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/brand/profile-slogan-handwritten.png" mode="widthFix" />
     </view>
 
     <view class="profile-content">

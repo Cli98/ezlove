@@ -11,7 +11,7 @@
     <view class="header-area fade-in">
       <text class="page-title">把想说的话变得更温暖</text>
       <text class="page-desc">AI 已根据家人的近况准备了这些问候</text>
-      <image class="header-mark" src="/static/brand/logo-mark.png" mode="aspectFit" />
+      <image class="header-mark" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
     </view>
 
     <view v-if="loading" class="loading-state fade-in">

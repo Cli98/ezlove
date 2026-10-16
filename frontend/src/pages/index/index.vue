@@ -20,7 +20,7 @@
               <text class="family-focus-card__title">今天的牵挂</text>
               <text class="family-focus-card__sub">家人的近况，一目了然</text>
             </view>
-            <image class="family-focus-card__heart" src="/static/brand/logo-mark.png" mode="aspectFit" />
+            <image class="family-focus-card__heart" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
           </view>
         <view v-if="relationStore.loading" class="loading-center fade-in">
           <view class="loading-dot-wrap">
@@ -142,7 +142,7 @@
         </view>
 
         <view v-if="!momentStore.loading && !latestMoment" class="empty-state-elder fade-in stagger-1">
-          <image class="empty-icon-elder" src="/static/brand/logo-mark.png" mode="aspectFit" />
+          <image class="empty-icon-elder" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
           <view class="empty-copy-elder">
             <text class="empty-title-elder">今天还没有新的牵挂</text>
             <text class="empty-desc-elder">家人正在准备给您的问候呢</text>

@@ -58,7 +58,7 @@
           <text class="section-head__meta">最多 200 字</text>
         </view>
         <view class="letter-card">
-          <image class="letter-card__watermark" src="/static/brand/logo-mark.png" mode="aspectFit" />
+          <image class="letter-card__watermark" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
           <textarea
             v-model="textContent"
             placeholder="今天想和 Ta 说点什么..."

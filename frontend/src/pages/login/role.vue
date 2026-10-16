@@ -1,6 +1,6 @@
 <template>
   <view class="role-page">
-    <image class="page-botanical" src="/static/role/role-botanical.png" mode="aspectFit" />
+    <image class="page-botanical" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/role/role-botanical.png" mode="aspectFit" />
 
     <view class="role-content">
       <view class="role-nav" :style="navMetrics.barStyle">
@@ -20,7 +20,7 @@
           :class="{ 'role-card--active': selectedRole === 'family' }"
           @tap="selectedRole = 'family'"
         >
-          <image class="role-card-art" src="/static/role/family-role-art.png" mode="aspectFit" />
+          <image class="role-card-art" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/role/family-role-art.png" mode="aspectFit" />
           <view class="role-card-copy">
             <text class="role-card-title">子女/亲属</text>
             <text class="role-card-desc">每天发送牵挂，</text>
@@ -36,7 +36,7 @@
           :class="{ 'role-card--active': selectedRole === 'elder' }"
           @tap="selectedRole = 'elder'"
         >
-          <image class="role-card-art role-card-art--elder" src="/static/role/elder-role-art.png" mode="aspectFit" />
+          <image class="role-card-art role-card-art--elder" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/role/elder-role-art.png" mode="aspectFit" />
           <view class="role-card-copy">
             <text class="role-card-title">长辈</text>
             <text class="role-card-desc">查看孩子们的问候，</text>

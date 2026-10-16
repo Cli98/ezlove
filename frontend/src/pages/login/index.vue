@@ -1,7 +1,7 @@
 <template>
   <view class="login-page">
     <view class="brand-area">
-      <image class="brand-art" src="/static/brand/login-hero-v5.jpg" mode="widthFix" />
+      <image class="brand-art" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/brand/login-hero-v5.jpg" mode="widthFix" />
     </view>
 
     <view class="login-actions">
