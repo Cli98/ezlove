@@ -110,7 +110,10 @@
         <view class="logout-btn" @tap="handleLogout">
           <text class="logout-text">退出登录</text>
         </view>
-        <text class="version-text">易挂念 v1.0.0</text>
+        <view class="contact-link" @tap="goContributors">
+          <text class="contact-link-text">联系我们</text>
+        </view>
+        <text class="version-text">易挂念 v1.1.4</text>
       </view>
     </view>
 
@@ -192,6 +195,10 @@ function goVolunteer() {
   uni.navigateTo({ url: "/pages/volunteer/index" });
 }
 
+function goContributors() {
+  uni.navigateTo({ url: "/pages/about/contributors" });
+}
+
 function goSwitchRole() {
   uni.navigateTo({ url: "/pages/login/role" });
 }
@@ -268,5 +275,7 @@ function handleLogout() {
 .logout-section { margin-top: $sp-24; }
 .logout-btn { padding: $sp-20; text-align: center; border-radius: $r-lg; background: rgba(255, 255, 255, 0.72); &:active { background: $c-warn-bg; } }
 .logout-text { font-size: $fs-body; font-weight: $fw-medium; color: $c-primary; }
+.contact-link { margin-top: $sp-8; padding: $sp-16; text-align: center; &:active { opacity: 0.7; } }
+.contact-link-text { font-size: $fs-body-sm; color: $c-primary; letter-spacing: 2rpx; }
 .version-text { display: block; margin-top: $sp-20; text-align: center; font-size: $fs-caption; color: $c-text-hint; opacity: 0.55; }
 </style>
