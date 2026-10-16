@@ -2,7 +2,7 @@
   <view class="page-tasks">
     <view class="tasks-nav" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
       <view class="tasks-nav__back" @tap="goBack">
-        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="tasks-nav__title app-nav-title-center" :style="navMetrics.titleStyle">邻里任务</text>
     </view>
@@ -23,7 +23,7 @@
       <!-- 空状态 -->
       <view v-else-if="availableTasks.length === 0" class="empty-state fade-in">
         <view class="empty-icon-wrap">
-          <image class="empty-icon" src="/static/icons/neighbor-help.svg" mode="aspectFit" />
+          <image class="empty-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/neighbor-help.png" mode="aspectFit" />
         </view>
         <text class="empty-title">暂时没有可接任务</text>
         <text class="empty-desc">社区会不定期发布任务，请稍后再来看看</text>

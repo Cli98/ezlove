@@ -31,6 +31,12 @@ class Settings(BaseSettings):
     # 留空则用代码默认值（qwen3.8-omni-flash），可在部署配置中覆盖
     LLM_VISION_MODEL: str = ""
 
+    OSS_ACCESS_KEY_ID: str = ""
+    OSS_ACCESS_KEY_SECRET: str = ""
+    OSS_ENDPOINT: str = ""
+    OSS_BUCKET_NAME: str = ""
+    OSS_PUBLIC_BASE_URL: str = ""
+
     # AI 媒体生成（暂未接入）
     VIDEO_GEN_API_KEY: str = ""
     PHOTO_RESTORE_API_KEY: str = ""

@@ -3,7 +3,7 @@
     <!-- Top Bar -->
     <view class="top-bar" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
       <view class="back-btn" @tap="goBack">
-        <image class="back-icon" src="/static/icons/arrow-back.svg" mode="aspectFit" />
+        <image class="back-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="top-bar-title app-nav-title-center" :style="navMetrics.titleStyle">牵挂详情</text>
       <view class="top-bar-spacer" />
@@ -20,7 +20,7 @@
 
     <!-- Error State -->
     <view v-else-if="error" class="error-state">
-      <image class="error-icon" src="/static/icons/elderly.svg" mode="aspectFit" />
+      <image class="error-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/elderly.png" mode="aspectFit" />
       <text class="error-title">内容加载失败</text>
       <text class="error-desc">网络不太好，再试一次吧</text>
       <text class="error-hint">若为首次使用，请让家人协助完成绑定后再查看</text>
@@ -36,8 +36,7 @@
       <view class="sender-header">
         <view class="sender-info">
           <view class="sender-avatar-sm">
-            <image v-if="moment.sender_avatar_url" :src="getFullUrl(moment.sender_avatar_url)" mode="aspectFill" class="sender-avatar-image" />
-            <text v-else class="sender-avatar-initial">{{ (moment.sender_name || '家')[0] }}</text>
+            <image :src="getFamilyAvatar(moment)" mode="aspectFill" class="sender-avatar-image" />
           </view>
           <view class="sender-meta">
             <text class="sender-name">{{ moment.sender_name || '家人' }}</text>
@@ -97,25 +96,25 @@
       <view class="reaction-grid">
         <view class="reaction-btn" :class="{ 'reaction-btn--selected': selectedReaction === 'like' }" @tap="sendReaction('like')">
           <view class="reaction-circle">
-            <image class="reaction-icon" src="/static/icons/thumb-up.svg" mode="aspectFit" />
+            <image class="reaction-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/thumb-up.png" mode="aspectFit" />
           </view>
           <text class="reaction-label">点赞</text>
         </view>
         <view class="reaction-btn" :class="{ 'reaction-btn--selected': selectedReaction === 'love' }" @tap="sendReaction('love')">
           <view class="reaction-circle">
-            <image class="reaction-icon" src="/static/icons/heart.svg" mode="aspectFit" />
+            <image class="reaction-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/heart.png" mode="aspectFit" />
           </view>
           <text class="reaction-label">温暖</text>
         </view>
         <view class="reaction-btn" :class="{ 'reaction-btn--selected': selectedReaction === 'happy' }" @tap="sendReaction('happy')">
           <view class="reaction-circle">
-            <image class="reaction-icon" src="/static/icons/smile.svg" mode="aspectFit" />
+            <image class="reaction-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/smile.png" mode="aspectFit" />
           </view>
           <text class="reaction-label">开心</text>
         </view>
         <view class="reaction-btn" :class="{ 'reaction-btn--selected': selectedReaction === 'hug' }" @tap="sendReaction('hug')">
           <view class="reaction-circle">
-            <image class="reaction-icon" src="/static/icons/hug.svg" mode="aspectFit" />
+            <image class="reaction-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/hug.png" mode="aspectFit" />
           </view>
           <text class="reaction-label">拥抱</text>
         </view>
@@ -136,6 +135,7 @@ import { ref, computed } from "vue";
 import { onLoad, onShareAppMessage } from "@dcloudio/uni-app";
 import { getMomentDetail, recordView, sendResponse } from "@/api/moment";
 import { getFullUrl } from "@/api/config";
+import { getFamilyAvatar } from "@/utils/avatar";
 import { getNavigationBarMetrics } from "@/utils/navigation";
 import { useUserStore } from "@/stores/user";
 

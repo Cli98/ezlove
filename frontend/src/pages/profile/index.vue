@@ -2,16 +2,13 @@
   <view class="profile-page">
     <view class="profile-hero fade-in">
       <view class="hero-deco hero-deco--bottom" />
-      <image class="hero-mark" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
+      <image class="hero-mark" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
 
       <view class="tab-nav" :style="navMetrics.barStyle" />
 
       <view class="hero-profile" @tap="goEditProfile">
         <view class="profile-avatar-wrap">
-          <image v-if="avatarSrc" class="profile-avatar" :src="avatarSrc" mode="aspectFill" />
-          <view v-else class="profile-avatar profile-avatar--fallback">
-            <text>{{ (userStore.profile?.nickname || '我')[0] }}</text>
-          </view>
+          <image class="profile-avatar" :src="avatarSrc" mode="aspectFill" />
           <view class="profile-edit-badge">编辑</view>
         </view>
         <view class="hero-copy">
@@ -19,7 +16,7 @@
           <text class="role-text">{{ userStore.isFamily ? '子女 / 亲属' : '长辈' }}</text>
         </view>
       </view>
-      <image class="hero-slogan" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/brand/profile-slogan-handwritten.png" mode="widthFix" />
+      <image class="hero-slogan" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/brand/profile-slogan-handwritten.png" mode="widthFix" />
     </view>
 
     <view class="profile-content">
@@ -46,63 +43,63 @@
           <view class="menu-row" @tap="goBindList">
             <view class="menu-left">
               <view class="menu-icon">
-                <image src="/static/icons/family.svg" mode="aspectFit" />
+                <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/family.png" mode="aspectFit" />
               </view>
               <view class="menu-copy">
                 <text class="menu-text">我的家人</text>
                 <text class="menu-desc">查看和管理已绑定的家人</text>
               </view>
             </view>
-            <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
+            <image class="menu-arrow-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/chevron-right.png" mode="aspectFit" />
           </view>
           <view class="menu-row" @tap="goInvite">
             <view class="menu-left">
               <view class="menu-icon">
-                <image :src="userStore.isElder ? '/static/icons/key.svg' : '/static/icons/invite.svg'" mode="aspectFit" />
+                <image :src="userStore.isElder ? 'https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/key.png' : 'https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/invite.png'" mode="aspectFit" />
               </view>
               <view class="menu-copy">
                 <text class="menu-text">{{ userStore.isElder ? '绑定家人' : '邀请绑定' }}</text>
                 <text class="menu-desc">{{ userStore.isElder ? '输入家人发来的邀请码' : '邀请更多家人一起加入' }}</text>
               </view>
             </view>
-            <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
+            <image class="menu-arrow-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/chevron-right.png" mode="aspectFit" />
           </view>
         </template>
         <view class="menu-row" @tap="goVolunteer">
           <view class="menu-left">
             <view class="menu-icon">
-              <image src="/static/icons/neighbor-help.svg" mode="aspectFit" />
+              <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/neighbor-help.png" mode="aspectFit" />
             </view>
             <view class="menu-copy">
               <text class="menu-text">邻里帮</text>
               <text class="menu-desc">与邻里互助，传递温暖</text>
             </view>
           </view>
-          <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
+          <image class="menu-arrow-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/chevron-right.png" mode="aspectFit" />
         </view>
         <view class="menu-row" @tap="goSwitchRole">
           <view class="menu-left">
             <view class="menu-icon">
-              <image src="/static/icons/login-family.svg" mode="aspectFit" />
+              <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/login-family.png" mode="aspectFit" />
             </view>
             <view class="menu-copy">
               <text class="menu-text">切换身份</text>
               <text class="menu-desc">在子女/亲属与长辈身份间切换</text>
             </view>
           </view>
-          <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
+          <image class="menu-arrow-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/chevron-right.png" mode="aspectFit" />
         </view>
         <view class="menu-row" @tap="goPrivacyCenter">
           <view class="menu-left">
             <view class="menu-icon">
-              <image src="/static/icons/key.svg" mode="aspectFit" />
+              <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/key.png" mode="aspectFit" />
             </view>
             <view class="menu-copy">
               <text class="menu-text">隐私与协议</text>
               <text class="menu-desc">查看用户协议与隐私政策</text>
             </view>
           </view>
-          <image class="menu-arrow-icon" src="/static/icons/chevron-right.svg" mode="aspectFit" />
+          <image class="menu-arrow-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/chevron-right.png" mode="aspectFit" />
         </view>
       </view>
 
@@ -126,9 +123,8 @@ import { onShow } from "@dcloudio/uni-app";
 import { useUserStore } from "@/stores/user";
 import { getRelations } from "@/api/relation";
 import { getMoments } from "@/api/moment";
-import { getFullUrl } from "@/api/config";
 import { getNavigationBarMetrics } from "@/utils/navigation";
-import { getFamilyAvatar } from "@/utils/avatar";
+import { getFamilyAvatar, getElderAvatar } from "@/utils/avatar";
 import { syncTabBar } from "@/utils/tabbar";
 
 const userStore = useUserStore();
@@ -136,11 +132,9 @@ const navMetrics = getNavigationBarMetrics();
 const elderCount = ref(0);
 const momentCount = ref(0);
 const careStreak = ref(0);
-const avatarSrc = computed(() => {
-  const avatar = userStore.profile?.avatar_url;
-  if (avatar) return getFullUrl(avatar);
-  return userStore.isElder ? "" : getFamilyAvatar(userStore.profile);
-});
+const avatarSrc = computed(() => userStore.isElder
+  ? getElderAvatar(userStore.profile)
+  : getFamilyAvatar(userStore.profile));
 
 onShow(() => {
   syncTabBar();
@@ -251,7 +245,7 @@ function handleLogout() {
 .hero-deco--bottom { left: -120rpx; bottom: -190rpx; width: 420rpx; height: 420rpx; }
 .hero-profile { position: relative; z-index: 1; display: flex; align-items: center; gap: $sp-20; padding: 0 $sp-32; }
 .profile-avatar-wrap { position: relative; flex: none; }
-.profile-avatar { width: 142rpx; height: 142rpx; flex: none; border-radius: 50%; border: 6rpx solid rgba(255, 255, 255, 0.82); box-shadow: 0 10rpx 30rpx rgba(78, 36, 24, 0.2); }
+.profile-avatar { width: 142rpx; height: 142rpx; flex: none; border-radius: 50%; border: 6rpx solid rgba(255, 255, 255, 0.82); background: $c-surface; box-shadow: 0 10rpx 30rpx rgba(78, 36, 24, 0.2); }
 .profile-avatar--fallback { display: flex; align-items: center; justify-content: center; color: $c-primary; background: $c-primary-bg; font-size: 54rpx; font-weight: $fw-bold; }
 .profile-edit-badge { position: absolute; right: -4rpx; bottom: 2rpx; padding: 4rpx 10rpx; border: 2rpx solid rgba(255, 255, 255, 0.9); border-radius: $r-full; color: $c-text-inverse; background: $c-primary; font-size: 20rpx; line-height: 1.4; box-shadow: $shadow-sm; }
 .hero-copy { display: flex; flex-direction: column; gap: $sp-6; }

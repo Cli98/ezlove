@@ -1,7 +1,7 @@
 <template>
   <view class="login-page">
     <view class="brand-area">
-      <image class="brand-art" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/brand/login-hero-v5.jpg" mode="widthFix" />
+      <image class="brand-art" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/brand/login-hero-v5.jpg" mode="widthFix" />
     </view>
 
     <view class="login-actions">
@@ -15,20 +15,20 @@
         <text class="wx-btn-text">微信一键登录</text>
       </button>
 
-      <view v-if="isDev" class="dev-divider">
+      <view class="dev-divider">
         <view class="dev-divider__line"></view>
         <text class="dev-divider__text">其他方式体验</text>
         <view class="dev-divider__line"></view>
       </view>
 
-      <view v-if="isDev" class="dev-login-group">
-        <button class="dev-login-btn" @tap="handleLogin('demo_family')">
-          <image class="dev-icon" src="/static/icons/login-family.svg" mode="aspectFit" />
+      <view class="dev-login-group">
+        <button class="dev-login-btn" @tap="handleLogin('family')">
+          <image class="dev-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/login-family.png" mode="aspectFit" />
           <text class="dev-btn-text">子女端</text>
           <text class="dev-btn-desc">关心家人</text>
         </button>
-        <button class="dev-login-btn" @tap="handleLogin('demo_elder')">
-          <image class="dev-icon" src="/static/icons/login-elder.svg" mode="aspectFit" />
+        <button class="dev-login-btn" @tap="handleLogin('elder')">
+          <image class="dev-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/login-elder.png" mode="aspectFit" />
           <text class="dev-btn-text">长辈端</text>
           <text class="dev-btn-desc">大字更友好</text>
         </button>
@@ -76,16 +76,16 @@ function goPrivacy() {
   uni.navigateTo({ url: "/pages/about/privacy" });
 }
 
-async function handleLogin(openid) {
+async function handleLogin(role) {
   if (!agreementAccepted.value) {
     uni.showToast({ title: "请先阅读并同意服务协议与隐私政策", icon: "none" });
     return;
   }
   try {
     uni.showLoading({ title: "登录中..." });
-    await userStore.login(openid);
-    if (openid === "demo_family" || openid === "demo_elder") {
-      await userStore.setRole(openid === "demo_family" ? "family" : "elder");
+    await userStore.login(isDev && role ? `demo_${role}` : undefined);
+    if (role) {
+      await userStore.setRole(role);
     }
     uni.hideLoading();
 

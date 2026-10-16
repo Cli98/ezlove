@@ -2,7 +2,7 @@
   <view class="ai-page">
     <view class="top-bar" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
       <view class="back-btn" @tap="goBack">
-        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="top-bar__title app-nav-title-center" :style="navMetrics.titleStyle">AI 帮我写</text>
     </view>
@@ -11,7 +11,7 @@
     <view class="header-area fade-in">
       <text class="page-title">把想说的话变得更温暖</text>
       <text class="page-desc">AI 已根据家人的近况准备了这些问候</text>
-      <image class="header-mark" src="https://ezlove-assets-hz.oss-cn-hangzhou.aliyuncs.com/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
+      <image class="header-mark" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
     </view>
 
     <view v-if="loading" class="loading-state fade-in">

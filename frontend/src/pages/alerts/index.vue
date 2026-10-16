@@ -35,10 +35,15 @@
         <view class="card-body">
           <!-- Card Header: Badge + Time -->
           <view class="card-header">
-            <view class="level-badge" :class="'badge-' + a.alert_level">
-              <text>{{ levelText(a.alert_level) }}</text>
+            <view class="alert-person">
+              <image class="alert-person__avatar" :src="getElderAvatar(a)" mode="aspectFill" />
+              <text class="alert-person__name">{{ a.elder_name || '家人' }}</text>
             </view>
-            <text class="alert-time">{{ a.created_at_text }}</text>
+            <text class="alert-time">{{ formatRelativeTime(a.created_at) }}</text>
+          </view>
+
+          <view class="level-badge" :class="'badge-' + a.alert_level">
+            <text>{{ levelText(a.alert_level) }}</text>
           </view>
 
           <!-- Alert Message -->
@@ -55,9 +60,12 @@
     </view>
 
     <!-- Empty State -->
+    <view v-else-if="alertStore.error" class="empty-state fade-in" @tap="loadAlerts">
+      <text class="empty-title">提醒加载失败，点这里重试</text>
+    </view>
     <view v-else class="empty-state fade-in">
       <view class="empty-icon-circle">
-        <image class="empty-icon-img" src="/static/icons/checkmark.svg" mode="aspectFit" />
+        <view class="empty-icon-check" />
       </view>
       <text class="empty-title">暂无提醒，一切安好</text>
       <view class="empty-divider" />
@@ -73,6 +81,8 @@ import { useAlertStore } from "@/stores/alert";
 import { useUserStore } from "@/stores/user";
 import { requestSubscribe } from "@/utils/subscribe";
 import { syncTabBar } from "@/utils/tabbar";
+import { getElderAvatar } from "@/utils/avatar";
+import { formatRelativeTime } from "@/utils/date";
 import ElderReminderPage from "./components/ElderReminderPage.vue";
 
 const alertStore = useAlertStore();
@@ -86,7 +96,7 @@ onShow(() => {
     alertStore.clear();
     return;
   }
-  alertStore.loadAlerts();
+  loadAlerts();
   if (!subscribeRequested) {
     subscribeRequested = true;
     requestSubscribe(['unread', 'alert']);
@@ -95,11 +105,19 @@ onShow(() => {
 
 onPullDownRefresh(async () => {
   try {
-    if (userStore.isFamily) await alertStore.loadAlerts();
+    if (userStore.isFamily) await loadAlerts();
   } finally {
     uni.stopPullDownRefresh();
   }
 });
+
+async function loadAlerts() {
+  try {
+    await alertStore.loadAlerts();
+  } catch {
+    uni.showToast({ title: "提醒加载失败", icon: "none" });
+  }
+}
 
 function levelText(level) {
   const map = { info: "提示", warning: "注意", urgent: "紧急" };
@@ -200,6 +218,10 @@ async function handleResolve(id) {
   margin-bottom: $sp-12;
 }
 
+.alert-person { display: flex; align-items: center; gap: $sp-12; }
+.alert-person__avatar { width: 72rpx; height: 72rpx; flex: none; border-radius: $r-full; background: $c-primary-surface; }
+.alert-person__name { color: $c-text; font-size: $fs-body; font-weight: $fw-semibold; }
+
 /* Level Badge */
 .level-badge {
   padding: $sp-2 $sp-8;
@@ -286,9 +308,13 @@ async function handleResolve(id) {
   border: 2rpx solid rgba($c-primary, 0.06);
 }
 
-.empty-icon-img {
-  width: 60rpx;
-  height: 60rpx;
+.empty-icon-check {
+  width: 32rpx;
+  height: 58rpx;
+  border-right: 8rpx solid $c-primary;
+  border-bottom: 8rpx solid $c-primary;
+  border-radius: 2rpx;
+  transform: rotate(45deg) translate(-4rpx, -4rpx);
 }
 
 .empty-title {

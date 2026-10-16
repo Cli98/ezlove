@@ -7,6 +7,8 @@ class AlertResponse(BaseModel):
     id: UUID
     care_relation_id: UUID | None = None
     elder_id: UUID | None = None
+    elder_name: str | None = None
+    elder_avatar_url: str | None = None
     community_id: UUID | None = None
     alert_type: str
     alert_level: str

@@ -4,7 +4,7 @@ import { wxLogin, devLogin } from "@/api/auth";
 import { getMe, updateMe } from "@/api/user";
 
 export const useUserStore = defineStore("user", () => {
-  const profile = ref(null);
+  const profile = ref(uni.getStorageSync("user_profile") || null);
   const isLoggedIn = computed(() => !!uni.getStorageSync("access_token"));
   const hasRole = computed(() => !!profile.value?.role);
   const isFamily = computed(() => profile.value?.role === "family");
@@ -28,13 +28,22 @@ export const useUserStore = defineStore("user", () => {
 
   async function checkLogin() {
     const token = uni.getStorageSync("access_token");
-    if (!token) return;
-    try {
-      profile.value = await getMe();
-    } catch {
-      uni.removeStorageSync("access_token");
-      profile.value = null;
+    if (!token) {
+      setProfile(null);
+      return;
     }
+    try {
+      setProfile(await getMe());
+    } catch {
+      // 认证失效由请求层清理；网络抖动时保留本地登录信息
+      if (!uni.getStorageSync("access_token")) setProfile(null);
+    }
+  }
+
+  function setProfile(value) {
+    profile.value = value;
+    if (value) uni.setStorageSync("user_profile", value);
+    else uni.removeStorageSync("user_profile");
   }
 
   async function login(openid) {
@@ -42,7 +51,7 @@ export const useUserStore = defineStore("user", () => {
       const res = await devLogin(openid);
       uni.setStorageSync("access_token", res.access_token);
       uni.setStorageSync("refresh_token", res.refresh_token);
-      profile.value = res.user;
+      setProfile(res.user);
       return;
     }
 
@@ -57,7 +66,7 @@ export const useUserStore = defineStore("user", () => {
     // #endif
     uni.setStorageSync("access_token", res.access_token);
     uni.setStorageSync("refresh_token", res.refresh_token);
-    profile.value = res.user;
+    setProfile(res.user);
   }
 
   async function setRole(role) {
@@ -65,14 +74,14 @@ export const useUserStore = defineStore("user", () => {
   }
 
   async function updateProfile(data) {
-    profile.value = await updateMe(data);
+    setProfile(await updateMe(data));
     return profile.value;
   }
 
   function logout() {
     uni.removeStorageSync("access_token");
     uni.removeStorageSync("refresh_token");
-    profile.value = null;
+    setProfile(null);
     uni.reLaunch({ url: "/pages/login/index" });
   }
 

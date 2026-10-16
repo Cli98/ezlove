@@ -1,15 +1,18 @@
-import uuid
-from pathlib import Path
 from asyncio import get_event_loop
 from functools import partial
+import logging
+import uuid
+from pathlib import Path
 
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 
 from app.deps import get_current_user
 from app.models.user import User
+from app.services.object_storage import ObjectStorageError, store_upload
 
 router = APIRouter(prefix="/upload", tags=["upload"])
 
+logger = logging.getLogger("ezlove.upload")
 UPLOAD_DIR = Path(__file__).resolve().parents[3] / "static" / "uploads"
 
 # ── 图片 ──
@@ -50,12 +53,15 @@ def _detect_type(header: bytes) -> tuple[str, str] | None:
 
 
 def _write_file(filepath: Path, content: bytes) -> None:
-    with open(filepath, "wb") as f:
-        f.write(content)
+    with open(filepath, "wb") as output:
+        output.write(content)
 
 
 @router.post("")
-async def upload_file(file: UploadFile = File(...), user: User = Depends(get_current_user)):
+async def upload_file(
+    file: UploadFile = File(...), purpose: str | None = None,
+    user: User = Depends(get_current_user),
+):
     is_video = file.content_type in VIDEO_TYPES
     is_image = file.content_type in IMAGE_TYPES
 
@@ -88,11 +94,21 @@ async def upload_file(file: UploadFile = File(...), user: User = Depends(get_cur
     if (is_video and detected_cat != "video") or (is_image and detected_cat != "image"):
         raise HTTPException(status_code=400, detail="文件内容与声明的类型不匹配")
 
-    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-    filename = f"{uuid.uuid4().hex}.{detected_ext}"
-    filepath = UPLOAD_DIR / filename
-
     loop = get_event_loop()
-    await loop.run_in_executor(None, partial(_write_file, filepath, content))
+    if purpose == "avatar":
+        if not is_image:
+            raise HTTPException(status_code=400, detail="头像只能上传图片")
+        try:
+            url = await loop.run_in_executor(
+                None, partial(store_upload, content, detected_ext, file.content_type, "avatar"),
+            )
+        except ObjectStorageError:
+            logger.exception("头像上传失败")
+            raise HTTPException(status_code=502, detail="头像存储失败，请检查 OSS 配置")
+    else:
+        UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+        filename = f"{uuid.uuid4().hex}.{detected_ext}"
+        await loop.run_in_executor(None, partial(_write_file, UPLOAD_DIR / filename, content))
+        url = f"/static/uploads/{filename}"
 
-    return {"url": f"/static/uploads/{filename}", "type": detected_cat}
+    return {"url": url, "type": detected_cat}

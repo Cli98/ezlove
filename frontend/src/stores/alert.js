@@ -5,6 +5,7 @@ import { getAlerts, resolveAlert } from "@/api/alert";
 export const useAlertStore = defineStore("alert", () => {
   const alerts = ref([]);
   const loading = ref(false);
+  const error = ref(false);
   const unresolvedCount = computed(() => {
     const list = Array.isArray(alerts.value) ? alerts.value : [];
     return list.filter((a) => !a.is_resolved).length;
@@ -20,9 +21,14 @@ export const useAlertStore = defineStore("alert", () => {
 
   async function loadAlerts(params = {}) {
     loading.value = true;
+    error.value = false;
     try {
       const res = await getAlerts(params);
       alerts.value = res.items || [];
+    } catch (cause) {
+      alerts.value = [];
+      error.value = true;
+      throw cause;
     } finally {
       loading.value = false;
     }
@@ -36,7 +42,8 @@ export const useAlertStore = defineStore("alert", () => {
 
   function clear() {
     alerts.value = [];
+    error.value = false;
   }
 
-  return { alerts, loading, unresolvedCount, loadAlerts, resolve, clear };
+  return { alerts, loading, error, unresolvedCount, loadAlerts, resolve, clear };
 });

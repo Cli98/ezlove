@@ -40,14 +40,21 @@ async def list_alerts(
     total = count_result.scalar() or 0
 
     result = await db.execute(
-        select(Alert)
+        select(Alert, User.nickname, User.avatar_url)
+        .join(CareRelation, CareRelation.id == Alert.care_relation_id)
+        .outerjoin(User, User.id == CareRelation.elder_user_id)
         .where(Alert.care_relation_id.in_(relation_ids))
         .order_by(Alert.created_at.desc())
         .offset(pagination["offset"])
         .limit(pagination["limit"])
     )
-    alerts = result.scalars().all()
-    items = [AlertResponse.model_validate(a) for a in alerts]
+    items = [
+        AlertResponse.model_validate(alert).model_copy(update={
+            "elder_name": elder_name,
+            "elder_avatar_url": elder_avatar_url,
+        })
+        for alert, elder_name, elder_avatar_url in result.all()
+    ]
     return PaginatedResponse.create(
         items=items, total=total,
         page=pagination["page"], page_size=pagination["page_size"],

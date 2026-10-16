@@ -45,10 +45,10 @@
       "custom": true
     },
     "list": [
-      { "pagePath": "pages/index/index", "text": "首页", "iconPath": "static/tabbar/home.png", "selectedIconPath": "static/tabbar/home_active.png" },
-      { "pagePath": "pages/history/index", "text": "记录", "iconPath": "static/tabbar/list.png", "selectedIconPath": "static/tabbar/list_active.png" },
-      { "pagePath": "pages/alerts/index", "text": "提醒", "iconPath": "static/tabbar/bell.png", "selectedIconPath": "static/tabbar/bell_active.png" },
-      { "pagePath": "pages/profile/index", "text": "我的", "iconPath": "static/tabbar/person.png", "selectedIconPath": "static/tabbar/person_active.png" }
+      { "pagePath": "pages/index/index", "text": "首页" },
+      { "pagePath": "pages/history/index", "text": "记录" },
+      { "pagePath": "pages/alerts/index", "text": "提醒" },
+      { "pagePath": "pages/profile/index", "text": "我的" }
     ]
   }
 }

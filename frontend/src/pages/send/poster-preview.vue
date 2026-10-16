@@ -2,14 +2,14 @@
   <view class="poster-page">
     <view class="poster-nav" :style="{ ...navMetrics.barStyle, paddingRight: `${navMetrics.rightInset}px` }">
       <view class="poster-nav__back" @tap="goBack">
-        <image src="/static/icons/arrow-back.svg" mode="aspectFit" />
+        <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/arrow-back.png" mode="aspectFit" />
       </view>
       <text class="poster-nav__title app-nav-title-center" :style="navMetrics.titleStyle">选择海报</text>
     </view>
     <!-- 发送成功动画 -->
     <view v-if="showSuccess" class="success-overlay">
       <view class="success-heart">
-        <image class="success-heart__icon" src="/static/icons/heart-send.svg" mode="aspectFit" />
+        <image class="success-heart__icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/heart-send.png" mode="aspectFit" />
       </view>
       <text class="success-text">牵挂已送达</text>
       <button v-if="sentMomentId" class="success-share-btn" open-type="share">

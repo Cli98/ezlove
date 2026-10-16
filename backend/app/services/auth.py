@@ -19,9 +19,7 @@ def create_access_token(user_id: UUID, extra_claims: dict | None = None) -> str:
 
 def create_refresh_token(user_id: UUID, extra_claims: dict | None = None) -> str:
     expire = datetime.now(timezone.utc) + timedelta(days=settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS)
-    payload = {"sub": str(user_id), "exp": expire, "type": "refresh"}
-    if extra_claims:
-        payload.update(extra_claims)
+    payload = {**(extra_claims or {}), "sub": str(user_id), "exp": expire, "type": "refresh"}
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
 
