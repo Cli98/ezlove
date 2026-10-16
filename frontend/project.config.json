@@ -1,11 +1,7 @@
 {
   "description": "EZLove 易挂念微信小程序",
   "packOptions": {
-    "ignore": [
-      {"type": "file", "value": "static/brand/role-elder.png"},
-      {"type": "file", "value": "static/brand/role-family.png"},
-      {"type": "file", "value": "static/brand/login-hero-v4.jpg"}
-    ],
+    "ignore": [],
     "include": []
   },
   "setting": {

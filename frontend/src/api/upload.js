@@ -1,4 +1,5 @@
 import { BASE_URL } from "./config";
+import { refreshAccessToken } from "./request";
 
 /**
  * 通用文件上传（图片 + 视频）。
@@ -6,7 +7,7 @@ import { BASE_URL } from "./config";
  * @param {string} [fileType] - 文件类别提示 'image' | 'video'
  * @returns {Promise<{url: string, type: string}>}
  */
-export function uploadFile(tempFilePath, fileType, purpose) {
+export function uploadFile(tempFilePath, fileType, purpose, retried = false) {
   return new Promise((resolve, reject) => {
     const token = uni.getStorageSync("access_token");
 
@@ -25,12 +26,19 @@ export function uploadFile(tempFilePath, fileType, purpose) {
       name: "file",
       fileType: fileType || (mimeType.startsWith("video") ? "video" : "image"),
       header: token ? { Authorization: `Bearer ${token}` } : {},
-      success: (res) => {
+      success: async (res) => {
         let data;
         try { data = typeof res.data === "string" ? JSON.parse(res.data) : res.data; } catch (_) { data = null; }
         if (res.statusCode === 200) {
           if (data?.url) resolve(data);
           else reject(new Error("上传响应无效"));
+        } else if (res.statusCode === 401 && !retried) {
+          try {
+            await refreshAccessToken();
+            resolve(uploadFile(tempFilePath, fileType, purpose, true));
+          } catch (error) {
+            reject(error);
+          }
         } else {
           reject(new Error(data?.detail || "上传失败"));
         }

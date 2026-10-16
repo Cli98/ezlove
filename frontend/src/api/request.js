@@ -1,5 +1,7 @@
 import { BASE_URL } from "./config";
 
+let refreshPromise = null;
+
 function getToken() {
   return uni.getStorageSync("access_token");
 }
@@ -10,12 +12,68 @@ function clearAuthState() {
   uni.removeStorageSync("user_profile");
 }
 
-export function request(options) {
+function authError(message) {
+  const error = new Error(message);
+  error.authInvalid = true;
+  return error;
+}
+
+export function refreshAccessToken() {
+  if (refreshPromise) return refreshPromise;
+
+  const refreshToken = uni.getStorageSync("refresh_token");
+  if (!refreshToken) {
+    expireSession();
+    return Promise.reject(authError("登录已过期"));
+  }
+
+  refreshPromise = new Promise((resolve, reject) => {
+    uni.request({
+      url: `${BASE_URL}/auth/refresh`,
+      method: "POST",
+      data: { refresh_token: refreshToken },
+      header: { "Content-Type": "application/json" },
+      success: (res) => {
+        if (res.statusCode >= 200 && res.statusCode < 300 && res.data?.access_token) {
+          uni.setStorageSync("access_token", res.data.access_token);
+          if (res.data.refresh_token) {
+            uni.setStorageSync("refresh_token", res.data.refresh_token);
+          }
+          resolve(res.data.access_token);
+          return;
+        }
+        if (res.statusCode === 400 || res.statusCode === 401 || res.statusCode === 403) {
+          reject(authError("登录已过期"));
+          return;
+        }
+        reject(new Error("登录续期失败"));
+      },
+      fail: (err) => reject(new Error(err?.errMsg || "登录续期失败")),
+    });
+  })
+    .catch((error) => {
+      if (error.authInvalid) expireSession();
+      throw error;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+}
+
+function expireSession() {
+  clearAuthState();
+  uni.reLaunch({ url: "/pages/login/index" });
+}
+
+export function request(options, retried = false) {
   const { url, method = "GET", data, header = {}, noAuth = false } = options;
+  const requestHeader = { ...header };
   if (!noAuth) {
     const token = getToken();
     if (token) {
-      header["Authorization"] = `Bearer ${token}`;
+      requestHeader["Authorization"] = `Bearer ${token}`;
     }
   }
 
@@ -24,11 +82,19 @@ export function request(options) {
       url: `${BASE_URL}${url}`,
       method,
       data,
-      header: { "Content-Type": "application/json", ...header },
-      success: (res) => {
+      header: { "Content-Type": "application/json", ...requestHeader },
+      success: async (res) => {
         if (res.statusCode === 401) {
-          clearAuthState();
-          uni.reLaunch({ url: "/pages/login/index" });
+          if (!noAuth && !retried) {
+            try {
+              await refreshAccessToken();
+              resolve(request(options, true));
+            } catch (error) {
+              reject(error);
+            }
+            return;
+          }
+          if (!noAuth) expireSession();
           reject(new Error("Unauthorized"));
           return;
         }
