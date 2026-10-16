@@ -63,9 +63,13 @@ export const MEDIA_BASE_URL = ENDPOINT.media;
 
 export const BASE_URL = ENDPOINT.api;
 
+const OSS_ASSET_BASE_URL = "https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788";
+
 export function getFullUrl(url) {
   if (!url) return "";
-  if (url.startsWith("/static/avatars/") || url.startsWith("/static/tabbar/")) return url;
+  if (url.startsWith("/static/avatars/") || url.startsWith("/static/tabbar/")) {
+    return `${OSS_ASSET_BASE_URL}${url.replace("/static", "")}`;
+  }
   if (url.startsWith("http")) return url;
   return `${MEDIA_BASE_URL}${url}`;
 }
