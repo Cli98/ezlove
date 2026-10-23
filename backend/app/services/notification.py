@@ -47,6 +47,42 @@ async def notify_family_unread(
     await send_subscribe_message(openid, template_id, data, page="pages/alerts/index")
 
 
+async def notify_family_device_alert(
+    db: AsyncSession,
+    care_relation_id: uuid.UUID,
+    elder_name: str,
+    device_label: str,
+):
+    """硬件紧急告警（一键报警按钮）→ 家属订阅消息。
+
+    复用「互助服务进度通知」模板（thing2 服务名称 / thing4 温馨提示），
+    文案走紧急提醒口径，不改模板字段结构。
+    """
+    if not settings.ALERT_NOTIFY_ENABLED:
+        logger.info("ALERT_NOTIFY_ENABLED=false，跳过设备告警通知发送")
+        return
+
+    template_id = settings.WECHAT_UNREAD_TEMPLATE_ID
+    if not template_id:
+        logger.debug("WECHAT_UNREAD_TEMPLATE_ID 未配置，跳过设备告警通知")
+        return
+
+    result = await db.execute(
+        select(User.openid)
+        .join(CareRelation, CareRelation.family_user_id == User.id)
+        .where(CareRelation.id == care_relation_id)
+    )
+    openid = result.scalar_one_or_none()
+    if not openid:
+        return
+
+    data = {
+        "thing2": {"value": f"{elder_name}的紧急提醒"[:20]},
+        "thing4": {"value": f"家中{device_label}已触发，请尽快联系"[:20]},
+    }
+    await send_subscribe_message(openid, template_id, data, page="pages/alerts/index")
+
+
 async def notify_worker_alert(
     db: AsyncSession,
     alert_id: uuid.UUID,

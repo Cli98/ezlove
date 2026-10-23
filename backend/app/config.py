@@ -41,6 +41,18 @@ class Settings(BaseSettings):
     VIDEO_GEN_API_KEY: str = ""
     PHOTO_RESTORE_API_KEY: str = ""
 
+    # NB-IoT 硬件事件推送（phchn 云平台）：配置后要求 URL 携带 ?token= 或
+    # X-NBIOT-Token 头；留空为不校验（首轮联调）。设备绑定见 config/nbiot_devices.json
+    NBIOT_WEBHOOK_SECRET: str = ""
+    NBIOT_DEVICES_FILE: str = ""
+
+    # phchn 平台开放 API（社区端设备监控实时状态）：凭证环境变量优先，
+    # 缺省读 config/phchn_platform.json（低频静态配置，发布通道不改 .env）
+    PHCHN_APP_ID: str = ""
+    PHCHN_APP_SECRET: str = ""
+    PHCHN_PLATFORM_FILE: str = ""
+    PHCHN_API_BASE: str = ""
+
     # 调度与通知开关（上线 dry-run 时序控制，P3 §3.5；默认值=行为与现状一致）
     SCHEDULER_ENABLED: bool = True
     ALERT_NOTIFY_ENABLED: bool = True

@@ -10,6 +10,7 @@ from app.api.v1.alerts import router as alerts_router
 from app.api.v1.upload import router as upload_router
 from app.api.v1.community_auth import router as community_auth_router
 from app.api.v1.community import router as community_router
+from app.api.v1.community_devices import router as community_devices_router
 from app.api.v1.community_admin import router as community_admin_router
 from app.api.v1.alert_rules import router as alert_rules_router
 from app.api.v1.canteen import router as canteen_router
@@ -21,6 +22,7 @@ from app.api.v1.volunteer import router as volunteer_router
 from app.api.v1.points import router as points_router
 from app.api.v1.ai_media import router as ai_media_router
 from app.api.v1.contributors import router as contributors_router
+from app.api.v1.webhook import router as webhook_router
 
 api_router = APIRouter()
 api_router.include_router(auth_router)
@@ -34,6 +36,7 @@ api_router.include_router(upload_router)
 api_router.include_router(community_auth_router)
 api_router.include_router(community_admin_router)
 api_router.include_router(community_router)
+api_router.include_router(community_devices_router)
 api_router.include_router(alert_rules_router)
 api_router.include_router(canteen_router)
 api_router.include_router(events_router)
@@ -44,3 +47,4 @@ api_router.include_router(volunteer_router)
 api_router.include_router(points_router)
 api_router.include_router(ai_media_router)
 api_router.include_router(contributors_router)
+api_router.include_router(webhook_router)

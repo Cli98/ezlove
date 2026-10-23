@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
@@ -9,6 +9,7 @@ from app.database import get_db
 from app.deps import get_current_worker, get_pagination
 from app.models.alert import Alert
 from app.models.community import CommunityWorker, CommunityElder
+from app.models.risk_snapshot import RiskScoreSnapshot
 from app.schemas.alert import AlertResponse, AlertRespondRequest
 from app.schemas.community import ElderCreate, ElderUpdate, ElderResponse
 from app.schemas.pagination import PaginatedResponse
@@ -196,6 +197,50 @@ async def get_elder_ai_analysis(
         raise HTTPException(status_code=404, detail="老人档案不存在")
 
     return await risk_scoring.get_ai_analysis(db, elder)
+
+
+@router.get("/elders/{elder_id}/risk/history")
+async def get_elder_risk_history(
+    elder_id: UUID,
+    days: int = 30,
+    worker: CommunityWorker = Depends(get_current_worker),
+    db: AsyncSession = Depends(get_db),
+):
+    """风险分数每日快照（安全曲线数据源；快照由每小时重算任务 upsert）。"""
+    days = max(1, min(days, 180))
+    result = await db.execute(
+        select(CommunityElder).where(
+            CommunityElder.id == elder_id,
+            CommunityElder.community_id == worker.community_id,
+        )
+    )
+    elder = result.scalar_one_or_none()
+    if not elder:
+        raise HTTPException(status_code=404, detail="老人档案不存在")
+
+    since = (datetime.now() - timedelta(days=days - 1)).date()
+    rows = (
+        await db.execute(
+            select(
+                RiskScoreSnapshot.snapshot_date,
+                RiskScoreSnapshot.score,
+                RiskScoreSnapshot.level,
+            )
+            .where(
+                RiskScoreSnapshot.elder_id == elder.id,
+                RiskScoreSnapshot.snapshot_date >= since,
+            )
+            .order_by(RiskScoreSnapshot.snapshot_date.asc())
+        )
+    ).all()
+    return {
+        "elder_id": str(elder.id),
+        "days": days,
+        "items": [
+            {"date": snapshot_date.isoformat(), "score": score, "level": level}
+            for snapshot_date, score, level in rows
+        ],
+    }
 
 
 @router.get("/risk-ranking")

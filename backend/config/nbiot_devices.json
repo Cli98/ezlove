@@ -1,0 +1,20 @@
+{
+  "fallback_community": "",
+  "_guide": "elder_record_id：绑定锚点，填社区老人档案 ID（管理后台老人详情页 URL 中 /elders/<uuid> 的最后一段）；elder_note：仅运维备注，不参与匹配",
+  "devices": [
+    {
+      "sn": "869978086196018",
+      "device_type": 6,
+      "label": "一键报警按钮",
+      "elder_record_id": "",
+      "elder_note": "张大爷"
+    },
+    {
+      "sn": "869978086196026",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "",
+      "elder_note": "张大爷"
+    }
+  ]
+}
