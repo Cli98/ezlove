@@ -52,7 +52,7 @@ const router = useRouter()
 const userStore = useUserStore()
 const dashboardStore = useDashboardStore()
 const eldersStore = useEldersStore()
-const isImmersivePage = computed(() => route.path === '/dashboard' || route.path.startsWith('/elders') || route.path === '/canteen' || route.path === '/events' || route.path === '/volunteers' || route.path === '/agent' || route.path === '/contributors')
+const isImmersivePage = computed(() => route.path === '/dashboard' || route.path.startsWith('/elders') || route.path === '/devices' || route.path === '/canteen' || route.path === '/events' || route.path === '/volunteers' || route.path === '/agent' || route.path === '/contributors')
 const communityOptions = computed(() => userStore.communities.map(community => ({ value: community.community_id, label: community.community_name })))
 onMounted(() => {
   userStore.loadCommunities()
@@ -75,6 +75,7 @@ async function handleSwitchCommunity(communityId) {
 const navItems = computed(() => [
   { path: '/dashboard', label: '今日工作台', icon: 'home' },
   { path: '/elders', label: '老人档案', icon: 'archive' },
+  { path: '/devices', label: '设备监控', icon: 'shield-check' },
   { path: '/canteen', label: '食堂记录', icon: 'bowl' },
   { path: '/events', label: '关怀事件', icon: 'heart', badge: dashboardStore.data?.pending_events || 0 },
   { path: '/volunteers', label: '邻里帮', icon: 'people' },
@@ -85,6 +86,7 @@ const navItems = computed(() => [
 const pageNameMap = {
   '/dashboard': '看板 / 概览',
   '/elders': '老人档案',
+  '/devices': '设备监控',
   '/canteen': '食堂记录',
   '/events': '关怀事件',
   '/agent': 'AI 助手',

@@ -28,12 +28,16 @@
           :initial-items="timelineItems"
           @all="showPending('全部活动记录')"
         />
-        <ElderCareSidebar
-          :detail="detail"
-          :worker-name="workerName"
-          @complete="showPending('关怀任务')"
-          @edit="editOpen = true"
-        />
+        <div class="detail-side">
+          <ElderRiskTrend :elder-id="elderId" />
+          <ElderDeviceStatus :elder-id="elderId" />
+          <ElderCareSidebar
+            :detail="detail"
+            :worker-name="workerName"
+            @complete="showPending('关怀任务')"
+            @edit="editOpen = true"
+          />
+        </div>
       </div>
     </template>
 
@@ -71,7 +75,9 @@ import PageTopbar from '@/components/PageTopbar.vue'
 import ElderCareSidebar from './components/ElderCareSidebar.vue'
 import ElderCreateDialog from './components/ElderCreateDialog.vue'
 import ElderDailyActivity from './components/ElderDailyActivity.vue'
+import ElderDeviceStatus from './components/ElderDeviceStatus.vue'
 import ElderProfileSummary from './components/ElderProfileSummary.vue'
+import ElderRiskTrend from './components/ElderRiskTrend.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -147,11 +153,13 @@ async function saveElder(payload) {
 .breadcrumb button { display: flex; align-items: center; gap: 8px; padding: 0; border: 0; color: #677387; background: transparent; font-size: 12px; cursor: pointer; }
 .breadcrumb button :deep(.dashboard-icon) { font-size: 15px; }.breadcrumb b { color: #2e3d54; font-size: 13px; }
 .detail-grid { display: grid; min-height: 0; grid-template-columns: minmax(0, 1.72fr) minmax(340px, .98fr); gap: 12px; }
+.detail-side { display: grid; min-height: 0; grid-template-rows: min-content min-content minmax(0, 1fr); gap: 12px; }
 .page-state { display: grid; min-height: 360px; place-items: center; align-content: center; gap: 8px; color: #91867c; border: 1px solid #e5ddd5; border-radius: 11px; background: rgba(255,255,255,.72); }
 .page-state > span { color: #c85b43; font-size: 40px; }.page-state p { margin: 0; font-size: 14px; }.page-state button { height: 36px; padding: 0 20px; border: 1px solid #d85a42; border-radius: 7px; color: #d2543d; background: #fff; cursor: pointer; }
 .spinning { animation: spin 1s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 1050px) {
   .elder-detail-page { height: auto; min-height: 100%; grid-template-rows: auto 34px auto auto; }
   .detail-grid { grid-template-columns: 1fr; }
+  .detail-side { grid-template-rows: auto auto auto; }
 }
 </style>
