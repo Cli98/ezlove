@@ -14,6 +14,8 @@ frontend/unpackage/
 .superpowers/
 backend/venv/
 backend/static/uploads/
+# phchn 开放 API 凭证（含明文密钥，不入库；env 注入由 compose environment 段提供）
+backend/config/phchn_platform.json
 # FIX-6：.qoder 目录默认整体忽略，但白名单放行 autoloop 技能本体（不含 models.json 密钥配置）；
 # __pycache__ / *.pyc 已由上方全局规则覆盖，无需重复
 .qoder/*
@@ -34,9 +36,10 @@ Thumbs.db
 ezlove-release.tar
 _readme.md
 
-# 测试验证产物（根目录截图 / 测试报告 / 临时脚本，不入库）
+# 测试验证产物（根目录截图 / 测试报告 / 临时脚本 / UI 走查截图，不入库）
 /*.png
 /test-report-*.html
 /*测试报告*.html
 /_*
 /.tmp-font/
+/ui-walkthrough/
