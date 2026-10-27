@@ -71,17 +71,17 @@
             </section>
 
             <section class="drawer-card">
-              <h3>最近告警</h3>
-              <div v-if="detail.alerts.length" class="alert-list">
-                <div v-for="alert in detail.alerts" :key="alert.id" class="alert-item">
-                  <span :class="['alert-dot', alert.is_resolved ? 'resolved' : alert.alert_level]"></span>
+              <h3>最近记录</h3>
+              <div v-if="detail.records && detail.records.length" class="alert-list">
+                <div v-for="record in detail.records" :key="record.id" class="alert-item">
+                  <span :class="['alert-dot', record.kind === 'device' ? 'info' : (record.is_resolved ? 'resolved' : record.level)]"></span>
                   <div>
-                    <p>{{ alert.message }}</p>
-                    <small>{{ formatTime(alert.created_at) }} · {{ alert.is_resolved ? '已处理' : '待处理' }}</small>
+                    <p>{{ record.message }}</p>
+                    <small>{{ formatTime(record.created_at) }} · {{ record.kind === 'device' ? '设备事件' : (record.is_resolved ? '已处理' : '待处理') }}</small>
                   </div>
                 </div>
               </div>
-              <p v-else class="drawer-hint">暂无告警记录</p>
+              <p v-else class="drawer-hint">暂无记录</p>
             </section>
           </template>
         </div>

@@ -4,6 +4,8 @@
 phchn 开放 API（实时状态，见 services/phchn_open_api.py）。零表结构依赖；
 平台不可用时照常返回本地数据（占位降级，前端友好提示）。
 """
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,6 +14,7 @@ from app.database import get_db
 from app.deps import get_current_worker
 from app.models.alert import Alert
 from app.models.community import CommunityWorker
+from app.models.community_event import CommunityEvent
 from app.services import nbiot, phchn_open_api
 
 router = APIRouter(prefix="/community", tags=["community-devices"])
@@ -31,6 +34,15 @@ def _mask_iccid(iccid: str | None) -> str | None:
 
 def _type_label(device: dict) -> str:
     return phchn_open_api.DEVICE_TYPE_LABELS.get(device.get("device_type"), "设备")
+
+
+def _iso_utc(value: datetime | None) -> str | None:
+    """数据库存 UTC naive 时间，输出补时区标记，前端才能换算本地时间。"""
+    if value is None:
+        return None
+    if value.tzinfo is None:
+        value = value.replace(tzinfo=timezone.utc)
+    return value.isoformat()
 
 
 async def _resolve_visible_devices(db: AsyncSession, worker: CommunityWorker) -> list[dict]:
@@ -77,12 +89,55 @@ async def list_devices(
         for alert in rows:
             latest_alert.setdefault(alert.elder_id, alert)
 
+    # 关联老人的最近设备事件（门磁等硬件上报），按老人 + 设备标签匹配
+    device_event_rows = []
+    if elder_ids:
+        device_event_rows = (
+            await db.execute(
+                select(CommunityEvent)
+                .where(
+                    CommunityEvent.elder_id.in_(elder_ids),
+                    CommunityEvent.source == "device",
+                )
+                .order_by(CommunityEvent.created_at.desc())
+            )
+        ).scalars().all()
+
     devices = []
     for item in visible:
         device = item["device"]
         enrollment = item["enrollment"]
         elder = item["elder"]
         alert = latest_alert.get(enrollment.elder_id) if enrollment is not None else None
+        device_event = None
+        if enrollment is not None:
+            label = str(device.get("label") or "")
+            device_event = next(
+                (
+                    row
+                    for row in device_event_rows
+                    if row.elder_id == enrollment.elder_id
+                    and (not label or label in (row.description or ""))
+                ),
+                None,
+            )
+
+        records = []
+        if alert is not None:
+            records.append((alert.created_at, {
+                "kind": "alert",
+                "alert_type": alert.alert_type,
+                "alert_level": alert.alert_level,
+                "is_resolved": alert.is_resolved,
+                "created_at": _iso_utc(alert.created_at),
+            }))
+        if device_event is not None:
+            records.append((device_event.created_at, {
+                "kind": "device",
+                "event_type": device_event.event_type,
+                "created_at": _iso_utc(device_event.created_at),
+            }))
+
         devices.append(
             {
                 "sn": item["sn"],
@@ -105,10 +160,13 @@ async def list_devices(
                         "alert_level": alert.alert_level,
                         "message": alert.message,
                         "is_resolved": alert.is_resolved,
-                        "created_at": alert.created_at.isoformat(),
+                        "created_at": _iso_utc(alert.created_at),
                     }
                     if alert is not None
                     else None
+                ),
+                "last_record": (
+                    max(records, key=lambda entry: entry[0])[1] if records else None
                 ),
             }
         )
@@ -161,6 +219,46 @@ async def device_detail(
         await db.execute(alerts_query.order_by(desc(Alert.created_at)).limit(10))
     ).scalars().all()
 
+    # 设备事件（门磁等硬件上报）与告警合并为「最近记录」
+    device_events = []
+    if enrollment is not None:
+        label = str(device.get("label") or "")
+        events_query = select(CommunityEvent).where(
+            CommunityEvent.elder_id == enrollment.elder_id,
+            CommunityEvent.source == "device",
+        )
+        if label:
+            events_query = events_query.where(CommunityEvent.description.like(f"%{label}%"))
+        device_events = (
+            await db.execute(events_query.order_by(desc(CommunityEvent.created_at)).limit(10))
+        ).scalars().all()
+
+    records = [
+        {
+            "id": str(alert.id),
+            "kind": "alert",
+            "alert_type": alert.alert_type,
+            "level": alert.alert_level,
+            "message": alert.message,
+            "is_resolved": alert.is_resolved,
+            "created_at": _iso_utc(alert.created_at),
+        }
+        for alert in alerts
+    ]
+    records.extend(
+        {
+            "id": str(event.id),
+            "kind": "device",
+            "event_type": event.event_type,
+            "level": "info",
+            "message": event.description or "设备记录",
+            "is_resolved": True,
+            "created_at": _iso_utc(event.created_at),
+        }
+        for event in device_events
+    )
+    records.sort(key=lambda entry: entry["created_at"], reverse=True)
+
     risk = None
     if enrollment is not None:
         risk = {
@@ -189,6 +287,7 @@ async def device_detail(
         },
         "risk": risk,
         "platform": {**status, "attributes": attributes},
+        "records": records[:10],
         "alerts": [
             {
                 "id": str(alert.id),
@@ -196,7 +295,7 @@ async def device_detail(
                 "alert_level": alert.alert_level,
                 "message": alert.message,
                 "is_resolved": alert.is_resolved,
-                "created_at": alert.created_at.isoformat(),
+                "created_at": _iso_utc(alert.created_at),
             }
             for alert in alerts
         ],

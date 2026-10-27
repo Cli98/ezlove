@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from app.config import settings
+from app.models.community_event import CommunityEvent
 from app.models.risk_snapshot import RiskScoreSnapshot
 from app.services import nbiot, phchn_open_api
 
@@ -280,6 +281,62 @@ async def test_device_detail_unknown_sn_404(db, client, registry, monkeypatch):
     _, _, worker_a, _, _, _ = await _two_communities_with_elders(db, registry)
     resp = await client.get("/api/v1/community/devices/SN-NOPE", headers=worker_headers(worker_a))
     assert resp.status_code == 404
+
+
+async def test_list_devices_last_record_merges_alert_and_device_event(db, client, registry, monkeypatch):
+    """最近记录：告警与设备事件合并，取时间较新的一条。"""
+    community_a, _, worker_a, _, wang, _ = await _two_communities_with_elders(db, registry)
+    _fake_fetch_many(monkeypatch)
+    now = datetime.now()
+
+    await create_alert(
+        db, elder_id=wang.id, community_id=community_a.id,
+        alert_type="sos", alert_level="urgent", message="王奶奶触发紧急报警",
+        created_at=now - timedelta(hours=2),
+    )
+    resp = await client.get("/api/v1/community/devices", headers=worker_headers(worker_a))
+    record = resp.json()["devices"][0]["last_record"]
+    assert record["kind"] == "alert"
+    assert record["alert_type"] == "sos"
+    assert record["created_at"].endswith("+00:00")
+
+    # 设备事件更新 → 最近记录切换为设备事件
+    db.add(CommunityEvent(
+        community_id=community_a.id, elder_id=wang.id, event_type="door_open",
+        source="device", description="门磁打开（按钮A）", severity="info",
+        created_at=now - timedelta(minutes=5),
+    ))
+    await db.commit()
+    resp = await client.get("/api/v1/community/devices", headers=worker_headers(worker_a))
+    record = resp.json()["devices"][0]["last_record"]
+    assert record["kind"] == "device"
+    assert record["event_type"] == "door_open"
+
+
+async def test_device_detail_records_include_device_events(db, client, registry, monkeypatch):
+    """详情「最近记录」同时包含告警与设备事件。"""
+    community_a, _, worker_a, _, wang, _ = await _two_communities_with_elders(db, registry)
+    await create_alert(
+        db, elder_id=wang.id, community_id=community_a.id,
+        alert_type="device_battery", alert_level="warning", message="按钮A 电量低",
+    )
+    db.add(CommunityEvent(
+        community_id=community_a.id, elder_id=wang.id, event_type="door_close",
+        source="device", description="门磁关闭（按钮A）", severity="info",
+    ))
+    await db.commit()
+
+    async def fake_status(sn, use_cache=True):
+        return _stub_status(sn)
+
+    monkeypatch.setattr(phchn_open_api, "fetch_device_status", fake_status)
+    resp = await client.get("/api/v1/community/devices/SN-A", headers=worker_headers(worker_a))
+    assert resp.status_code == 200
+    records = resp.json()["records"]
+    assert {record["kind"] for record in records} == {"alert", "device"}
+    device_record = next(record for record in records if record["kind"] == "device")
+    assert device_record["message"] == "门磁关闭（按钮A）"
+    assert device_record["level"] == "info"
 
 
 # ── 风险快照历史（安全曲线） ────────────────────────────────

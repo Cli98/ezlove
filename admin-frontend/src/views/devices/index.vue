@@ -42,7 +42,7 @@
       >
         <template #cell-device="{ row }">
           <div class="device-cell">
-            <span class="device-cell__icon material-symbols-outlined">{{ row.device_type === 6 ? 'crisis_alert' : 'visibility' }}</span>
+            <span class="device-cell__icon material-symbols-outlined">{{ deviceIcon(row.device_type) }}</span>
             <div>
               <b>{{ row.label }}</b>
               <small>{{ row.type_label }} · {{ row.sn_masked }}</small>
@@ -76,9 +76,9 @@
           <span :title="row.platform.last_online_time || ''">{{ formatAgo(row.platform.last_online_time) }}</span>
         </template>
         <template #cell-alert="{ row }">
-          <template v-if="row.last_alert">
-            <span :class="['alert-tag', alertTagTone(row.last_alert)]">{{ alertTypeLabel(row.last_alert.alert_type) }}</span>
-            <small class="cell-sub">{{ formatAgo(row.last_alert.created_at) }}</small>
+          <template v-if="row.last_record">
+            <span :class="['alert-tag', recordTone(row.last_record)]">{{ recordLabel(row.last_record) }}</span>
+            <small class="cell-sub">{{ formatAgo(row.last_record.created_at) }}</small>
           </template>
           <span v-else>—</span>
         </template>
@@ -117,7 +117,7 @@ const columns = [
   { key: 'signal', label: '信号', width: '11%' },
   { key: 'battery', label: '电量', width: '13%' },
   { key: 'lastOnline', label: '最后上报', width: '14%' },
-  { key: 'alert', label: '最近告警', width: '15%' },
+  { key: 'alert', label: '最近记录', width: '15%' },
 ]
 
 const stats = computed(() => {
@@ -129,6 +129,10 @@ const stats = computed(() => {
     { label: '电量偏低', value: s.low_battery, detail: s.unlinked ? `另有 ${s.unlinked} 台未绑定老人` : '电池供电设备关注项', icon: 'bell', tone: 'terracotta' },
   ]
 })
+
+function deviceIcon(type) {
+  return { 2: 'sensor_door', 6: 'crisis_alert', 12: 'visibility' }[type] || 'visibility'
+}
 
 function statusTone(platform) {
   if (!platform.available) return 'unknown'
@@ -144,6 +148,18 @@ function signalTone(value) {
 
 function alertTypeLabel(type) {
   return { sos: '紧急报警', device_battery: '电量低', unread: '未读提醒', timeout: '超时未响应' }[type] || type
+}
+
+function recordLabel(record) {
+  if (record.kind === 'device') {
+    return { door_open: '门磁打开', door_close: '门磁关闭' }[record.event_type] || '设备记录'
+  }
+  return alertTypeLabel(record.alert_type)
+}
+
+function recordTone(record) {
+  if (record.kind === 'device') return 'info'
+  return alertTagTone(record)
 }
 
 function alertTagTone(alert) {
