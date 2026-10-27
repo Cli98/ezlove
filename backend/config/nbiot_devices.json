@@ -15,6 +15,13 @@
       "label": "红外探测器",
       "elder_record_id": "",
       "elder_note": "张大爷"
+    },
+    {
+      "sn": "865619089993266",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "0868eb10-f9a9-4b50-9076-c376a1e6f707",
+      "elder_note": "门磁测试老人（临时）"
     }
   ]
 }

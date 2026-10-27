@@ -1,6 +1,6 @@
 """NB-IoT 硬件推送接入用例（对接手册《API字段对接.md》）。
 
-覆盖：button_press / battery_low / bathroom_motion_*、未登记设备、
+覆盖：button_press / battery_low / bathroom_motion_* / 门磁开合、未登记设备、
 幂等去重、未绑定老人兜底、URL 密钥校验、非法报文。
 """
 import pytest
@@ -8,7 +8,9 @@ from sqlalchemy import select
 
 from app.config import settings
 from app.models.alert import Alert
+from app.models.community_event import CommunityEvent
 from app.services import nbiot
+from app.services.timeline import get_elder_timeline
 
 from tests.helpers import (
     create_community,
@@ -22,6 +24,7 @@ pytestmark = pytest.mark.asyncio(loop_scope="session")
 
 BUTTON_SN = "869978086196018"
 PIR_SN = "869978086196026"
+DOOR_SN = "865619089993266"
 
 
 @pytest.fixture(autouse=True)
@@ -44,6 +47,10 @@ def devices(monkeypatch):
         },
         PIR_SN: {
             "sn": PIR_SN, "device_type": 12, "label": "红外探测器",
+            "elder_record_id": "",
+        },
+        DOOR_SN: {
+            "sn": DOOR_SN, "device_type": 2, "label": "门磁传感器",
             "elder_record_id": "",
         },
     }
@@ -73,13 +80,15 @@ async def _all_alerts(db) -> list[Alert]:
     return list(result.scalars().all())
 
 
-async def test_config_file_has_two_real_devices():
-    """随包配置必须包含两台真实设备（防止误删导致线上静默丢事件）。"""
+async def test_config_file_has_real_devices():
+    """随包配置必须包含三台真实设备（防止误删导致线上静默丢事件）。"""
     registry, _ = nbiot.load_registry()
     assert BUTTON_SN in registry
     assert PIR_SN in registry
+    assert DOOR_SN in registry
     assert registry[BUTTON_SN]["device_type"] == 6
     assert registry[PIR_SN]["device_type"] == 12
+    assert registry[DOOR_SN]["device_type"] == 2
 
 
 async def test_button_press_creates_family_and_community_alerts(client, db, devices):
@@ -249,3 +258,58 @@ async def test_token_is_enforced_when_configured(client, db, devices, monkeypatc
     assert (await client.post(
         "/api/v1/webhook/nbiot", json=payload, headers={"X-NBIOT-Token": "s3cret"},
     )).status_code == 200
+
+
+async def test_door_open_close_written_to_timeline(client, db, devices):
+    """门磁开/合写入社区事件表，并在老人时间线中可见。"""
+    community = await create_community(db)
+    elder = await create_user(db, "nbiot-elder-5", role="elder", nickname="张大爷")
+    record = await create_community_elder(db, community.id, elder.id)
+    devices[DOOR_SN]["elder_record_id"] = str(record.id)
+
+    opened = await client.post("/api/v1/webhook/nbiot", json=_push(DOOR_SN, 3, 2))
+    closed = await client.post(
+        "/api/v1/webhook/nbiot", json=_push(DOOR_SN, 4, 2, alarm_time=1751623920006)
+    )
+    assert opened.json()["created"] == 1
+    assert closed.json()["created"] == 1
+
+    events = (await db.execute(
+        select(CommunityEvent).order_by(CommunityEvent.created_at)
+    )).scalars().all()
+    assert [e.event_type for e in events] == ["door_open", "door_close"]
+    assert all(e.source == "device" for e in events)
+    assert all(e.elder_id == elder.id and e.community_id == community.id for e in events)
+    assert "门磁打开" in events[0].description
+
+    timeline = await get_elder_timeline(db, elder.id, community.id, days=1)
+    device_items = [item for item in timeline["items"] if item["type"] == "device"]
+    assert {item["label"] for item in device_items} == {"门磁打开", "门磁关闭"}
+
+
+async def test_door_event_dedupes_within_window(client, db, devices):
+    """同一状态 60 秒内重复上报只记一条（平台连续推送不刷屏）。"""
+    community = await create_community(db)
+    elder = await create_user(db, "nbiot-elder-6", role="elder", nickname="张大爷")
+    record = await create_community_elder(db, community.id, elder.id)
+    devices[DOOR_SN]["elder_record_id"] = str(record.id)
+
+    first = await client.post("/api/v1/webhook/nbiot", json=_push(DOOR_SN, 3, 2))
+    again = await client.post(
+        "/api/v1/webhook/nbiot", json=_push(DOOR_SN, 3, 2, alarm_time=1751623920007)
+    )
+    assert first.json()["created"] == 1
+    assert again.json()["created"] == 0
+
+    events = (await db.execute(select(CommunityEvent))).scalars().all()
+    assert len(events) == 1
+
+
+async def test_door_event_unbound_is_skipped(client, db, devices):
+    """未绑定老人的门磁事件不写时间线（也不产生告警）。"""
+    resp = await client.post("/api/v1/webhook/nbiot", json=_push(DOOR_SN, 3, 2))
+    assert resp.json()["created"] == 0
+
+    events = (await db.execute(select(CommunityEvent))).scalars().all()
+    assert events == []
+    assert await _all_alerts(db) == []

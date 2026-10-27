@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select, func, desc
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -164,11 +164,12 @@ async def get_elder_timeline(
         type_labels = {
             "fall": "跌倒", "absent": "缺勤", "emergency": "紧急",
             "visit": "走访", "other": "其他",
+            "door_open": "门磁打开", "door_close": "门磁关闭",
         }
         for e in events:
             items.append({
                 "id": str(e.id),
-                "type": "event",
+                "type": "device" if e.source == "device" else "event",
                 "time": e.created_at.isoformat(),
                 "label": type_labels.get(e.event_type, e.event_type),
                 "description": e.description,
@@ -178,6 +179,16 @@ async def get_elder_timeline(
 
     # 按时间降序排列
     items.sort(key=lambda x: x["time"], reverse=True)
+
+    # 数据库存 UTC naive 时间，补时区标记供前端换算本地时间
+    for item in items:
+        try:
+            moment = datetime.fromisoformat(item["time"])
+        except (TypeError, ValueError):
+            continue
+        if moment.tzinfo is None:
+            item["time"] = moment.replace(tzinfo=timezone.utc).isoformat()
+
     total = len(items)
     paged = items[offset:offset + limit]
 

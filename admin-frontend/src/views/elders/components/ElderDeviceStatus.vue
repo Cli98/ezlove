@@ -19,7 +19,7 @@
         @click="openDevice(device)"
       >
         <span class="device-row__icon material-symbols-outlined">
-          {{ device.device_type === 6 ? 'crisis_alert' : 'visibility' }}
+          {{ deviceIcon(device.device_type) }}
         </span>
         <span class="device-row__main">
           <b>{{ device.label }}</b>
@@ -48,6 +48,10 @@ const allDevices = ref([])
 const visibleDevices = computed(() => allDevices.value.filter(
   device => device.elder?.linked && String(device.elder.id) === String(props.elderId)
 ))
+
+function deviceIcon(type) {
+  return { 2: 'sensor_door', 6: 'crisis_alert', 12: 'visibility' }[type] || 'visibility'
+}
 
 function stateTone(device) {
   if (!device.platform?.available) return 'unknown'

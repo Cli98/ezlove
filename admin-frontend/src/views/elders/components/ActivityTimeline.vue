@@ -137,6 +137,7 @@ const iconMap = {
   canteen_absent: 'no_meals',
   alert: 'warning',
   event: 'event_note',
+  device: 'sensor_door',
 }
 
 function iconName(item) {

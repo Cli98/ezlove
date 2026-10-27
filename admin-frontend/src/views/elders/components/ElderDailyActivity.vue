@@ -57,8 +57,8 @@ const timeTicks = ['05:00','08:00','11:00','14:00','17:00','20:00','23:00']
 function shiftDay(offset) { const date = new Date(`${currentDate.value}T00:00:00`); date.setDate(date.getDate()+offset); currentDate.value = date.toISOString().slice(0,10) }
 function timeOf(value) { const d = new Date(value); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}` }
 function dayOf(value) { const d = new Date(value); return `${d.getMonth()+1}月${d.getDate()}日` }
-function iconOf(type, label = '') { if (label.includes('起床')) return 'bed'; return { canteen_present:'restaurant', canteen_absent:'no_meals', view:'favorite', event:'directions_walk', alert:'error' }[type] || 'schedule' }
-function sourceOf(type) { return type?.startsWith('canteen') ? '食堂' : type === 'view' ? '小程序' : type === 'alert' ? '关怀事件' : '社区' }
+function iconOf(type, label = '') { if (label.includes('起床')) return 'bed'; return { canteen_present:'restaurant', canteen_absent:'no_meals', view:'favorite', event:'directions_walk', device:'sensor_door', alert:'error' }[type] || 'schedule' }
+function sourceOf(type) { return type?.startsWith('canteen') ? '食堂' : type === 'view' ? '小程序' : type === 'alert' ? '关怀事件' : type === 'device' ? '智能设备' : '社区' }
 function toneOf(item) { return ['warning','critical'].includes(item.severity) || item.type === 'alert' ? 'danger' : 'normal' }
 
 async function load() {

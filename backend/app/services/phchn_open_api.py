@@ -27,7 +27,7 @@ logger = logging.getLogger("ezlove.phchn")
 DEFAULT_PLATFORM_FILE = Path(__file__).resolve().parents[2] / "config" / "phchn_platform.json"
 DEFAULT_BASE_URL = "https://iot.phchn.com/admin-api"
 
-DEVICE_TYPE_LABELS = {6: "紧急报警器", 12: "红外探测器"}
+DEVICE_TYPE_LABELS = {2: "门磁", 6: "紧急报警器", 12: "红外探测器"}
 PLATFORM_STATUS_LABELS = {0: "未激活", 1: "在线", 2: "离线"}
 
 _REQUEST_TIMEOUT = 10.0

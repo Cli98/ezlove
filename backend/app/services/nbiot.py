@@ -36,6 +36,7 @@ from app.config import settings
 from app.models.alert import Alert
 from app.models.care_relation import CareRelation
 from app.models.community import Community, CommunityElder
+from app.models.community_event import CommunityEvent
 from app.models.user import User
 
 logger = logging.getLogger("ezlove.nbiot")
@@ -45,6 +46,8 @@ EVENT_BUTTON_PRESS = (1, 0)
 EVENT_BATTERY_LOW = (5, 0)
 EVENT_MOTION_START = (2, 20)
 EVENT_MOTION_END = (2, 19)
+EVENT_DOOR_OPEN = (3, 2)
+EVENT_DOOR_CLOSE = (4, 2)
 
 ALERT_TYPE_SOS = "sos"
 ALERT_TYPE_BATTERY = "device_battery"
@@ -52,6 +55,7 @@ ALERT_TYPE_BATTERY = "device_battery"
 # 业务去重窗口：同一老人在窗口内只落一条同类告警（重试/连按不刷屏）
 SOS_DEDUPE_WINDOW = timedelta(minutes=10)
 BATTERY_DEDUPE_WINDOW = timedelta(hours=24)
+DOOR_EVENT_DEDUPE_WINDOW = timedelta(seconds=60)
 
 # 进程内精确去重（同一 alarmTime 的重复推送），重启后由落库窗口兜底
 _SEEN_TTL_SECONDS = 6 * 3600
@@ -156,6 +160,8 @@ async def handle_push(db: AsyncSession, payload: dict, devices: dict | None = No
             sn, event_type, message.get("zone"),
         )
         created = 0
+    elif key in (EVENT_DOOR_OPEN, EVENT_DOOR_CLOSE):
+        created = await _handle_door_event(db, device, event)
     else:
         logger.info("未处理的设备事件：sn=%s event=%s eventType=%s", sn, event, event_type)
         created = 0
@@ -365,4 +371,42 @@ async def _handle_battery_low(
         logger.exception("发送设备电量提醒失败")
 
     logger.info("设备电量低提醒已落库：sn=%s", device.get("sn"))
+    return 1
+
+
+async def _handle_door_event(db: AsyncSession, device: dict, event: int) -> int:
+    """门磁开合写入社区事件表，供老人详情时间线展示。
+
+    门磁开合属于生活信号，不产生告警；未绑定老人时跳过。
+    同一老人同一状态 60 秒内只记一条，避免平台连续上报刷屏。
+    """
+    elder, enrollment = await resolve_device_elder(db, device)
+    if elder is None or enrollment is None:
+        logger.info("门磁事件未绑定老人，跳过时间线：sn=%s event=%s", device.get("sn"), event)
+        return 0
+
+    is_open = event == EVENT_DOOR_OPEN[0]
+    event_type = "door_open" if is_open else "door_close"
+    label = "门磁打开" if is_open else "门磁关闭"
+
+    recent = (await db.execute(
+        select(CommunityEvent.id).where(
+            CommunityEvent.elder_id == elder.id,
+            CommunityEvent.event_type == event_type,
+            CommunityEvent.created_at >= datetime.now() - DOOR_EVENT_DEDUPE_WINDOW,
+        ).limit(1)
+    )).scalar_one_or_none()
+    if recent is not None:
+        return 0
+
+    db.add(CommunityEvent(
+        community_id=enrollment.community_id,
+        elder_id=elder.id,
+        event_type=event_type,
+        source="device",
+        description=f"{label}（{device.get('label') or '门磁传感器'}）",
+        severity="info",
+    ))
+    await db.flush()
+    logger.info("门磁事件已写入时间线：sn=%s event=%s elder=%s", device.get("sn"), event, elder.id)
     return 1
