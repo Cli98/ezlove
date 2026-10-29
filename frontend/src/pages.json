@@ -16,6 +16,7 @@
     { "path": "pages/view/detail", "style": { "navigationBarTitleText": "", "navigationStyle": "custom" } },
     { "path": "pages/history/index", "style": { "navigationBarTitleText": "", "navigationStyle": "custom", "enablePullDownRefresh": true, "backgroundTextStyle": "dark" } },
     { "path": "pages/bind/invite", "style": { "navigationBarTitleText": "", "navigationStyle": "custom" } },
+    { "path": "pages/bind/elder-record", "style": { "navigationBarTitleText": "", "navigationStyle": "custom" } },
     { "path": "pages/bind/list", "style": { "navigationBarTitleText": "", "navigationStyle": "custom", "enablePullDownRefresh": true, "backgroundTextStyle": "dark" } },
     { "path": "pages/elder/status", "style": { "navigationBarTitleText": "", "navigationStyle": "custom" } },
     { "path": "pages/elder/settings", "style": { "navigationBarTitleText": "", "navigationStyle": "custom" } },

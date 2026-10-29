@@ -19,7 +19,12 @@
       <view class="field-block">
         <text class="field-label">昵称</text>
         <view class="input-wrap">
+          <!-- #ifdef MP-WEIXIN -->
+          <input v-model="form.nickname" type="nickname" class="nickname-input" maxlength="20" placeholder="点击可一键使用微信昵称" />
+          <!-- #endif -->
+          <!-- #ifndef MP-WEIXIN -->
           <input v-model="form.nickname" class="nickname-input" maxlength="20" placeholder="请输入昵称" />
+          <!-- #endif -->
           <text class="input-count">{{ form.nickname.length }}/20</text>
         </view>
       </view>
@@ -37,19 +42,27 @@
             <text v-if="!tempAvatar && (form.avatar_url || DEFAULT_AVATAR) === avatar" class="avatar-check">✓</text>
           </view>
         </view>
+        <!-- #ifdef MP-WEIXIN -->
+        <button class="upload-avatar" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">使用微信头像</button>
+        <!-- #endif -->
         <button class="upload-avatar" @tap="chooseAvatar">从相册上传头像</button>
-        <text class="avatar-hint">也可以直接使用上方的默认头像</text>
+        <text class="avatar-hint">用微信头像和昵称后，社区工作人员能更快核对身份</text>
       </view>
     </view>
 
     <text class="sync-note">保存后，家人端和社区后台会使用同一份资料</text>
-    <button class="save-button" :loading="saving" :disabled="saving" @tap="saveProfile">保存资料</button>
+    <view class="save-bar">
+      <button class="save-button" :loading="saving" :disabled="saving" @tap="saveProfile">保存资料</button>
+    </view>
   </view>
 </template>
 
 <script setup>
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { onLoad } from "@dcloudio/uni-app";
+// #ifndef MP-WEIXIN
+import { onBackPress } from "@dcloudio/uni-app";
+// #endif
 import { useUserStore } from "@/stores/user";
 import { uploadImage } from "@/api/upload";
 import { getFamilyAvatar, getElderAvatar, getPresetAvatars, DEFAULT_AVATAR } from "@/utils/avatar";
@@ -60,6 +73,14 @@ const navMetrics = getNavigationBarMetrics();
 const saving = ref(false);
 const tempAvatar = ref("");
 const form = reactive({ nickname: "", avatar_url: null });
+// 进入页面时的快照，用于判断有没有未保存的修改
+const initial = reactive({ nickname: "", avatar_url: null });
+
+const isDirty = computed(() =>
+  !!tempAvatar.value ||
+  form.nickname.trim() !== (initial.nickname || "").trim() ||
+  (form.avatar_url || null) !== (initial.avatar_url || null)
+);
 
 const roleLabel = computed(() => userStore.isElder ? "长辈" : "子女 / 亲属");
 const avatarOptions = computed(() => [DEFAULT_AVATAR, ...getPresetAvatars(userStore.profile?.role)]);
@@ -74,6 +95,8 @@ onLoad(async () => {
   const profile = userStore.profile || {};
   form.nickname = profile.nickname || "";
   form.avatar_url = profile.avatar_url || null;
+  initial.nickname = form.nickname;
+  initial.avatar_url = form.avatar_url;
 });
 
 function selectAvatar(avatar) {
@@ -93,8 +116,32 @@ function chooseAvatar() {
   });
 }
 
-function goBack() {
+// 微信头像：微信不再返回真实头像，只能由用户点官方按钮主动授权一次
+function onChooseAvatar(event) {
+  const url = event?.detail?.avatarUrl;
+  if (url) tempAvatar.value = url;
+}
+
+function leavePage() {
+  // #ifdef MP-WEIXIN
+  wx.disableAlertBeforeUnload?.();
+  // #endif
   uni.navigateBack();
+}
+
+// 返回前校验：有未保存修改时让用户选“保存并返回”或“不保存”
+function goBack() {
+  if (!isDirty.value) {
+    leavePage();
+    return;
+  }
+  uni.showActionSheet({
+    itemList: ["保存修改并返回", "不保存，直接返回"],
+    success: ({ tapIndex }) => {
+      if (tapIndex === 0) saveProfile();
+      else leavePage();
+    },
+  });
 }
 
 async function saveProfile() {
@@ -105,18 +152,42 @@ async function saveProfile() {
   try {
     const avatar_url = tempAvatar.value ? await uploadImage(tempAvatar.value, "avatar") : form.avatar_url;
     await userStore.updateProfile({ nickname, avatar_url });
+    initial.nickname = nickname;
+    initial.avatar_url = avatar_url;
+    tempAvatar.value = "";
+    form.avatar_url = avatar_url;
     uni.showToast({ title: "资料已保存", icon: "success" });
-    setTimeout(goBack, 500);
+    setTimeout(leavePage, 500);
   } catch (error) {
     uni.showToast({ title: error?.message || "保存失败，请稍后重试", icon: "none" });
   } finally {
     saving.value = false;
   }
 }
+
+// 微信右上角胶囊/手势返回走系统确认弹窗，页面内返回按钮走上面的选择弹层
+// #ifdef MP-WEIXIN
+watch(
+  isDirty,
+  (dirty) => {
+    if (dirty) wx.enableAlertBeforeUnload({ message: "资料还没保存，确定离开吗？" });
+    else wx.disableAlertBeforeUnload();
+  },
+  { immediate: true }
+);
+// #endif
+
+// #ifndef MP-WEIXIN
+onBackPress(() => {
+  if (!isDirty.value) return false;
+  goBack();
+  return true;
+});
+// #endif
 </script>
 
 <style lang="scss" scoped>
-.edit-page { min-height: 100vh; box-sizing: border-box; padding: 0 $sp-24 calc($sp-40 + env(safe-area-inset-bottom)); background: $gradient-page; }
+.edit-page { min-height: 100vh; box-sizing: border-box; padding: 0 $sp-24 calc(180rpx + env(safe-area-inset-bottom)); background: $gradient-page; }
 .edit-nav { position: relative; box-sizing: content-box; margin: 0 (-$sp-24); }
 .edit-nav__back { width: 88rpx; height: 100%; display: flex; align-items: center; justify-content: center; image { width: 34rpx; height: 34rpx; } }
 .edit-nav__title { color: $c-text; font-family: "Songti SC", "STSong", serif; font-size: $fs-title; font-weight: $fw-bold; }
@@ -139,5 +210,6 @@ async function saveProfile() {
 .upload-avatar { margin-top: $sp-20; border: 2rpx solid $c-primary; border-radius: $r-full; color: $c-primary; background: $c-surface; font-size: $fs-body; &::after { border: 0; } }
 .avatar-hint { display: block; margin-top: $sp-12; color: $c-text-hint; font-size: $fs-caption; text-align: center; }
 .sync-note { display: block; margin: $sp-20 0 $sp-16; color: $c-text-hint; font-size: $fs-caption; text-align: center; }
-.save-button { display: flex; align-items: center; justify-content: center; height: 96rpx; border: 0; border-radius: $r-full; color: $c-text-inverse; background: $c-primary; box-shadow: $shadow-glow; font-size: $fs-subtitle; font-weight: $fw-bold; &::after { border: 0; } &[disabled] { opacity: 0.6; } }
+.save-bar { position: fixed; right: 0; bottom: 0; left: 0; padding: $sp-16 $sp-24 calc($sp-16 + env(safe-area-inset-bottom)); border-top: 1rpx solid $c-border-light; background: $c-bg; box-shadow: 0 -6rpx 24rpx rgba(44, 40, 37, 0.06); }
+.save-button { display: flex; align-items: center; justify-content: center; width: 100%; height: 96rpx; border: 0; border-radius: $r-full; color: $c-text-inverse; background: $c-primary; box-shadow: $shadow-glow; font-size: $fs-subtitle; font-weight: $fw-bold; &::after { border: 0; } &[disabled] { opacity: 0.6; } }
 </style>

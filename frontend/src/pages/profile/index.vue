@@ -64,6 +64,19 @@
             </view>
             <image class="menu-arrow-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/chevron-right.png" mode="aspectFit" />
           </view>
+          <!-- 长辈端：用社区登记的手机号认领档案，社区才能看到活动状态 -->
+          <view v-if="userStore.isElder" class="menu-row" @tap="goElderRecord">
+            <view class="menu-left">
+              <view class="menu-icon">
+                <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/neighbor-help.png" mode="aspectFit" />
+              </view>
+              <view class="menu-copy">
+                <text class="menu-text">社区档案</text>
+                <text class="menu-desc">一键授权手机号，自动关联社区登记</text>
+              </view>
+            </view>
+            <image class="menu-arrow-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons-v2/chevron-right.png" mode="aspectFit" />
+          </view>
         </template>
         <view class="menu-row" @tap="goVolunteer">
           <view class="menu-left">
@@ -183,6 +196,10 @@ function goBindList() {
 
 function goInvite() {
   uni.navigateTo({ url: "/pages/bind/invite" });
+}
+
+function goElderRecord() {
+  uni.navigateTo({ url: "/pages/bind/elder-record" });
 }
 
 function goVolunteer() {

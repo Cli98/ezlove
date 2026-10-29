@@ -102,15 +102,18 @@ export function request(options, retried = false) {
           resolve(res.data);
         } else {
           const detail = res.data?.detail;
-          let msg = `[${res.statusCode}] `;
+          let msg;
           if (typeof detail === "string") {
-            msg += detail;
+            msg = detail;
           } else if (Array.isArray(detail)) {
-            msg += detail.map((d) => d.msg || JSON.stringify(d)).join("; ");
+            msg = detail.map((d) => d.msg || JSON.stringify(d)).join("; ");
           } else {
-            msg += "请求失败";
+            msg = res.statusCode >= 500 ? "服务暂时不可用，请稍后再试" : "请求未成功，请稍后再试";
           }
-          reject(new Error(msg));
+          // 状态码挂在错误对象上供页面分支判断，不把 [404] 这类技术码展示给用户
+          const error = new Error(msg);
+          error.statusCode = res.statusCode;
+          reject(error);
         }
       },
       fail: (err) => {
