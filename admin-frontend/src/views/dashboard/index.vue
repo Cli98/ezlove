@@ -37,6 +37,7 @@ import PriorityCareList from './components/PriorityCareList.vue'
 import AreaCareOverview from './components/AreaCareOverview.vue'
 import GoodNewsCard from './components/GoodNewsCard.vue'
 import { getElderAvatar } from '@/utils/avatar'
+import { alertTypeLabel } from '@/utils/alert-labels'
 
 const router = useRouter()
 const store = useDashboardStore()
@@ -60,13 +61,7 @@ const focusStats = computed(() => [
   { label: '项临近响应时间', value: timedOut.value.length, detail: timedOut.value.length ? '请及时处理，避免超时' : '当前没有超时事项', icon: 'clock', tone: 'sage' },
 ])
 
-// 后端 trigger_rule 规则代码 → 中文文案映射（避免界面直接暴露 morning_silence 等英文枚举）
-const TRIGGER_RULE_LABELS = {
-  morning_silence: '晨间关怀提醒',
-  unread_timeout: '牵挂未读提醒',
-  canteen_absence: '食堂用餐提醒',
-  no_signal: '日常动态提醒',
-}
+// 规则代码→中文文案统一走共享映射（见 utils/alert-labels.js），避免各页各自维护漏掉新规则
 
 const priorityItems = computed(() => {
   const confirmationItems = confirmations.value.map((elder, index) => ({
@@ -91,7 +86,7 @@ const priorityItems = computed(() => {
     careLevel: alert.alert_level === 'critical' ? 'A' : 'B',
     message: alert.message || '有一条需要关注的社区动态。',
     time: formatTime(alert.created_at),
-    source: TRIGGER_RULE_LABELS[alert.trigger_rule] || '关怀提醒',
+    source: alertTypeLabel(alert.trigger_rule),
     sourceDetail: alert.alert_level === 'critical' ? '请优先处理' : '等待跟进',
     icon: ['canteen', 'canteen_absence'].includes(alert.alert_type) ? 'bowl' : 'heart',
     tone: alert.alert_level === 'critical' ? 'terracotta' : 'amber',

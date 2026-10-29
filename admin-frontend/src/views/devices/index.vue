@@ -101,6 +101,7 @@ import AppStatBar from '@/components/AppStatBar.vue'
 import AppTable from '@/components/AppTable.vue'
 import PageTopbar from '@/components/PageTopbar.vue'
 import DeviceDetailDrawer from './components/DeviceDetailDrawer.vue'
+import { alertTypeLabel } from '@/utils/alert-labels'
 
 const route = useRoute()
 const router = useRouter()
@@ -146,13 +147,14 @@ function signalTone(value) {
   return 'weak'
 }
 
-function alertTypeLabel(type) {
-  return { sos: '紧急报警', device_battery: '电量低', unread: '未读提醒', timeout: '超时未响应' }[type] || type
-}
-
 function recordLabel(record) {
   if (record.kind === 'device') {
-    return { door_open: '门磁打开', door_close: '门磁关闭' }[record.event_type] || '设备记录'
+    return {
+      door_open: '门磁打开',
+      door_close: '门磁关闭',
+      motion_start: '红外检测到活动',
+      motion_end: '红外暂无活动',
+    }[record.event_type] || '设备记录'
   }
   return alertTypeLabel(record.alert_type)
 }

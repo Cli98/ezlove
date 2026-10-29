@@ -11,6 +11,7 @@ const routes = [
       { path: 'elders', name: 'Elders', component: () => import('@/views/elders/index.vue') },
       { path: 'elders/:id', name: 'ElderDetail', component: () => import('@/views/elders/detail.vue') },
       { path: 'devices', name: 'Devices', component: () => import('@/views/devices/index.vue') },
+      { path: 'rules', name: 'Rules', component: () => import('@/views/rules/index.vue') },
       { path: 'canteen', name: 'Canteen', component: () => import('@/views/canteen/index.vue') },
       { path: 'events', name: 'Events', component: () => import('@/views/events/index.vue') },
       { path: 'agent', name: 'Agent', component: () => import('@/views/agent/index.vue') },
