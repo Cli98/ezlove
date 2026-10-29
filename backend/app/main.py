@@ -14,6 +14,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.config import settings
 from app.api.v1.router import api_router
+from app.services.object_storage import oss_enabled
 
 access_logger = logging.getLogger("ezlove.access")
 logger = logging.getLogger("ezlove")
@@ -170,5 +171,6 @@ async def health_check():
         "features": {
             "ai": bool(settings.ANTHROPIC_API_KEY),
             "wechat": bool(settings.WECHAT_APP_ID),
+            "oss": oss_enabled(),
         },
     }

@@ -97,7 +97,9 @@ async def test_signal_types_single_definition(db):
         references += src.count("SIGNAL_EVENT_TYPES")
     assert definitions == [str(app_dir / "tasks" / "alert_checker.py")]  # 唯一定义
     assert references >= 3  # 1 定义 + _check_no_signal / morning_silence_check 两处引用
-    assert SIGNAL_EVENT_TYPES == frozenset({"visit", "manual_confirm"})
+    assert SIGNAL_EVENT_TYPES == frozenset({
+        "visit", "manual_confirm", "door_open", "door_close", "motion_start",
+    })
 
     # 语义一致：source=alert 的 other 事件不算信号（_check_no_signal 仍判无信号）
     community = await create_community(db)

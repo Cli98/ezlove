@@ -6,22 +6,22 @@
       "sn": "869978086196018",
       "device_type": 6,
       "label": "一键报警按钮",
-      "elder_record_id": "",
-      "elder_note": "张大爷"
+      "elder_record_id": "74c27cbe-41eb-4604-9f3b-187ce4c9af72",
+      "elder_note": "姚增德"
     },
     {
       "sn": "869978086196026",
       "device_type": 12,
       "label": "红外探测器",
-      "elder_record_id": "",
-      "elder_note": "张大爷"
+      "elder_record_id": "74c27cbe-41eb-4604-9f3b-187ce4c9af72",
+      "elder_note": "姚增德"
     },
     {
       "sn": "865619089993266",
       "device_type": 2,
       "label": "门磁传感器",
-      "elder_record_id": "0868eb10-f9a9-4b50-9076-c376a1e6f707",
-      "elder_note": "门磁测试老人（临时）"
+      "elder_record_id": "74c27cbe-41eb-4604-9f3b-187ce4c9af72",
+      "elder_note": "姚增德"
     }
   ]
 }

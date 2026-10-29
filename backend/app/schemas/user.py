@@ -10,6 +10,16 @@ class UserUpdate(BaseModel):
     phone: str | None = None
 
 
+class BindElderRecordRequest(BaseModel):
+    phone: str = Field(min_length=6, max_length=20)
+
+
+class BindElderRecordByPhoneCodeRequest(BaseModel):
+    """微信手机号快速验证组件返回的一次性 code。"""
+
+    code: str = Field(min_length=1, max_length=128)
+
+
 class UserResponse(BaseModel):
     id: UUID
     openid: str

@@ -15,7 +15,7 @@ class Alert(Base):
     care_relation_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("care_relations.id"), nullable=True)
     elder_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     community_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("communities.id"), nullable=True)
-    alert_type: Mapped[str] = mapped_column(String(16))
+    alert_type: Mapped[str] = mapped_column(String(16))  # 取值须 ≤16 字符；长规则名走 trigger_rule（String32）
     alert_level: Mapped[str] = mapped_column(String(16))
     message: Mapped[str] = mapped_column(Text)
     is_resolved: Mapped[bool] = mapped_column(Boolean, default=False)

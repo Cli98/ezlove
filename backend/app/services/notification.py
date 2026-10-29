@@ -87,6 +87,12 @@ async def notify_worker_alert(
     db: AsyncSession,
     alert_id: uuid.UUID,
 ):
+    """把告警推送给负责的网格员（微信订阅消息）。
+
+    通知分派边界（白老师 2026-10-29）：规则产生的预警默认只在平台展示；
+    设备关怀类是否外发由 ALERT_NOTIFY_DEVICE_CARE_ENABLED 控制；
+    电话告警由独立通道实现，不要在这里与规则判定耦合。
+    """
     # dry-run 静默开关：关闭时只落表不发通知（P3 §3.5，覆盖社区侧防误触）
     if not settings.ALERT_NOTIFY_ENABLED:
         logger.info("ALERT_NOTIFY_ENABLED=false，跳过告警通知发送")

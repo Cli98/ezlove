@@ -200,18 +200,27 @@ async def test_battery_low_creates_single_community_alert(client, db, devices):
     assert (await client.post("/api/v1/webhook/nbiot", json=again)).json()["created"] == 0
 
 
-async def test_motion_events_only_logged(client, db, devices):
+async def test_motion_events_write_timeline(client, db, devices):
     community = await create_community(db)
     elder = await create_user(db, "nbiot-elder-4", role="elder", nickname="张大爷")
-    await create_community_elder(db, community.id, elder.id)
+    record = await create_community_elder(db, community.id, elder.id)
+    devices[PIR_SN]["elder_record_id"] = str(record.id)
 
     assert (await client.post(
         "/api/v1/webhook/nbiot", json=_push(PIR_SN, 2, 20, content="红外触发"),
-    )).json()["created"] == 0
+    )).json()["created"] == 1
     assert (await client.post(
         "/api/v1/webhook/nbiot", json=_push(PIR_SN, 2, 19, content="离开，时长12分钟"),
-    )).json()["created"] == 0
+    )).json()["created"] == 1
 
+    events = (await db.execute(
+        select(CommunityEvent).order_by(CommunityEvent.created_at)
+    )).scalars().all()
+    assert [e.event_type for e in events] == ["motion_start", "motion_end"]
+    assert all(e.source == "device" for e in events)
+    assert "红外检测到活动" in events[0].description
+    assert "红外暂无活动" in events[1].description
+    # 红外只记日常活动，不产生告警
     assert await _all_alerts(db) == []
 
 

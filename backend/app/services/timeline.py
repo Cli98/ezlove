@@ -165,6 +165,7 @@ async def get_elder_timeline(
             "fall": "跌倒", "absent": "缺勤", "emergency": "紧急",
             "visit": "走访", "other": "其他",
             "door_open": "门磁打开", "door_close": "门磁关闭",
+            "motion_start": "红外检测到活动", "motion_end": "红外暂无活动",
         }
         for e in events:
             items.append({

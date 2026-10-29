@@ -36,6 +36,9 @@ class Settings(BaseSettings):
     OSS_ENDPOINT: str = ""
     OSS_BUCKET_NAME: str = ""
     OSS_PUBLIC_BASE_URL: str = ""
+    # 本地静态文件（/static）对外前缀：线上 nginx 把外部 /ezlove-api/* 反代到后端 /api/*，
+    # OSS 不可用时用它拼绝对地址，小程序与后台不同源也能直接引用图片
+    STATIC_PUBLIC_BASE: str = "https://yiguanian.ysgy.org.cn/ezlove-api"
 
     # AI 媒体生成（暂未接入）
     VIDEO_GEN_API_KEY: str = ""
@@ -56,6 +59,10 @@ class Settings(BaseSettings):
     # 调度与通知开关（上线 dry-run 时序控制，P3 §3.5；默认值=行为与现状一致）
     SCHEDULER_ENABLED: bool = True
     ALERT_NOTIFY_ENABLED: bool = True
+    # 设备关怀类预警（静止/无轨迹/未外出/设备核实）默认只在平台展示，置 true 才额外发微信提醒
+    ALERT_NOTIFY_DEVICE_CARE_ENABLED: bool = False
+    # 设备离线超过该小时数即暂停该设备的活跃提醒（白老师 2026-10-29：设备坏了要给规则断电）
+    DEVICE_OFFLINE_HOURS: int = 1
     # >0 时家属侧未读告警仅对 created_at >= now-N小时 的未读牵挂生效（R3 冷启动上限）
     ALERT_COLD_START_UNREAD_HOURS: int = 0
     # >0 时工作台 timed_out 查询仅回看 now-N小时 内产生的告警（R9 冷启动限制）

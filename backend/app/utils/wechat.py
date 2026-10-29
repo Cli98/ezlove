@@ -56,6 +56,36 @@ async def get_access_token() -> str | None:
         return None
 
 
+async def get_phone_number(code: str) -> str | None:
+    """用手机号快速验证组件返回的 code 换取手机号。
+
+    需小程序为企业主体且已开通该组件；未开通或 code 失效时返回 None，由调用方降级处理。
+    """
+    for attempt in range(2):
+        token = await get_access_token()
+        if not token:
+            return None
+        url = f"https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token={token}"
+        try:
+            async with httpx.AsyncClient() as client:
+                resp = await client.post(url, json={"code": code})
+                data = resp.json()
+            errcode = data.get("errcode", 0)
+            if errcode == 0:
+                pure = (data.get("phone_info") or {}).get("purePhoneNumber")
+                return pure or None
+            # access_token 失效时清缓存重试一次
+            if errcode in (40001, 42001) and attempt == 0:
+                _access_token_cache["token"] = None
+                continue
+            logger.warning("获取微信手机号失败: %s", data)
+            return None
+        except Exception:
+            logger.exception("获取微信手机号异常")
+            return None
+    return None
+
+
 async def send_subscribe_message(
     openid: str,
     template_id: str,

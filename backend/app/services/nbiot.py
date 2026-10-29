@@ -10,8 +10,10 @@
 事件映射（对接手册《API字段对接.md》）：
     button_press          = (event 1, eventType 0)   → 紧急告警（家属 + 社区）
     battery_low           = (event 5, eventType 0)   → 电量低提醒（社区）
-    bathroom_motion_start = (event 2, eventType 20)  → 仅记日志（不进社区时间线，避免监控感）
-    bathroom_motion_end   = (event 2, eventType 19)  → 仅记日志
+    bathroom_motion_start = (event 2, eventType 20)  → 红外检测到活动（写社区时间线）
+    bathroom_motion_end   = (event 2, eventType 19)  → 红外暂无活动（写社区时间线）
+
+红外只记录“有人/无人”状态，不采集影像与声音，社区端展示为日常活动记录。
 
 设备与老人绑定：backend/config/nbiot_devices.json（低频静态数据，避免引入表结构
 迁移——发布通道不执行 Alembic 迁移）。绑定锚点唯一：elder_record_id（社区老人
@@ -56,6 +58,7 @@ ALERT_TYPE_BATTERY = "device_battery"
 SOS_DEDUPE_WINDOW = timedelta(minutes=10)
 BATTERY_DEDUPE_WINDOW = timedelta(hours=24)
 DOOR_EVENT_DEDUPE_WINDOW = timedelta(seconds=60)
+MOTION_EVENT_DEDUPE_WINDOW = timedelta(seconds=60)
 
 # 进程内精确去重（同一 alarmTime 的重复推送），重启后由落库窗口兜底
 _SEEN_TTL_SECONDS = 6 * 3600
@@ -154,12 +157,7 @@ async def handle_push(db: AsyncSession, payload: dict, devices: dict | None = No
     elif key == EVENT_BATTERY_LOW:
         created = await _handle_battery_low(db, device, message, fallback_community)
     elif key in (EVENT_MOTION_START, EVENT_MOTION_END):
-        # 卫生间红外只记日志：老人进入/离开属于生活隐私，不写入社区时间线
-        logger.info(
-            "卫生间活动事件：sn=%s eventType=%s zone=%s",
-            sn, event_type, message.get("zone"),
-        )
-        created = 0
+        created = await _handle_motion_event(db, device, event_type)
     elif key in (EVENT_DOOR_OPEN, EVENT_DOOR_CLOSE):
         created = await _handle_door_event(db, device, event)
     else:
@@ -409,4 +407,42 @@ async def _handle_door_event(db: AsyncSession, device: dict, event: int) -> int:
     ))
     await db.flush()
     logger.info("门磁事件已写入时间线：sn=%s event=%s elder=%s", device.get("sn"), event, elder.id)
+    return 1
+
+
+async def _handle_motion_event(db: AsyncSession, device: dict, event_type: int) -> int:
+    """红外有人/无人写入社区时间线。
+
+    只记录“有人/无人”二态，不采集影像与声音；同一老人同一状态 60 秒内只记一条，
+    避免平台连续上报刷屏。未绑定老人时跳过。
+    """
+    elder, enrollment = await resolve_device_elder(db, device)
+    if elder is None or enrollment is None:
+        logger.info("红外事件未绑定老人，跳过时间线：sn=%s eventType=%s", device.get("sn"), event_type)
+        return 0
+
+    is_motion = event_type == EVENT_MOTION_START[1]
+    event_key = "motion_start" if is_motion else "motion_end"
+    label = "红外检测到活动" if is_motion else "红外暂无活动"
+
+    recent = (await db.execute(
+        select(CommunityEvent.id).where(
+            CommunityEvent.elder_id == elder.id,
+            CommunityEvent.event_type == event_key,
+            CommunityEvent.created_at >= datetime.now() - MOTION_EVENT_DEDUPE_WINDOW,
+        ).limit(1)
+    )).scalar_one_or_none()
+    if recent is not None:
+        return 0
+
+    db.add(CommunityEvent(
+        community_id=enrollment.community_id,
+        elder_id=elder.id,
+        event_type=event_key,
+        source="device",
+        description=f"{label}（{device.get('label') or '红外探测器'}）",
+        severity="info",
+    ))
+    await db.flush()
+    logger.info("红外事件已写入时间线：sn=%s eventType=%s elder=%s", device.get("sn"), event_type, elder.id)
     return 1
