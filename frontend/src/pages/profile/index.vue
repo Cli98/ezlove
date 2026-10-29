@@ -123,7 +123,7 @@
         <view class="contact-link" @tap="goContributors">
           <text class="contact-link-text">联系我们</text>
         </view>
-        <text class="version-text">易挂念 v1.1.4</text>
+        <text class="version-text">易挂念 v{{ appVersion }}</text>
       </view>
     </view>
 
@@ -142,6 +142,19 @@ import { syncTabBar } from "@/utils/tabbar";
 
 const userStore = useUserStore();
 const navMetrics = getNavigationBarMetrics();
+// 体验版/线上版优先用微信返回的版本号；开发工具取不到时回退到常量
+const FALLBACK_VERSION = "1.1.7";
+const appVersion = (() => {
+  // #ifdef MP-WEIXIN
+  try {
+    const version = uni.getAccountInfoSync().miniProgram.version;
+    if (version) return version;
+  } catch (e) {
+    // 开发版下拿不到版本号，走下面的回退
+  }
+  // #endif
+  return FALLBACK_VERSION;
+})();
 const elderCount = ref(0);
 const momentCount = ref(0);
 const careStreak = ref(0);
