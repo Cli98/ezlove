@@ -28,6 +28,12 @@
         <text class="balance-card__hint">发送牵挂 +5 · 查看牵挂 +2 · 每日登录 +10</text>
       </view>
 
+      <!-- AI 内容标识：AI 生成页面需显著说明 -->
+      <view class="ai-notice">
+        <text class="ai-notice__tag">AI 生成</text>
+        <text class="ai-notice__text">本页内容由人工智能生成，结果仅供参考，发送前请确认</text>
+      </view>
+
       <!-- 功能选择 -->
       <view class="section-label">选择创作方式</view>
 
@@ -347,6 +353,34 @@ function goBack() {
   padding-left: $sp-24;
   padding-right: $sp-24;
   padding-bottom: 280rpx;
+}
+
+.ai-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  margin: $sp-24 0 $sp-8;
+  padding: $sp-16 $sp-20;
+  border-radius: $r-md;
+  background: rgba($c-primary, 0.06);
+  border: 1rpx solid rgba($c-primary, 0.18);
+}
+
+.ai-notice__tag {
+  flex: none;
+  padding: 4rpx 12rpx;
+  border-radius: $r-full;
+  background: $c-primary;
+  color: $c-text-inverse;
+  font-size: 22rpx;
+  font-weight: $fw-bold;
+}
+
+.ai-notice__text {
+  flex: 1;
+  color: $c-text-sub;
+  font-size: 26rpx;
+  line-height: 1.5;
 }
 
 .section-label {

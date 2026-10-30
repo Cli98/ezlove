@@ -149,6 +149,8 @@ const imageUrl = ref("");
 const uploadedUrl = ref("");
 const uploading = ref(false);
 const sending = ref(false);
+// 文本来自「AI 帮我写」时记为 AI 辅助生成，随牵挂一起上报，用于内容标识
+const aiAssisted = ref(false);
 const navMetrics = getNavigationBarMetrics();
 
 const canGenerate = computed(
@@ -189,6 +191,7 @@ onShow(() => {
   const aiText = uni.getStorageSync("ai_suggest_text");
   if (aiText) {
     textContent.value = aiText;
+    aiAssisted.value = true;
     uni.removeStorageSync("ai_suggest_text");
   }
 });
@@ -246,6 +249,7 @@ async function handleGenerate() {
       elder_id: selectedElderId.value,
       content_type: "text",
       text_content: textContent.value.trim(),
+      is_ai_generated: aiAssisted.value,
     });
     requestSubscribe(["unread"]);
     uni.showToast({ title: "已发送", icon: "success" });

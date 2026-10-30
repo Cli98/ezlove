@@ -10,10 +10,15 @@
     <view class="page-body" :style="{ paddingTop: `${navMetrics.totalHeight + 12}px` }">
     <view class="header-area fade-in">
       <text class="page-title">把想说的话变得更温暖</text>
-      <text class="page-desc">AI 已根据家人的近况准备了这些问候</text>
+      <text class="page-desc">以下内容由人工智能生成，仅供参考，确认后再发送</text>
       <image class="header-mark" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/brand/logo-mark.png" mode="aspectFit" />
     </view>
-
+    
+    <view class="ai-notice fade-in">
+      <text class="ai-notice__tag">AI 生成</text>
+      <text class="ai-notice__text">以下文字由人工智能生成，不是真人原话，请确认后再使用</text>
+    </view>
+    
     <view v-if="loading" class="loading-state fade-in">
       <view class="loading-dot-wrap">
         <view class="loading-dot" />
@@ -32,7 +37,10 @@
         @tap="selectedIndex = index"
       >
         <view class="suggestion-tag-row">
-          <text class="suggestion-tag">{{ item.tag }}</text>
+          <view class="suggestion-tag-group">
+            <text class="suggestion-tag">{{ item.tag }}</text>
+            <text class="suggestion-ai-tag">AI 生成</text>
+          </view>
           <text class="select-copy">{{ selectedIndex === index ? '✓ 已选择' : '使用这句话' }}</text>
         </view>
         <text class="suggestion-text">{{ item.text }}</text>
@@ -213,6 +221,48 @@ function goBack() {
     transform: scale(0.98);
     transition-timing-function: $ease-spring;
   }
+}
+
+.ai-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+  margin-bottom: $sp-20;
+  padding: $sp-16 $sp-20;
+  border-radius: $r-md;
+  background: rgba($c-primary, 0.06);
+  border: 1rpx solid rgba($c-primary, 0.18);
+}
+
+.ai-notice__tag {
+  flex: none;
+  padding: 4rpx 12rpx;
+  border-radius: $r-full;
+  background: $c-primary;
+  color: $c-text-inverse;
+  font-size: 22rpx;
+  font-weight: $fw-bold;
+}
+
+.ai-notice__text {
+  flex: 1;
+  color: $c-text-sub;
+  font-size: 26rpx;
+  line-height: 1.5;
+}
+
+.suggestion-tag-group {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.suggestion-ai-tag {
+  padding: 2rpx 10rpx;
+  border: 1rpx solid $c-border;
+  border-radius: $r-full;
+  color: $c-text-hint;
+  font-size: 20rpx;
 }
 
 .suggestion-tag-row {
