@@ -22,7 +22,7 @@
         <text class="section-li">（2）牵挂内容查看：长辈用户可查看家人发送的牵挂内容，并通过表情等方式进行回应；</text>
         <text class="section-li">（3）提醒与通知：在长辈长时间未查看牵挂内容等情形下，通过微信订阅消息等渠道提醒家人（该功能须经用户授权订阅后方可生效）；</text>
         <text class="section-li">（4）关怀辅助功能：包括但不限于“报平安”打卡、每日菜单查看、社区养老服务信息展示（如您所在社区已开通该项服务）等；</text>
-        <text class="section-li">（5）AI 辅助功能：基于人工智能技术提供的问候文案建议、图片/视频等创作能力（以实际开通的功能为准）；</text>
+        <text class="section-li">（5）话术推荐功能：提供平台预先编写的常用问候表达供您选择，您可在此基础上自行修改后发送；</text>
         <text class="section-li">（6）激励功能：积分的获取与记录（积分规则详见本协议第五条）。</text>
       </view>
       <text class="section-p">1.2 本服务可能根据运营需要、法律法规要求或微信平台规则进行调整、更新或终止部分功能。我们将在小程序内以适当方式通知您。</text>
@@ -61,10 +61,10 @@
     </view>
 
     <view class="agreement-section fade-in stagger-2">
-      <text class="section-title">四、AI 功能特别说明</text>
-      <text class="section-p">4.1 本服务中的 AI 辅助功能（如问候文案建议、图片/视频生成等）所生成的内容由人工智能模型自动产生，<text class="em">仅供您参考使用</text>。</text>
-      <text class="section-p">4.2 AI 生成内容可能存在不准确、不完整或不符合您预期的情况，我们不保证其准确性、完整性及适用性。您在采用 AI 建议内容前应自行判断，并对其发送及由此产生的后果负责。</text>
-      <text class="section-p">4.3 请勿利用 AI 功能生成、传播违反法律法规或公序良俗的内容。</text>
+      <text class="section-title">四、话术推荐与内容责任</text>
+      <text class="section-p">4.1 本服务提供的问候话术由平台预先编写，仅作为表达参考，不代表平台对您最终发送内容的承诺。</text>
+      <text class="section-p">4.2 您在采用推荐话术前，应结合实际情况自行修改，并对发送的内容及由此产生的后果负责。</text>
+      <text class="section-p">4.3 请勿利用本服务传播违反法律法规或公序良俗的内容。</text>
     </view>
 
     <view class="agreement-section fade-in stagger-2">
