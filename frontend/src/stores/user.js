@@ -2,10 +2,11 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { wxLogin, devLogin } from "@/api/auth";
 import { getMe, updateMe } from "@/api/user";
+import { authToken, setAuthToken, syncAuthToken } from "@/utils/auth-state";
 
 export const useUserStore = defineStore("user", () => {
   const profile = ref(uni.getStorageSync("user_profile") || null);
-  const isLoggedIn = computed(() => !!uni.getStorageSync("access_token"));
+  const isLoggedIn = computed(() => !!authToken.value);
   const hasRole = computed(() => !!profile.value?.role);
   const isFamily = computed(() => profile.value?.role === "family");
   const isElder = computed(() => profile.value?.role === "elder");
@@ -27,6 +28,7 @@ export const useUserStore = defineStore("user", () => {
   }
 
   async function checkLogin() {
+    syncAuthToken();
     const token = uni.getStorageSync("access_token");
     if (!token) {
       setProfile(null);
@@ -49,7 +51,7 @@ export const useUserStore = defineStore("user", () => {
   async function login(openid) {
     if (openid) {
       const res = await devLogin(openid);
-      uni.setStorageSync("access_token", res.access_token);
+      setAuthToken(res.access_token);
       uni.setStorageSync("refresh_token", res.refresh_token);
       setProfile(res.user);
       return;
@@ -64,8 +66,8 @@ export const useUserStore = defineStore("user", () => {
     // #ifdef H5
     const res = await devLogin();
     // #endif
-    uni.setStorageSync("access_token", res.access_token);
     uni.setStorageSync("refresh_token", res.refresh_token);
+    setAuthToken(res.access_token);
     setProfile(res.user);
   }
 
@@ -79,7 +81,7 @@ export const useUserStore = defineStore("user", () => {
   }
 
   function logout() {
-    uni.removeStorageSync("access_token");
+    setAuthToken("");
     uni.removeStorageSync("refresh_token");
     setProfile(null);
     uni.reLaunch({ url: "/pages/login/index" });

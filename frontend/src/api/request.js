@@ -1,4 +1,5 @@
 import { BASE_URL } from "./config";
+import { setAuthToken } from "@/utils/auth-state";
 
 let refreshPromise = null;
 
@@ -7,7 +8,7 @@ function getToken() {
 }
 
 function clearAuthState() {
-  uni.removeStorageSync("access_token");
+  setAuthToken("");
   uni.removeStorageSync("refresh_token");
   uni.removeStorageSync("user_profile");
 }
@@ -35,7 +36,7 @@ export function refreshAccessToken() {
       header: { "Content-Type": "application/json" },
       success: (res) => {
         if (res.statusCode >= 200 && res.statusCode < 300 && res.data?.access_token) {
-          uni.setStorageSync("access_token", res.data.access_token);
+          setAuthToken(res.data.access_token);
           if (res.data.refresh_token) {
             uni.setStorageSync("refresh_token", res.data.refresh_token);
           }
