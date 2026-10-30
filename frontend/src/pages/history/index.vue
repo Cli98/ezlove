@@ -122,6 +122,8 @@ function formatTime(isoStr) {
 
 onShow(() => {
   syncTabBar();
+  // 游客态不请求记录，避免未登录时的空数据与报错
+  if (!userStore.isLoggedIn) return;
   momentStore.loadMoments();
 });
 

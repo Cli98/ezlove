@@ -15,13 +15,13 @@
         <text class="wx-btn-text">微信一键登录</text>
       </button>
 
-      <view class="dev-divider">
+      <view v-if="isDev" class="dev-divider">
         <view class="dev-divider__line"></view>
         <text class="dev-divider__text">其他方式体验</text>
         <view class="dev-divider__line"></view>
       </view>
 
-      <view class="dev-login-group">
+      <view v-if="isDev" class="dev-login-group">
         <button class="dev-login-btn" @tap="handleLogin('family')">
           <image class="dev-icon" src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/login-family.png" mode="aspectFit" />
           <text class="dev-btn-text">子女端</text>

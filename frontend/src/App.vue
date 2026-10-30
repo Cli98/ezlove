@@ -13,7 +13,6 @@ async function bootstrap(userStore) {
   // 记录启动入口，未登录时用于登录后回跳（分享卡片直达场景）
   const launch = uni.getLaunchOptionsSync ? uni.getLaunchOptionsSync() : {};
   const entryPath = launch.path || "";
-  const entryUrl = buildEntryUrl(entryPath, launch.query);
 
   await userStore.checkLogin();
 
@@ -41,23 +40,13 @@ async function bootstrap(userStore) {
   }
   // #endif
 
-  const loginUrl = entryUrl
-    ? `/pages/login/index?redirect=${encodeURIComponent(entryUrl)}`
-    : "/pages/login/index";
-  uni.reLaunch({ url: loginUrl });
+  // 未登录时不强制跳登录页：先让用户体验首页与功能介绍，
+  // 需要身份的功能由页面在用户主动点击时引导登录（应用审核要求先体验后授权）
 }
 
 // 分享卡片直达页：允许未完成角色选择的用户直接停留（页面内自行请求与引导）
 function isShareTarget(path) {
   return path === "pages/view/detail";
-}
-
-function buildEntryUrl(path, query) {
-  if (!path) return "";
-  const qs = Object.keys(query || {})
-    .map((k) => `${k}=${encodeURIComponent(query[k])}`)
-    .join("&");
-  return `/${path}${qs ? `?${qs}` : ""}`;
 }
 </script>
 

@@ -1,6 +1,7 @@
 <template>
   <view class="page-home" :class="{ 'page-home--elder': userStore.isElder }">
-    <view class="home-content">
+    <GuestWelcome v-if="!userStore.isLoggedIn" />
+    <view v-else class="home-content">
       <!-- 大字问候区域 -->
       <view class="greeting-section fade-in">
         <view class="greeting-title" :class="{ 'greeting-title--elder': userStore.isElder }">
@@ -210,6 +211,7 @@ import { getFullUrl } from "@/api/config";
 import { getElderAvatar, getFamilyAvatar } from "@/utils/avatar";
 import { formatRelativeTime } from "@/utils/date";
 import { syncTabBar } from "@/utils/tabbar";
+import GuestWelcome from "@/components/GuestWelcome.vue";
 
 const userStore = useUserStore();
 const relationStore = useRelationStore();
@@ -308,6 +310,8 @@ async function handleCheckIn() {
 
 onShow(() => {
   syncTabBar();
+  // 游客态只展示介绍，用户主动登录后再加载业务数据
+  if (!userStore.isLoggedIn) return;
   if (userStore.isFamily) {
     alertStore.loadAlerts().catch(() => uni.showToast({ title: "提醒加载失败", icon: "none" }));
     relationStore.loadRelations();
@@ -322,6 +326,7 @@ onShow(() => {
 
 onPullDownRefresh(async () => {
   try {
+    if (!userStore.isLoggedIn) return;
     if (userStore.isFamily) {
       await Promise.all([alertStore.loadAlerts(), relationStore.loadRelations(), momentStore.loadMoments()]);
     } else {

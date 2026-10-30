@@ -99,6 +99,12 @@ Component({
 
     switchTab(event) {
       const { index, path } = event.currentTarget.dataset;
+
+      // 游客只能浏览首页；点其他 tab 先引导登录，登录成功后回到目标页
+      if (index > 0 && !wx.getStorageSync("access_token")) {
+        wx.navigateTo({ url: `/pages/login/index?redirect=${encodeURIComponent(path)}` });
+        return;
+      }
       const pages = getCurrentPages();
       const currentPage = pages[pages.length - 1];
       const currentPath = currentPage ? `/${currentPage.route}` : "";
