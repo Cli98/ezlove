@@ -10,7 +10,6 @@
   "pages": [
     { "path": "pages/index/index", "style": { "navigationBarTitleText": "易挂念", "navigationStyle": "custom", "enablePullDownRefresh": true, "backgroundTextStyle": "dark" } },
     { "path": "pages/send/index", "style": { "navigationBarTitleText": "发送牵挂", "navigationStyle": "custom" } },
-    { "path": "pages/send/phrase-library", "style": { "navigationBarTitleText": "推荐话术", "navigationStyle": "custom" } },
     { "path": "pages/send/poster-preview", "style": { "navigationBarTitleText": "", "navigationStyle": "custom" } },
     { "path": "pages/view/detail", "style": { "navigationBarTitleText": "", "navigationStyle": "custom" } },
     { "path": "pages/history/index", "style": { "navigationBarTitleText": "", "navigationStyle": "custom", "enablePullDownRefresh": true, "backgroundTextStyle": "dark" } },

@@ -112,10 +112,6 @@
 
     <view class="bottom-bar">
       <view class="bottom-bar__inner">
-        <view class="phrase-entry" @tap="goPhraseLibrary">
-          <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/sparkle.png" mode="aspectFit" />
-          <text>推荐话术</text>
-        </view>
         <view class="send-button" :class="{ 'send-button--disabled': !canGenerate }" @tap="handleGenerate">
           <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/send.png" mode="aspectFit" />
           <text>{{ sendButtonText }}</text>
@@ -143,6 +139,8 @@ const imageUrl = ref("");
 const uploadedUrl = ref("");
 const uploading = ref(false);
 const sending = ref(false);
+// 文本来自「AI 帮我写」时记为 AI 辅助生成，随牵挂一起上报，用于内容标识
+const aiAssisted = ref(false);
 const navMetrics = getNavigationBarMetrics();
 
 const canGenerate = computed(
@@ -180,11 +178,11 @@ onMounted(async () => {
 });
 
 onShow(() => {
-  // 从推荐话术页回填，用户可在此基础上继续修改
-  const phrase = uni.getStorageSync("phrase_text");
-  if (phrase) {
-    textContent.value = phrase;
-    uni.removeStorageSync("phrase_text");
+  const aiText = uni.getStorageSync("ai_suggest_text");
+  if (aiText) {
+    textContent.value = aiText;
+    aiAssisted.value = true;
+    uni.removeStorageSync("ai_suggest_text");
   }
 });
 
@@ -241,6 +239,7 @@ async function handleGenerate() {
       elder_id: selectedElderId.value,
       content_type: "text",
       text_content: textContent.value.trim(),
+      is_ai_generated: aiAssisted.value,
     });
     requestSubscribe(["unread"]);
     uni.showToast({ title: "已发送", icon: "success" });
@@ -255,7 +254,8 @@ async function handleGenerate() {
 
 function goBack() { uni.navigateBack(); }
 function goInvite() { uni.navigateTo({ url: "/pages/bind/invite" }); }
-function goPhraseLibrary() { uni.navigateTo({ url: "/pages/send/phrase-library" }); }
+function goAiSuggest() { uni.navigateTo({ url: `/pages/send/ai-suggest?elderId=${selectedElderId.value}` }); }
+function goAiMedia() { uni.navigateTo({ url: `/pages/send/ai-media?elderId=${selectedElderId.value}` }); }
 </script>
 
 <style lang="scss" scoped>
