@@ -1,27 +1,48 @@
 {
   "fallback_community": "",
-  "_guide": "elder_record_id：绑定锚点，填社区老人档案 ID（管理后台老人详情页 URL 中 /elders/<uuid> 的最后一段）；elder_note：仅运维备注，不参与匹配",
+  "_guide": "elder_record_id：绑定锚点，填社区老人档案 ID（管理后台老人详情页 URL 中 /elders/<uuid> 的最后一段）；留空表示设备留在台账但不绑定老人。elder_note：仅运维备注，不参与匹配（仓库公开，此处用代号，真实姓名在社区档案里查）",
   "devices": [
     {
       "sn": "869978086196018",
       "device_type": 6,
       "label": "一键报警按钮",
-      "elder_record_id": "74c27cbe-41eb-4604-9f3b-187ce4c9af72",
-      "elder_note": "姚增德"
+      "elder_record_id": "",
+      "elder_note": "未绑定"
     },
     {
       "sn": "869978086196026",
       "device_type": 12,
       "label": "红外探测器",
-      "elder_record_id": "74c27cbe-41eb-4604-9f3b-187ce4c9af72",
-      "elder_note": "姚增德"
+      "elder_record_id": "",
+      "elder_note": "未绑定"
     },
     {
       "sn": "865619089993266",
       "device_type": 2,
       "label": "门磁传感器",
+      "elder_record_id": "",
+      "elder_note": "未绑定"
+    },
+    {
+      "sn": "863182070177847",
+      "device_type": 2,
+      "label": "门磁传感器",
       "elder_record_id": "74c27cbe-41eb-4604-9f3b-187ce4c9af72",
-      "elder_note": "姚增德"
+      "elder_note": "E01"
+    },
+    {
+      "sn": "862414086046232",
+      "device_type": 6,
+      "label": "一键报警按钮",
+      "elder_record_id": "74c27cbe-41eb-4604-9f3b-187ce4c9af72",
+      "elder_note": "E01"
+    },
+    {
+      "sn": "862361073555016",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "74c27cbe-41eb-4604-9f3b-187ce4c9af72",
+      "elder_note": "E01"
     }
   ]
 }

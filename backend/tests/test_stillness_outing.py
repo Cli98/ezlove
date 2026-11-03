@@ -54,7 +54,7 @@ async def _motion_elder(db, tag: str, idle_hours: float | None = 10,
                         care_level: str = "A", event_type: str = "motion_start"):
     """红外设备老人 + 一条 idle_hours 小时前的设备活动（idle_hours=None 表示无任何活动记录）。"""
     community = await create_community(db)
-    elder = await create_user(db, f"{tag}-elder", role="elder", nickname="姚增德")
+    elder = await create_user(db, f"{tag}-elder", role="elder", nickname="测试老人")
     record = await create_community_elder(db, community.id, elder.id, care_level=care_level)
     # 档案建档时间提前，基线不再被“刚建档”重置
     record.created_at = datetime.now() - timedelta(days=30)

@@ -22,8 +22,8 @@ async def _setup(db):
     """构造社区 + 工作人员 + 挂在导入账号上的老人档案。"""
     community = await create_community(db)
     worker = await create_worker(db, community.id)
-    import_user = await create_user(db, "import_18368854249", role="elder", nickname="姚增德")
-    import_user.phone = "18368854249"
+    import_user = await create_user(db, "import_13700000001", role="elder", nickname="测试老人")
+    import_user.phone = "13700000001"
     await db.commit()
     record = await create_community_elder(db, community.id, import_user.id, care_level="B")
     return community, worker, record, import_user

@@ -13,7 +13,7 @@ from tests.helpers import (
 pytestmark = pytest.mark.asyncio(loop_scope="session")
 
 
-async def _make_import_record(db, phone: str = "18368854249", nickname: str = "姚增德"):
+async def _make_import_record(db, phone: str = "13700000001", nickname: str = "测试老人"):
     """构造一条挂在导入虚拟账号上的社区档案。"""
     community = await create_community(db)
     import_user = await create_user(db, f"import_{phone}", role="elder", nickname=nickname)
@@ -31,20 +31,20 @@ async def test_bind_elder_record_success(client, db):
 
     resp = await client.post(
         "/api/v1/users/bind-elder-record",
-        json={"phone": "18368854249"},
+        json={"phone": "13700000001"},
         headers=headers,
     )
     assert resp.status_code == 200, resp.text
     body = resp.json()
     assert body["record_id"] == str(record.id)
-    assert body["elder_name"] == "姚增德"
+    assert body["elder_name"] == "测试老人"
     assert body["community_name"] == "测试社区"
 
     await db.refresh(record)
     me = (await client.get("/api/v1/users/me", headers=headers)).json()
     assert str(record.elder_id) == me["id"]
     assert me["role"] == "elder"
-    assert me["phone"] == "18368854249"
+    assert me["phone"] == "13700000001"
     assert str(record.elder_id) != old_user_id
 
 
@@ -53,11 +53,11 @@ async def test_bind_elder_record_repeat_conflict(client, db):
     await _make_import_record(db)
     headers = await auth_headers(client, "wx-real-elder-repeat")
     first = await client.post(
-        "/api/v1/users/bind-elder-record", json={"phone": "18368854249"}, headers=headers,
+        "/api/v1/users/bind-elder-record", json={"phone": "13700000001"}, headers=headers,
     )
     assert first.status_code == 200
     second = await client.post(
-        "/api/v1/users/bind-elder-record", json={"phone": "18368854249"}, headers=headers,
+        "/api/v1/users/bind-elder-record", json={"phone": "13700000001"}, headers=headers,
     )
     assert second.status_code == 409
 
@@ -100,7 +100,7 @@ async def test_bind_elder_record_family_role_rejected(client, db):
 
     resp = await client.post(
         "/api/v1/users/bind-elder-record",
-        json={"phone": "18368854249"},
+        json={"phone": "13700000001"},
         headers=headers,
     )
     assert resp.status_code == 400
@@ -126,7 +126,7 @@ async def test_bind_elder_record_by_wx_phone_code(client, db, monkeypatch):
 
     async def fake_phone(code: str):
         assert code == "phone-code-ok"
-        return "18368854249"
+        return "13700000001"
 
     monkeypatch.setattr(users_module.wechat, "get_phone_number", fake_phone)
     resp = await client.post(
@@ -139,7 +139,7 @@ async def test_bind_elder_record_by_wx_phone_code(client, db, monkeypatch):
 
     me = (await client.get("/api/v1/users/me", headers=headers)).json()
     assert me["role"] == "elder"
-    assert me["phone"] == "18368854249"
+    assert me["phone"] == "13700000001"
 
 
 async def test_bind_elder_record_by_wx_phone_failure(client, db, monkeypatch):
@@ -167,13 +167,13 @@ async def test_wx_phone_supplements_phone_after_admin_binding(client, db, monkey
     from app.api.v1 import users as users_module
 
     community = await create_community(db)
-    elder = await create_user(db, "wx-elder-bound-by-admin", role="elder", nickname="姚增德")
+    elder = await create_user(db, "wx-elder-bound-by-admin", role="elder", nickname="测试老人")
     await db.commit()
     record = await create_community_elder(db, community.id, elder.id, care_level="B")
     headers = await auth_headers(client, "wx-elder-bound-by-admin")
 
     async def fake_phone(code: str):
-        return "18368854249"
+        return "13700000001"
 
     monkeypatch.setattr(users_module.wechat, "get_phone_number", fake_phone)
     resp = await client.post(
@@ -185,10 +185,10 @@ async def test_wx_phone_supplements_phone_after_admin_binding(client, db, monkey
     body = resp.json()
     assert body["already_bound"] is True
     assert body["record_id"] == str(record.id)
-    assert body["phone_masked"] == "183****4249"
+    assert body["phone_masked"] == "137****0001"
 
     me = (await client.get("/api/v1/users/me", headers=headers)).json()
-    assert me["phone"] == "18368854249"
+    assert me["phone"] == "13700000001"
 
     await db.refresh(record)
     assert str(record.elder_id) == me["id"]
