@@ -53,7 +53,7 @@ async def notify_family_device_alert(
     elder_name: str,
     device_label: str,
 ):
-    """硬件紧急告警（一键报警按钮）→ 家属订阅消息。
+    """硬件紧急告警（一键报警按钮 / 语音报警器）→ 家属订阅消息。
 
     复用「互助服务进度通知」模板（thing2 服务名称 / thing4 温馨提示），
     文案走紧急提醒口径，不改模板字段结构。
