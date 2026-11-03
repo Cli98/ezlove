@@ -185,7 +185,7 @@ async def test_battery_low_creates_single_community_alert(client, db, devices):
 
     resp = await client.post(
         "/api/v1/webhook/nbiot",
-        json=_push(BUTTON_SN, 5, 0, content="电量低于20%"),
+        json=_push(BUTTON_SN, 5, 1, content="电量低于20%"),
     )
     assert resp.json()["created"] == 1
 
@@ -196,7 +196,7 @@ async def test_battery_low_creates_single_community_alert(client, db, devices):
     assert alerts[0].trigger_rule == "device_battery_low"
 
     # 24 小时窗口内重复上报只留一条
-    again = _push(BUTTON_SN, 5, 0, alarm_time=1751623920002)
+    again = _push(BUTTON_SN, 5, 1, alarm_time=1751623920002)
     assert (await client.post("/api/v1/webhook/nbiot", json=again)).json()["created"] == 0
 
 
@@ -207,10 +207,10 @@ async def test_motion_events_write_timeline(client, db, devices):
     devices[PIR_SN]["elder_record_id"] = str(record.id)
 
     assert (await client.post(
-        "/api/v1/webhook/nbiot", json=_push(PIR_SN, 2, 20, content="红外触发"),
+        "/api/v1/webhook/nbiot", json=_push(PIR_SN, 20, 2, content="红外触发"),
     )).json()["created"] == 1
     assert (await client.post(
-        "/api/v1/webhook/nbiot", json=_push(PIR_SN, 2, 19, content="离开，时长12分钟"),
+        "/api/v1/webhook/nbiot", json=_push(PIR_SN, 19, 0, content="离开，时长12分钟"),
     )).json()["created"] == 1
 
     events = (await db.execute(

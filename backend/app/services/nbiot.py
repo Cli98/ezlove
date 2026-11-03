@@ -7,11 +7,11 @@
                  "alarmTime": 1751623919507},
      "timestamp": 1751623919982}
 
-事件映射（对接手册《API字段对接.md》）：
-    button_press          = (event 1, eventType 0)   → 紧急告警（家属 + 社区）
-    battery_low           = (event 5, eventType 0)   → 电量低提醒（社区）
-    bathroom_motion_start = (event 2, eventType 20)  → 红外检测到活动（写社区时间线）
-    bathroom_motion_end   = (event 2, eventType 19)  → 红外暂无活动（写社区时间线）
+事件映射（2026-11-03 按平台事件字典核对：event=事件编号，eventType=事件类型 0告警/1故障/2信息）：
+    button_press          = (1, 0)   紧急报警        → 紧急告警（家属 + 社区）
+    battery_low           = (5, 1)   低压报警(故障)   → 电量低提醒（社区）
+    bathroom_motion_start = (20, 2)  探测区域有人    → 红外检测到活动（写社区时间线）
+    bathroom_motion_end   = (19, 0)  探测区域已无人  → 红外暂无活动（写社区时间线）
 
 红外只记录“有人/无人”状态，不采集影像与声音，社区端展示为日常活动记录。
 
@@ -44,12 +44,12 @@ from app.models.user import User
 logger = logging.getLogger("ezlove.nbiot")
 
 # 事件映射（数值来自对接手册，勿随意调整）
-EVENT_BUTTON_PRESS = (1, 0)
-EVENT_BATTERY_LOW = (5, 0)
-EVENT_MOTION_START = (2, 20)
-EVENT_MOTION_END = (2, 19)
-EVENT_DOOR_OPEN = (3, 2)
-EVENT_DOOR_CLOSE = (4, 2)
+EVENT_BUTTON_PRESS = (1, 0)    # 紧急报警（告警）
+EVENT_BATTERY_LOW = (5, 1)     # 低压报警（故障）
+EVENT_MOTION_START = (20, 2)   # 探测区域有人（信息）
+EVENT_MOTION_END = (19, 0)     # 探测区域已无人（告警）
+EVENT_DOOR_OPEN = (3, 2)       # 门打开（信息）
+EVENT_DOOR_CLOSE = (4, 2)      # 门关闭（信息）
 
 ALERT_TYPE_SOS = "sos"
 ALERT_TYPE_BATTERY = "device_battery"
@@ -157,7 +157,7 @@ async def handle_push(db: AsyncSession, payload: dict, devices: dict | None = No
     elif key == EVENT_BATTERY_LOW:
         created = await _handle_battery_low(db, device, message, fallback_community)
     elif key in (EVENT_MOTION_START, EVENT_MOTION_END):
-        created = await _handle_motion_event(db, device, event_type)
+        created = await _handle_motion_event(db, device, event)
     elif key in (EVENT_DOOR_OPEN, EVENT_DOOR_CLOSE):
         created = await _handle_door_event(db, device, event)
     else:
@@ -410,7 +410,7 @@ async def _handle_door_event(db: AsyncSession, device: dict, event: int) -> int:
     return 1
 
 
-async def _handle_motion_event(db: AsyncSession, device: dict, event_type: int) -> int:
+async def _handle_motion_event(db: AsyncSession, device: dict, event: int) -> int:
     """红外有人/无人写入社区时间线。
 
     只记录“有人/无人”二态，不采集影像与声音；同一老人同一状态 60 秒内只记一条，
@@ -418,10 +418,10 @@ async def _handle_motion_event(db: AsyncSession, device: dict, event_type: int) 
     """
     elder, enrollment = await resolve_device_elder(db, device)
     if elder is None or enrollment is None:
-        logger.info("红外事件未绑定老人，跳过时间线：sn=%s eventType=%s", device.get("sn"), event_type)
+        logger.info("红外事件未绑定老人，跳过时间线：sn=%s event=%s", device.get("sn"), event)
         return 0
 
-    is_motion = event_type == EVENT_MOTION_START[1]
+    is_motion = event == EVENT_MOTION_START[0]
     event_key = "motion_start" if is_motion else "motion_end"
     label = "红外检测到活动" if is_motion else "红外暂无活动"
 
@@ -444,5 +444,5 @@ async def _handle_motion_event(db: AsyncSession, device: dict, event_type: int) 
         severity="info",
     ))
     await db.flush()
-    logger.info("红外事件已写入时间线：sn=%s eventType=%s elder=%s", device.get("sn"), event_type, elder.id)
+    logger.info("红外事件已写入时间线：sn=%s event=%s elder=%s", device.get("sn"), event, elder.id)
     return 1
