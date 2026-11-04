@@ -125,7 +125,8 @@ def _is_duplicate(key: str) -> bool:
 async def handle_push(db: AsyncSession, payload: dict, devices: dict | None = None) -> dict:
     """处理一条平台推送；devices 仅测试注入，生产走配置文件。"""
     if str(payload.get("messageType")) != "1":
-        logger.info("忽略非设备事件推送：messageType=%s", payload.get("messageType"))
+        # 打印完整报文，便于核对尚未订阅/尚未映射的消息类型（如设备服务上报）
+        logger.info("忽略非设备事件推送：%s", json.dumps(payload, ensure_ascii=False))
         return {"accepted": False, "reason": "not_device_event"}
 
     message = payload.get("message") or {}
