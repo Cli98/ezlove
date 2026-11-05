@@ -1,5 +1,7 @@
 # 运行期文件：含钉钉 webhook 凭证与本地状态，不入库
 config.json
 state.json
+commits-state.json
 monitor.log
+commits.log
 __pycache__/

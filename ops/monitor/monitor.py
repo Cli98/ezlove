@@ -65,6 +65,11 @@ DEFAULTS = {
     "cooldown_seconds": 900,
     "max_cooldown_seconds": 3600,
     "max_per_hour": 6,
+    # 提交通知走 GitHub 类型机器人（只吃 GitHub push 报文，不能发 text/markdown）
+    "github_webhook": "",
+    "github_repo": "Cli98/ezlove",
+    "github_branch": "main",
+    "github_interval_seconds": 180,
     "log_cmd": ["sudo", "-n", "/usr/local/sbin/ezlove-release", "logs"],
 }
 

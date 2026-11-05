@@ -9,9 +9,10 @@ from monitor import load_config, send_dingtalk
 
 TEXT = """### EZLove 监控接入成功
 
-- 探测对象：后端健康接口（内网 + 公网）
+- 探测对象：后端健康接口（宿主机 nginx + 公网）
 - 采集内容：每分钟请求量、5xx 比例、响应耗时
-- 告警策略：同类问题 15 分钟内只提醒一次
+- 告警策略：同类告警指数退避（900s 起，封顶 3600s），每小时最多 6 条
+- 随时关闭：`python3 monitor.py --pause`，恢复用 `--resume`
 - 当前状态：监控已生效，后续异常会推送到本群"""
 
 
