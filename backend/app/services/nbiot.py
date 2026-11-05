@@ -7,8 +7,8 @@
                  "alarmTime": 1751623919507},
      "timestamp": 1751623919982}
 
-事件映射（2026-11-03 按平台事件字典核对：event=事件编号，eventType=事件类型 0告警/1故障/2信息）：
-    button_press          = (1, 0)   紧急报警        → 紧急告警（家属 + 社区）
+事件映射（2026-11-03 按平台事件字典核对，2026-11-05 用线上报文校正：event=事件编号，eventType=事件类型 0告警/1故障/2信息）：
+    sos                   = (1,0)/(119,0)/(197,0)/(26,0)/(94,0)/(96,0) → 紧急告警（家属 + 社区）
     battery_low           = (5, 1)   低压报警(故障)   → 电量低提醒（社区）
     bathroom_motion_start = (20, 2)  探测区域有人    → 红外检测到活动（写社区时间线）
     bathroom_motion_end   = (19, 0)  探测区域已无人  → 红外暂无活动（写社区时间线）
@@ -50,6 +50,18 @@ EVENT_MOTION_START = (20, 2)   # 探测区域有人（信息）
 EVENT_MOTION_END = (19, 0)     # 探测区域已无人（告警）
 EVENT_DOOR_OPEN = (3, 2)       # 门打开（信息）
 EVENT_DOOR_CLOSE = (4, 2)      # 门关闭（信息）
+
+# 求助类事件统一转 SOS 紧急告警。
+# (119,0)/(197,0) 为 2026-11-05 线上实测：语音报警器喊话后平台推「语音呼救」和
+# 「主机紧急报警」，其中 197 尚未收录进事件字典，勿删。
+SOS_EVENTS = {
+    (1, 0),    # 紧急报警
+    (119, 0),  # 语音呼救
+    (197, 0),  # 主机紧急报警
+    (26, 0),   # 医疗呼救
+    (94, 0),   # 主机按键报警
+    (96, 0),   # 呼叫服务中心
+}
 
 ALERT_TYPE_SOS = "sos"
 ALERT_TYPE_BATTERY = "device_battery"
@@ -153,7 +165,7 @@ async def handle_push(db: AsyncSession, payload: dict, devices: dict | None = No
         return {"accepted": True, "duplicate": True, "created": 0}
 
     key = (event, event_type)
-    if key == EVENT_BUTTON_PRESS:
+    if key in SOS_EVENTS:
         created = await _handle_sos(db, device, message, fallback_community)
     elif key == EVENT_BATTERY_LOW:
         created = await _handle_battery_low(db, device, message, fallback_community)

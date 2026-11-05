@@ -122,6 +122,31 @@ async def test_button_press_creates_family_and_community_alerts(client, db, devi
     assert community_alert.response_deadline is not None
 
 
+@pytest.mark.parametrize("event, content", [
+    (119, "语音呼救"),
+    (197, "主机紧急报警"),
+])
+async def test_voice_alarm_events_create_sos(client, db, devices, event, content):
+    """语音报警器实测事件：语音呼救(119,0) 与主机紧急报警(197,0) 均按 SOS 处理。"""
+    community = await create_community(db)
+    elder = await create_user(db, f"nbiot-elder-voice-{event}", role="elder", nickname="张大爷")
+    family = await create_user(db, f"nbiot-family-voice-{event}", role="family")
+    await create_relation(db, family.id, elder.id)
+    record = await create_community_elder(db, community.id, elder.id)
+    devices[BUTTON_SN]["elder_record_id"] = str(record.id)
+
+    resp = await client.post(
+        "/api/v1/webhook/nbiot",
+        json=_push(BUTTON_SN, event, 0, content=content),
+    )
+    assert resp.json()["created"] == 2
+
+    alerts = await _all_alerts(db)
+    assert len(alerts) == 2
+    assert all(a.alert_type == "sos" for a in alerts)
+    assert all(a.trigger_rule == "device_button_press" for a in alerts)
+
+
 async def test_button_press_duplicate_push_is_idempotent(client, db, devices):
     community = await create_community(db)
     elder = await create_user(db, "nbiot-elder-2", role="elder", nickname="张大爷")
