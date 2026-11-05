@@ -42,7 +42,7 @@
       >
         <template #cell-device="{ row }">
           <div class="device-cell">
-            <span class="device-cell__icon material-symbols-outlined">{{ deviceIcon(row.device_type) }}</span>
+            <span class="device-cell__icon"><DeviceTypeIcon :type="row.device_type" /></span>
             <div>
               <b>{{ row.label }}</b>
               <small>{{ row.type_label }} · {{ row.sn_masked }}</small>
@@ -101,6 +101,7 @@ import AppStatBar from '@/components/AppStatBar.vue'
 import AppTable from '@/components/AppTable.vue'
 import PageTopbar from '@/components/PageTopbar.vue'
 import DeviceDetailDrawer from './components/DeviceDetailDrawer.vue'
+import DeviceTypeIcon from '@/components/DeviceTypeIcon.vue'
 import { alertTypeLabel } from '@/utils/alert-labels'
 
 const route = useRoute()
@@ -130,10 +131,6 @@ const stats = computed(() => {
     { label: '电量偏低', value: s.low_battery, detail: s.unlinked ? `另有 ${s.unlinked} 台未绑定老人` : '电池供电设备关注项', icon: 'bell', tone: 'terracotta' },
   ]
 })
-
-function deviceIcon(type) {
-  return { 2: 'sensor_door', 6: 'crisis_alert', 12: 'visibility' }[type] || 'visibility'
-}
 
 function statusTone(platform) {
   if (!platform.available) return 'unknown'

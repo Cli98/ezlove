@@ -36,6 +36,9 @@
     <template v-else-if="name === 'bell'">
       <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>
     </template>
+    <template v-else-if="name === 'voice'">
+      <path d="M4 10v4h3l6 3.5v-11L7 10H4Z"/><path d="M16 9.5a4 4 0 0 1 0 5"/><path d="M18.5 7a7.5 7.5 0 0 1 0 10"/>
+    </template>
     <template v-else-if="name === 'clipboard'">
       <rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4a3 3 0 0 1 6 0v2H9V4ZM9 11h6M9 15h6"/>
     </template>

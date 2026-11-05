@@ -18,8 +18,8 @@
         class="device-row"
         @click="openDevice(device)"
       >
-        <span class="device-row__icon material-symbols-outlined">
-          {{ deviceIcon(device.device_type) }}
+        <span class="device-row__icon">
+          <DeviceTypeIcon :type="device.device_type" />
         </span>
         <span class="device-row__main">
           <b>{{ device.label }}</b>
@@ -36,6 +36,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { getDevices } from '@/api/devices'
+import DeviceTypeIcon from '@/components/DeviceTypeIcon.vue'
 
 const props = defineProps({ elderId: { type: String, required: true } })
 const router = useRouter()
@@ -48,10 +49,6 @@ const allDevices = ref([])
 const visibleDevices = computed(() => allDevices.value.filter(
   device => device.elder?.linked && String(device.elder.id) === String(props.elderId)
 ))
-
-function deviceIcon(type) {
-  return { 2: 'sensor_door', 6: 'crisis_alert', 12: 'visibility' }[type] || 'visibility'
-}
 
 function stateTone(device) {
   if (!device.platform?.available) return 'unknown'
