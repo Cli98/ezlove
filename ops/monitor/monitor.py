@@ -21,6 +21,7 @@
 配置文件 config.json（与本脚本同目录，权限 600）：
     {
       "dingtalk_webhook": "https://oapi.dingtalk.com/robot/send?access_token=xxx",
+      "dingtalk_secret": "SECxxx（安全设置选「加签」时填，选关键词则留空）",
       "alerts_enabled": true,
       "probe_urls": ["http://127.0.0.1/ezlove-health", "https://yiguanian.ysgy.org.cn/ezlove-health"],
       "slow_ms": 5000,
@@ -35,12 +36,16 @@
 """
 from __future__ import annotations
 
+import base64
+import hashlib
+import hmac
 import json
 import re
 import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -53,6 +58,8 @@ PAUSE_PATH = BASE / "PAUSE"
 
 DEFAULTS = {
     "dingtalk_webhook": "",
+    # 机器人安全设置为「加签」时填写 SEC 开头的密钥；关键词模式留空
+    "dingtalk_secret": "",
     "alerts_enabled": True,
     # 内网走宿主机 nginx（Docker 未把 8001 暴露到宿主机回环，直连会 Connection refused）
     "probe_urls": ["http://127.0.0.1/ezlove-health",
@@ -254,13 +261,27 @@ def collect_recovered(state: dict, active_alerts: list[dict]) -> list[str]:
     return recovered
 
 
-def send_dingtalk(webhook: str, text: str) -> str | None:
+def signed_webhook(webhook: str, secret: str) -> str:
+    """钉钉「加签」模式：把 timestamp + sign 拼到 webhook 查询串。"""
+    if not secret:
+        return webhook
+    timestamp = str(round(time.time() * 1000))
+    string_to_sign = f"{timestamp}\n{secret}"
+    digest = hmac.new(
+        secret.encode("utf-8"), string_to_sign.encode("utf-8"), digestmod=hashlib.sha256
+    ).digest()
+    sign = urllib.parse.quote_plus(base64.b64encode(digest))
+    separator = "&" if "?" in webhook else "?"
+    return f"{webhook}{separator}timestamp={timestamp}&sign={sign}"
+
+
+def send_dingtalk(webhook: str, text: str, secret: str = "") -> str | None:
     payload = json.dumps({
         "msgtype": "markdown",
         "markdown": {"title": "EZLove 线上告警", "text": text},
     }).encode("utf-8")
     req = urllib.request.Request(
-        webhook, data=payload,
+        signed_webhook(webhook, secret), data=payload,
         headers={"Content-Type": "application/json"}, method="POST",
     )
     try:
@@ -398,7 +419,7 @@ def main() -> int:
         print("[error] 未配置 dingtalk_webhook，告警内容如下：\n" + text)
         return 1
 
-    err = send_dingtalk(webhook, text)
+    err = send_dingtalk(webhook, text, cfg.get("dingtalk_secret") or "")
     if err:
         print(f"[error] 推送失败：{err}")
         return 1

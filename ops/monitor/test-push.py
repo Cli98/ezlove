@@ -22,7 +22,7 @@ def main() -> int:
     if not webhook:
         print("config.json 里没有 dingtalk_webhook")
         return 1
-    err = send_dingtalk(webhook, TEXT)
+    err = send_dingtalk(webhook, TEXT, cfg.get("dingtalk_secret") or "")
     if err:
         print(f"推送失败：{err}")
         return 1
