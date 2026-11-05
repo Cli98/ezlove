@@ -11,7 +11,8 @@ import { deviceIcon } from '@/utils/device-icons'
 
 const props = defineProps({
   type: { type: [Number, String], default: null },
+  label: { type: String, default: '' },
 })
 
-const icon = computed(() => deviceIcon(props.type))
+const icon = computed(() => deviceIcon(props.type, props.label))
 </script>

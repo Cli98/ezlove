@@ -42,7 +42,7 @@
       >
         <template #cell-device="{ row }">
           <div class="device-cell">
-            <span class="device-cell__icon"><DeviceTypeIcon :type="row.device_type" /></span>
+            <span class="device-cell__icon"><DeviceTypeIcon :type="row.device_type" :label="row.label" /></span>
             <div>
               <b>{{ row.label }}</b>
               <small>{{ row.type_label }} · {{ row.sn_masked }}</small>

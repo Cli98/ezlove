@@ -19,7 +19,7 @@
         @click="openDevice(device)"
       >
         <span class="device-row__icon">
-          <DeviceTypeIcon :type="device.device_type" />
+          <DeviceTypeIcon :type="device.device_type" :label="device.label" />
         </span>
         <span class="device-row__main">
           <b>{{ device.label }}</b>
