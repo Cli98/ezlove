@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,6 +11,7 @@ from app.models.view_event import ViewEvent
 from app.utils import datetime as ez_dt
 from app.models.care_relation import CareRelation
 from app.models.alert import Alert
+from app.services.community_event import get_today_active_ids
 from app.services.timeline import get_elder_timeline, get_activity_summary
 from app.utils.elder_profile import read_elder_profile
 
@@ -60,46 +61,11 @@ async def get_elder_full_detail(
         },
     }
 
-    # 3. Today active（多源：ViewEvent + 食堂 + 社区活动）+ last active
-    now = datetime.now()
+    # 3. 今日活动统一按查看、正向社区信号和食堂出勤计算
     today_start = ez_dt.today_start()
-
-    today_active = False
-
-    active_stmt = (
-        select(ViewEvent.id)
-        .where(ViewEvent.viewer_id == user.id, ViewEvent.viewed_at >= today_start)
-        .limit(1)
+    today_active = user.id in await get_today_active_ids(
+        db, community_id, today_start, elder_ids=[user.id]
     )
-    active_result = await db.execute(active_stmt)
-    if active_result.scalar_one_or_none() is not None:
-        today_active = True
-
-    if not today_active:
-        from app.models.community_event import CommunityEvent as CE
-        event_stmt = select(CE.id).where(
-            CE.elder_id == user.id, CE.created_at >= today_start
-        ).limit(1)
-        if (await db.execute(event_stmt)).scalar_one_or_none():
-            today_active = True
-
-    if not today_active:
-        from app.models.canteen import CanteenRecord
-        canteen_recs = (await db.execute(
-            select(CanteenRecord).where(
-                CanteenRecord.community_id == community_id,
-                CanteenRecord.parse_status == "success",
-                CanteenRecord.created_at >= today_start,
-            )
-        )).scalars().all()
-        elder_id_str = str(user.id)
-        for rec in canteen_recs:
-            for att in (rec.parsed_data or {}).get("attendees", []):
-                if att.get("elder_id") == elder_id_str and att.get("present") is True:
-                    today_active = True
-                    break
-            if today_active:
-                break
 
     last_stmt = (
         select(ViewEvent.viewed_at)
