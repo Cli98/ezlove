@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.community import Community, CommunityWorker, CommunityElder
 from app.models.user import User
-from app.models.view_event import ViewEvent
+from app.services.community_event import get_today_active_ids
 from app.utils import datetime as ez_dt
 from app.utils.elder_profile import PROFILE_FIELDS, read_elder_profile, write_elder_profile
 
@@ -90,14 +90,9 @@ async def list_elders(
 
     today_start = ez_dt.today_start()
     elder_ids = [row[0].elder_id for row in rows]
-    active_stmt = (
-        select(ViewEvent.viewer_id)
-        .where(ViewEvent.viewer_id.in_(elder_ids))
-        .where(ViewEvent.viewed_at >= today_start)
-        .distinct()
+    active_ids = await get_today_active_ids(
+        db, community_id, today_start, elder_ids=elder_ids
     )
-    active_result = await db.execute(active_stmt)
-    active_ids = set(active_result.scalars().all())
 
     items = []
     for row in rows:
