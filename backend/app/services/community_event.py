@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime, date, timedelta
-from sqlalchemy import select, func, and_, cast, Date
+from sqlalchemy import select, func, and_, or_, cast, Date
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -103,7 +103,7 @@ async def get_dashboard_data(
 
     today_start = ez_dt.today_start()
 
-    active_ids = await _get_today_active_ids(db, community_id, today_start)
+    active_ids = await get_today_active_ids(db, community_id, today_start)
 
     areas = await _build_areas(db, community_id, active_ids)
 
@@ -155,6 +155,7 @@ async def _build_trends(
     from app.models.view_event import ViewEvent
     from app.models.canteen import CanteenRecord
     from app.models.alert import Alert
+    from app.tasks.alert_checker import SIGNAL_EVENT_TYPES
 
     # 审计白名单（AC-7.1 锚定）：7 日日历序列起点为 date 值语义（非"今日零点"时刻），勿新增 date 类误用
     today = date.today()
@@ -187,32 +188,37 @@ async def _build_trends(
         CommunityEvent.elder_id.in_(elder_ids),
         CommunityEvent.community_id == community_id,
         CommunityEvent.created_at >= week_start,
+        CommunityEvent.event_type.in_(SIGNAL_EVENT_TYPES),
+        CommunityEvent.source != "alert",
     )
     event_result = await db.execute(event_stmt)
     event_by_day: dict[date, set[uuid.UUID]] = {}
     for elder_id, day in event_result.all():
         event_by_day.setdefault(day, set()).add(elder_id)
 
+    canteen_date = CanteenRecord.parsed_data["date"].as_string()
     canteen_stmt = select(CanteenRecord).where(
         CanteenRecord.community_id == community_id,
         CanteenRecord.parse_status == "success",
-        CanteenRecord.created_at >= week_start,
+        or_(
+            and_(CanteenRecord.created_at >= week_start,
+                 CanteenRecord.created_at < week_start + timedelta(days=7)),
+            and_(canteen_date >= week_start.date().isoformat(),
+                 canteen_date <= today.isoformat()),
+            and_(canteen_date >= week_start.strftime("%Y%m%d"),
+                 canteen_date <= today.strftime("%Y%m%d")),
+        ),
     )
     canteen_result = await db.execute(canteen_stmt)
     canteen_by_day: dict[date, set[uuid.UUID]] = {}
     for rec in canteen_result.scalars().all():
-        rec_date_str = (rec.parsed_data or {}).get("date")
-        if rec_date_str:
-            try:
-                rec_date = date.fromisoformat(rec_date_str)
-            except ValueError:
-                rec_date = rec.created_at.date()
-        else:
-            rec_date = rec.created_at.date()
+        rec_date = _canteen_attendance_date(rec)
         for att in (rec.parsed_data or {}).get("attendees", []):
             if att.get("present") is True and att.get("elder_id"):
                 try:
-                    canteen_by_day.setdefault(rec_date, set()).add(uuid.UUID(att["elder_id"]))
+                    elder_id = uuid.UUID(att["elder_id"])
+                    if elder_id in elder_ids:
+                        canteen_by_day.setdefault(rec_date, set()).add(elder_id)
                 except (ValueError, AttributeError):
                     pass
 
@@ -293,6 +299,17 @@ async def _build_trends(
     }
 
 
+def _canteen_attendance_date(rec) -> date:
+    """食堂出勤归属解析出的就餐日期，旧数据缺日期时回退到录入日。"""
+    value = (rec.parsed_data or {}).get("date")
+    if value:
+        try:
+            return date.fromisoformat(value)
+        except (TypeError, ValueError):
+            pass
+    return rec.created_at.date()
+
+
 def _extract_building(address: str) -> str:
     if not address:
         return "未分配"
@@ -310,34 +327,47 @@ def _extract_area(building_name: str) -> str:
     return building_name
 
 
-async def _get_today_active_ids(
+async def get_today_active_ids(
     db: AsyncSession,
     community_id: uuid.UUID,
     today_start: datetime,
+    elder_ids: list[uuid.UUID] | None = None,
 ) -> set[uuid.UUID]:
     from app.models.view_event import ViewEvent
     from app.models.canteen import CanteenRecord
+    from app.tasks.alert_checker import SIGNAL_EVENT_TYPES
 
     elder_ids_stmt = select(CommunityElder.elder_id).where(
         CommunityElder.community_id == community_id
     )
+    if elder_ids is not None:
+        if not elder_ids:
+            return set()
+        elder_ids_stmt = elder_ids_stmt.where(CommunityElder.elder_id.in_(elder_ids))
     elder_ids_result = await db.execute(elder_ids_stmt)
     elder_ids = [r[0] for r in elder_ids_result.all()]
     if not elder_ids:
         return set()
+    eligible_ids = set(elder_ids)
+    tomorrow_start = today_start + timedelta(days=1)
 
     active_ids: set[uuid.UUID] = set()
 
     view_stmt = select(ViewEvent.viewer_id).where(
         ViewEvent.viewer_id.in_(elder_ids),
         ViewEvent.viewed_at >= today_start,
+        ViewEvent.viewed_at < tomorrow_start,
     ).distinct()
     view_result = await db.execute(view_stmt)
     active_ids.update(view_result.scalars().all())
 
     event_stmt = select(CommunityEvent.elder_id).where(
+        CommunityEvent.community_id == community_id,
         CommunityEvent.elder_id.in_(elder_ids),
         CommunityEvent.created_at >= today_start,
+        CommunityEvent.created_at < tomorrow_start,
+        CommunityEvent.event_type.in_(SIGNAL_EVENT_TYPES),
+        CommunityEvent.source != "alert",
     ).distinct()
     event_result = await db.execute(event_stmt)
     active_ids.update(event_result.scalars().all())
@@ -346,14 +376,25 @@ async def _get_today_active_ids(
         select(CanteenRecord).where(
             CanteenRecord.community_id == community_id,
             CanteenRecord.parse_status == "success",
-            CanteenRecord.created_at >= today_start,
+            or_(
+                and_(CanteenRecord.created_at >= today_start,
+                     CanteenRecord.created_at < tomorrow_start),
+                CanteenRecord.parsed_data["date"].as_string().in_((
+                    today_start.date().isoformat(),
+                    today_start.strftime("%Y%m%d"),
+                )),
+            ),
         )
     )).scalars().all()
     for rec in canteen_recs:
+        if _canteen_attendance_date(rec) != today_start.date():
+            continue
         for att in (rec.parsed_data or {}).get("attendees", []):
             if att.get("present") is True and att.get("elder_id"):
                 try:
-                    active_ids.add(uuid.UUID(att["elder_id"]))
+                    elder_id = uuid.UUID(att["elder_id"])
+                    if elder_id in eligible_ids:
+                        active_ids.add(elder_id)
                 except (ValueError, AttributeError):
                     pass
 
@@ -554,7 +595,7 @@ async def get_building_elders(
     from app.models.care_relation import CareRelation
 
     today_start = ez_dt.today_start()
-    active_ids = await _get_today_active_ids(db, community_id, today_start)
+    active_ids = await get_today_active_ids(db, community_id, today_start)
 
     stmt = (
         select(CommunityElder, User.nickname)
