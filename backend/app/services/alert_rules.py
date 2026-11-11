@@ -6,33 +6,34 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.alert_rule import AlertRule
 
 DEFAULTS = [
-    # (care_level, rule_type, threshold_hours)
-    ("A", "unread_timeout", 6),
-    ("A", "canteen_absence", 6),   # 1 餐 ≈ 6 小时
-    ("A", "no_signal", 12),
-    ("B", "unread_timeout", 12),
-    ("B", "canteen_absence", 12),  # 2 餐 ≈ 12 小时
-    ("B", "no_signal", 24),
-    ("C", "unread_timeout", 24),
-    ("C", "canteen_absence", 18),  # 3 餐 ≈ 18 小时
-    ("C", "no_signal", 48),
-    # 设备关怀阈值（2026-10-28 与白莉娜老师确认）：
-    # 红外 1 小时无活动、红外 12 小时无生活轨迹、门磁 24 小时未触发
-    ("A", "stillness", 1),
-    ("B", "stillness", 1),
-    ("C", "stillness", 1),
-    ("A", "no_activity_trace", 12),
-    ("B", "no_activity_trace", 12),
-    ("C", "no_activity_trace", 12),
-    ("A", "no_outing", 24),
-    ("B", "no_outing", 24),
-    ("C", "no_outing", 24),
+    # (care_level, rule_type, threshold_hours, enabled)
+    ("A", "unread_timeout", 6, True),
+    ("A", "canteen_absence", 6, True),   # 1 餐 ≈ 6 小时
+    ("A", "no_signal", 12, True),
+    ("B", "unread_timeout", 12, True),
+    ("B", "canteen_absence", 12, True),  # 2 餐 ≈ 12 小时
+    ("B", "no_signal", 24, True),
+    ("C", "unread_timeout", 24, True),
+    ("C", "canteen_absence", 18, True),  # 3 餐 ≈ 18 小时
+    ("C", "no_signal", 48, True),
+    # 设备关怀阈值（2026-11-11 森滔确认）：
+    # 红外满 12 小时无活动即提醒（最低级 info），仍无活动则每隔 12 小时再提醒一次；
+    # 原「1 小时短时静止」并入该口径，默认关闭（存量社区由迁移 8f2c1d4e5a90 同步关闭）
+    ("A", "stillness", 12, False),
+    ("B", "stillness", 12, False),
+    ("C", "stillness", 12, False),
+    ("A", "no_activity_trace", 12, True),
+    ("B", "no_activity_trace", 12, True),
+    ("C", "no_activity_trace", 12, True),
+    ("A", "no_outing", 24, True),
+    ("B", "no_outing", 24, True),
+    ("C", "no_outing", 24, True),
 ]
 
 # 设备关怀规则的可调参数默认值（存在 alert_rules.config 里，社区可自行改）
 # check_hours：生效时段 [起, 止)，夜间睡眠不判静止；check_hour：每日检查时点
 RULE_DEFAULTS = {
-    "stillness": {"check_hours": [7, 22], "dedupe_hours": 6},
+    "stillness": {"check_hours": [7, 22], "dedupe_hours": 12},
     "no_activity_trace": {"check_hours": [0, 24], "dedupe_hours": 12},
     "no_outing": {"check_hour": 8, "dedupe_hours": 24},
 }
@@ -48,7 +49,7 @@ async def seed_default_rules(db: AsyncSession, community_id: UUID) -> list[Alert
     }
 
     rules = []
-    for care_level, rule_type, threshold in DEFAULTS:
+    for care_level, rule_type, threshold, enabled in DEFAULTS:
         if (care_level, rule_type) in existing:
             continue
         rule = AlertRule(
@@ -56,6 +57,7 @@ async def seed_default_rules(db: AsyncSession, community_id: UUID) -> list[Alert
             care_level=care_level,
             rule_type=rule_type,
             threshold_hours=threshold,
+            enabled=enabled,
             config=dict(RULE_DEFAULTS.get(rule_type) or {}) or None,
         )
         db.add(rule)
@@ -76,10 +78,10 @@ async def load_rule_config(
     config = {
         care_level: {
             "hours": threshold,
-            "enabled": True,
+            "enabled": enabled,
             "params": dict(base_params),
         }
-        for care_level, rt, threshold in DEFAULTS
+        for care_level, rt, threshold, enabled in DEFAULTS
         if rt == rule_type
     }
 

@@ -283,6 +283,71 @@ async def test_device_detail_unknown_sn_404(db, client, registry, monkeypatch):
     assert resp.status_code == 404
 
 
+async def test_list_devices_scopes_alerts_by_device_type(db, client, registry, monkeypatch):
+    """同一老人的告警按设备维度展示：无活动只挂红外，语音报警器不显示（森滔 2026-11-11）。"""
+    community_a, _, worker_a, _, wang, _ = await _two_communities_with_elders(db, registry)
+    # 王奶奶名下再加一台红外（SN-A 是语音报警器，SN-C 是红外）
+    registry["SN-C"] = {
+        "sn": "SN-C", "device_type": 12, "label": "红外C",
+        "elder_record_id": registry["SN-A"]["elder_record_id"],
+    }
+    now = datetime.now()
+    await create_alert(
+        db, elder_id=wang.id, community_id=community_a.id,
+        alert_type="no_activity", alert_level="info",
+        message="王奶奶 已超过12小时没有活动迹象，建议电话或上门问候",
+        trigger_rule="no_activity_trace", created_at=now - timedelta(hours=1),
+    )
+    await create_alert(
+        db, elder_id=wang.id, community_id=community_a.id,
+        alert_type="sos", alert_level="urgent",
+        message="王奶奶的语音报警器触发紧急报警",
+        trigger_rule="device_button_press", created_at=now - timedelta(minutes=10),
+    )
+    # 与具体硬件无关的牵挂未读提醒不该出现在任何设备行
+    await create_alert(
+        db, elder_id=wang.id, community_id=community_a.id,
+        alert_type="unread_timeout", alert_level="warning",
+        message="牵挂超过6小时未被查看", trigger_rule="unread_timeout", created_at=now,
+    )
+    _fake_fetch_many(monkeypatch)
+
+    resp = await client.get("/api/v1/community/devices", headers=worker_headers(worker_a))
+    rows = {row["sn"]: row for row in resp.json()["devices"]}
+    assert rows["SN-A"]["last_record"]["alert_type"] == "sos"
+    assert rows["SN-C"]["last_record"]["alert_type"] == "no_activity"
+
+
+async def test_device_detail_scopes_alerts_by_device_type(db, client, registry, monkeypatch):
+    """详情页同样按设备维度：语音报警器不展示红外的无活动提醒。"""
+    community_a, _, worker_a, _, wang, _ = await _two_communities_with_elders(db, registry)
+    registry["SN-C"] = {
+        "sn": "SN-C", "device_type": 12, "label": "红外C",
+        "elder_record_id": registry["SN-A"]["elder_record_id"],
+    }
+    await create_alert(
+        db, elder_id=wang.id, community_id=community_a.id,
+        alert_type="no_activity", alert_level="info",
+        message="王奶奶 已超过12小时没有活动迹象", trigger_rule="no_activity_trace",
+    )
+    await create_alert(
+        db, elder_id=wang.id, community_id=community_a.id,
+        alert_type="sos", alert_level="urgent",
+        message="王奶奶的语音报警器触发紧急报警", trigger_rule="device_button_press",
+    )
+
+    async def fake_status(sn, use_cache=True):
+        return _stub_status(sn)
+
+    monkeypatch.setattr(phchn_open_api, "fetch_device_status", fake_status)
+
+    resp = await client.get("/api/v1/community/devices/SN-A", headers=worker_headers(worker_a))
+    assert [alert["alert_type"] for alert in resp.json()["alerts"]] == ["sos"]
+
+    resp = await client.get("/api/v1/community/devices/SN-C", headers=worker_headers(worker_a))
+    assert [alert["alert_type"] for alert in resp.json()["alerts"]] == ["no_activity"]
+
+
 async def test_list_devices_last_record_merges_alert_and_device_event(db, client, registry, monkeypatch):
     """最近记录：告警与设备事件合并，取时间较新的一条。"""
     community_a, _, worker_a, _, wang, _ = await _two_communities_with_elders(db, registry)

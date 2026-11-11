@@ -666,10 +666,10 @@ async def _door_verify_alert(db, record, hours: int, now: datetime) -> int:
 
 
 async def stillness_check():
-    """红外短时静止：超过阈值（默认 1 小时）没检测到活动即提醒。
+    """红外短时静止：默认关闭（2026-11-11 并入「12 小时无活动」口径，见 no_activity_trace_check）。
 
-    阈值、生效时段、提醒间隔都读 alert_rules（默认 7:00–22:00、6 小时内不重复）；
-    已达到“长时间无生活轨迹”时长的老人由 no_activity_trace 处理，不重复提醒。
+    阈值、生效时段、提醒间隔都读 alert_rules；社区如在管理后台重新开启，
+    仍按原逻辑判定（默认 7:00–22:00），已达到“无活动”时长的老人不重复提醒。
     """
     now = datetime.now()
     _name_cache.clear()
@@ -734,10 +734,14 @@ async def stillness_check():
     logger.info(f"短时静止检查完成，产生 {total_alerts} 条提醒")
 
 
-# ── Job 8: 长时间无生活轨迹（默认每 2 小时，全天生效）──
+# ── Job 8: 无活动提醒（默认每 2 小时，全天生效）──
 
 async def no_activity_trace_check():
-    """长时间无生活轨迹：默认 12 小时内没有任何活动迹象即提醒，全天生效。"""
+    """无活动提醒（默认 12 小时）：全天没有任何活动迹象即提醒，最低级 info。
+
+    森滔 2026-11-11 确认口径：满 12 小时提醒一次（最低级）；仍未检测到活动，
+    再过 12 小时再提醒一次，如此循环。重复间隔内不因告警被标记已处理而提前重报。
+    """
     now = datetime.now()
     _name_cache.clear()
     _rule_cache.clear()
@@ -767,7 +771,7 @@ async def no_activity_trace_check():
                 select(Alert.id).where(
                     Alert.elder_id == record.elder_id,
                     Alert.trigger_rule == "no_activity_trace",
-                    Alert.is_resolved == False,  # noqa: E712
+                    # 不看 is_resolved：提醒后即使被标记已处理，也要等满重复间隔再报
                     Alert.created_at >= now - dedupe,
                 ).limit(1)
             )
@@ -775,14 +779,15 @@ async def no_activity_trace_check():
                 continue
 
             elder_name = await _get_elder_name(db, record.elder_id)
-            severity = {"A": "urgent", "B": "warning", "C": "warning"}.get(record.care_level, "warning")
+            # 最低级提醒：只做平台展示，不升级为电话/上门告警
+            severity = "info"
             alert = Alert(
                 elder_id=record.elder_id,
                 community_id=record.community_id,
                 # alert_type 列宽 varchar(16)，长规则名放 trigger_rule（varchar32）
                 alert_type="no_activity",
                 alert_level=severity,
-                message=f"{elder_name} 已超过{int(elapsed)}小时无生活轨迹，建议电话或上门确认",
+                message=f"{elder_name} 已超过{int(elapsed)}小时没有活动迹象，建议电话或上门问候",
                 trigger_rule="no_activity_trace",
                 assigned_worker_id=record.assigned_worker_id,
                 response_deadline=now + timedelta(minutes=30),
@@ -790,11 +795,11 @@ async def no_activity_trace_check():
             db.add(alert)
             await db.flush()
 
-            await _notify_device_care(db, alert.id, "无生活轨迹提醒")
+            await _notify_device_care(db, alert.id, "无活动提醒")
             total_alerts += 1
 
         await db.commit()
-    logger.info(f"无生活轨迹检查完成，产生 {total_alerts} 条提醒")
+    logger.info(f"无活动检查完成，产生 {total_alerts} 条提醒")
 
 
 # ── Job 9: 门磁长时间未触发（默认每天 8:00 检查前 24 小时）──

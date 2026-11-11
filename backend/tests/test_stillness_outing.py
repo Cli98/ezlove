@@ -1,10 +1,12 @@
-"""设备关怀三条规则：红外短时静止、红外无生活轨迹、门磁长时间未触发。
+"""设备关怀三条规则：红外短时静止（默认关闭）、红外无活动提醒、门磁长时间未触发。
 
 阈值、生效时段、重复间隔全部来自 alert_rules（管理后台「告警规则」页可改），
 内置默认见 services/alert_rules.py 的 DEFAULTS / RULE_DEFAULTS。
 2026-10-28 与白莉娜老师确认：红外 1 小时不动 / 12 小时无生活轨迹，门磁 24 小时未触发（8:00–8:00）。
 2026-10-29 白老师补充：预警是平台展示口径（不发电话/微信）、设备离线要给规则“断电”、
 走访/人工确认/食堂就餐算活动、门磁装好满 24 小时无记录先核实设备。
+2026-11-11 森滔改口径：无活动满 12 小时提醒一次（最低级 info），仍未活动则每 12 小时再提醒一次；
+原 1 小时短时静止规则并入该口径并默认关闭（用例里手动开启仍可验证原逻辑）。
 """
 from datetime import datetime, timedelta
 
@@ -74,7 +76,7 @@ async def _alerts(db, trigger_rule: str) -> list[Alert]:
     return list(result.scalars().all())
 
 
-# ── 红外短时静止（默认 1 小时）──
+# ── 红外短时静止（默认关闭，手动开启后验证原逻辑）──
 
 async def test_stillness_alert_when_no_activity(db, monkeypatch):
     """超过配置阈值没检测到活动 → 产生静止提醒。"""
@@ -160,7 +162,7 @@ async def test_stillness_respects_dedupe_interval(db, monkeypatch):
 
 
 async def test_stillness_escalated_to_no_activity_trace(db, monkeypatch):
-    """静止时长已达“无生活轨迹”阈值 → 由升级规则出告警，静止规则不重复提醒。"""
+    """静止时长已达“无活动提醒”阈值 → 由升级规则出告警，静止规则不重复提醒。"""
     community, _, record = await _motion_elder(db, "still-7", idle_hours=10)
     await _set_rule(db, community.id, "stillness", hours=1, **FULL_DAY)
     await _set_rule(db, community.id, "no_activity_trace", hours=6, **FULL_DAY)
@@ -172,13 +174,13 @@ async def test_stillness_escalated_to_no_activity_trace(db, monkeypatch):
     await alert_checker.no_activity_trace_check()
     alerts = await _alerts(db, "no_activity_trace")
     assert len(alerts) == 1
-    assert "10小时无生活轨迹" in alerts[0].message
+    assert "10小时没有活动迹象" in alerts[0].message
 
 
-# ── 红外无生活轨迹（默认 12 小时，全天生效）──
+# ── 红外无活动提醒（默认 12 小时、最低级 info、每 12 小时循环，全天生效）──
 
 async def test_no_activity_trace_alert(db, monkeypatch):
-    """全天没有任何活动迹象 → 无生活轨迹提醒。"""
+    """全天没有任何活动迹象 → 无活动提醒（最低级 info）。"""
     community, _, record = await _motion_elder(db, "trace-1", idle_hours=20)
     await _set_rule(db, community.id, "no_activity_trace", hours=12)  # 默认时段即全天
     _patch_registry(monkeypatch, record.id, alert_checker.MOTION_DEVICE_TYPE, "PIR-TRACE-1")
@@ -187,8 +189,8 @@ async def test_no_activity_trace_alert(db, monkeypatch):
 
     alerts = await _alerts(db, "no_activity_trace")
     assert len(alerts) == 1
-    assert alerts[0].alert_level == "urgent"
-    assert "无生活轨迹" in alerts[0].message
+    assert alerts[0].alert_level == "info"          # 最低级：只做平台展示
+    assert "没有活动迹象" in alerts[0].message
     # 规则全名 17 字符，写进 alerts.alert_type（varchar16）会直接报错，故用短名
     assert alerts[0].alert_type == "no_activity"
 
@@ -201,6 +203,42 @@ async def test_no_activity_trace_recent_activity_suppresses(db, monkeypatch):
 
     await alert_checker.no_activity_trace_check()
     assert await _alerts(db, "no_activity_trace") == []
+
+
+async def test_no_activity_trace_dedupes_resolved_within_interval(db, monkeypatch):
+    """重复间隔内即使上一条已处理（已解决），也不再重复提醒。"""
+    community, elder, record = await _motion_elder(db, "trace-3", idle_hours=13)
+    await _set_rule(db, community.id, "no_activity_trace", hours=12, dedupe_hours=12)
+    db.add(Alert(
+        elder_id=elder.id, community_id=community.id, alert_type="no_activity",
+        alert_level="info", message="上一次无活动提醒", trigger_rule="no_activity_trace",
+        is_resolved=True, created_at=datetime.now() - timedelta(hours=11),
+    ))
+    await db.commit()
+    _patch_registry(monkeypatch, record.id, alert_checker.MOTION_DEVICE_TYPE, "PIR-TRACE-3")
+
+    await alert_checker.no_activity_trace_check()
+    assert len(await _alerts(db, "no_activity_trace")) == 1  # 仍是那条历史告警
+
+
+async def test_no_activity_trace_repeats_every_interval(db, monkeypatch):
+    """超过重复间隔仍无活动 → 再提醒一次（每 12 小时循环）。"""
+    community, elder, record = await _motion_elder(db, "trace-4", idle_hours=26)
+    await _set_rule(db, community.id, "no_activity_trace", hours=12, dedupe_hours=12)
+    db.add(Alert(
+        elder_id=elder.id, community_id=community.id, alert_type="no_activity",
+        alert_level="info", message="12小时前的无活动提醒", trigger_rule="no_activity_trace",
+        is_resolved=True, created_at=datetime.now() - timedelta(hours=13),
+    ))
+    await db.commit()
+    _patch_registry(monkeypatch, record.id, alert_checker.MOTION_DEVICE_TYPE, "PIR-TRACE-4")
+
+    await alert_checker.no_activity_trace_check()
+    alerts = await _alerts(db, "no_activity_trace")
+    assert len(alerts) == 2
+    latest = max(alerts, key=lambda row: row.created_at)
+    assert latest.is_resolved is False
+    assert latest.alert_level == "info"
 
 
 # ── 门磁长时间未触发（默认 24 小时，每日 8:00 检查 8:00–8:00）──
@@ -272,7 +310,7 @@ async def test_no_outing_recent_door_close_counts_as_trigger(db, monkeypatch):
 # ── 规则可配置：DB 覆盖内置默认 + seed 幂等补齐 ──
 
 async def test_db_threshold_overrides_builtin_default(db, monkeypatch):
-    """内置默认 1 小时；社区改成 6 小时后，静止 3 小时的老人不应被提醒。"""
+    """内置默认 12 小时；社区改成 6 小时后，静止 3 小时的老人不应被提醒。"""
     community, _, record = await _motion_elder(db, "cfg-1", idle_hours=3)
     await _set_rule(db, community.id, "stillness", hours=6, **FULL_DAY)
     _patch_registry(monkeypatch, record.id, alert_checker.MOTION_DEVICE_TYPE, "PIR-CFG-1")
@@ -304,7 +342,9 @@ async def test_seed_backfills_missing_rules_idempotently(db):
     }
     assert rules[("A", "stillness")] is custom
     assert custom.threshold_hours == 8                     # 自定义值未被覆盖
+    assert rules[("B", "stillness")].enabled is False      # 短时静止已并入 12 小时口径
     assert rules[("A", "no_activity_trace")].threshold_hours == 12
+    assert rules[("A", "no_activity_trace")].enabled is True
     assert rules[("B", "no_outing")].threshold_hours == 24
     assert rules[("C", "no_outing")].config["check_hour"] == 8   # 默认 8:00 窗口
 

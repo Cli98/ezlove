@@ -19,6 +19,52 @@ from app.services import nbiot, phchn_open_api
 
 router = APIRouter(prefix="/community", tags=["community-devices"])
 
+# 设备类型（与 backend/config/nbiot_devices.json 一致）
+DOOR_DEVICE_TYPE = 2
+SOS_DEVICE_TYPE = 6
+MOTION_DEVICE_TYPE = 12
+
+# 告警 → 设备类型：同一老人可能同时挂门磁、红外、报警器，设备行只展示与自身相关的记录。
+# alerts 表没有 device_sn，只能按告警语义归位（2026-11-11 森滔：报警记录要区分设备维度）。
+ALERT_DEVICE_TYPES: dict[str, set[int]] = {
+    "stillness": {MOTION_DEVICE_TYPE},
+    "no_activity": {MOTION_DEVICE_TYPE},        # 12 小时无活动
+    "morning_silence": {MOTION_DEVICE_TYPE},
+    "no_outing": {DOOR_DEVICE_TYPE},
+    "device_check": {DOOR_DEVICE_TYPE},         # 门磁装好仍未触发 → 核实设备
+    "sos": {SOS_DEVICE_TYPE},
+}
+# 文案里带设备名的告警（电量低 / 离线）→ 按设备名称关键词匹配具体那一台
+ALERT_DEVICE_LABEL_MATCH = {"device_battery", "device_offline"}
+
+
+def _device_keywords(device: dict) -> tuple[str, ...]:
+    """设备匹配关键词：设备自定义名称 + 类型通用名（离线提醒用的是通用名）。"""
+    keywords = []
+    label = str(device.get("label") or "").strip()
+    if label:
+        keywords.append(label)
+    common = {
+        DOOR_DEVICE_TYPE: "门磁",
+        MOTION_DEVICE_TYPE: "红外",
+        SOS_DEVICE_TYPE: "报警",
+    }.get(int(device.get("device_type") or 0))
+    if common and common not in keywords:
+        keywords.append(common)
+    return tuple(keywords)
+
+
+def _alert_matches_device(alert: Alert, device: dict) -> bool:
+    """告警是否属于这台设备；牵挂未读、食堂缺勤等与硬件无关的类一律不挂设备行。"""
+    device_type = int(device.get("device_type") or 0)
+    types = ALERT_DEVICE_TYPES.get(alert.alert_type or "")
+    if types is not None:
+        return device_type in types
+    if alert.alert_type in ALERT_DEVICE_LABEL_MATCH:
+        message = alert.message or ""
+        return any(keyword in message for keyword in _device_keywords(device))
+    return False
+
 
 def _mask_sn(sn: str) -> str:
     """SN 中间脱敏：前 4 + **** + 后 4。"""
@@ -75,9 +121,9 @@ async def list_devices(
     visible = await _resolve_visible_devices(db, worker)
     status_map = await phchn_open_api.fetch_devices_status([item["sn"] for item in visible])
 
-    # 关联老人的最近社区告警（列表页附带展示，按老人取最新一条）
+    # 关联老人的最近社区告警（按老人归组，逐台设备再挑属于自己的记录）
     elder_ids = [item["enrollment"].elder_id for item in visible if item["enrollment"] is not None]
-    latest_alert: dict = {}
+    alerts_by_elder: dict = {}
     if elder_ids:
         rows = (
             await db.execute(
@@ -87,7 +133,7 @@ async def list_devices(
             )
         ).scalars().all()
         for alert in rows:
-            latest_alert.setdefault(alert.elder_id, alert)
+            alerts_by_elder.setdefault(alert.elder_id, []).append(alert)
 
     # 关联老人的最近设备事件（门磁等硬件上报），按老人 + 设备标签匹配
     device_event_rows = []
@@ -108,9 +154,18 @@ async def list_devices(
         device = item["device"]
         enrollment = item["enrollment"]
         elder = item["elder"]
-        alert = latest_alert.get(enrollment.elder_id) if enrollment is not None else None
+        alert = None
         device_event = None
         if enrollment is not None:
+            # 逐台设备取自己的最新告警（rows 已按时间倒序）
+            alert = next(
+                (
+                    candidate
+                    for candidate in alerts_by_elder.get(enrollment.elder_id, ())
+                    if _alert_matches_device(candidate, device)
+                ),
+                None,
+            )
             label = str(device.get("label") or "")
             device_event = next(
                 (
@@ -209,15 +264,22 @@ async def device_detail(
 
     status = await phchn_open_api.fetch_device_status(sn, use_cache=False)  # 详情页取实时值
 
-    # 最近告警：绑定老人按 elder_id；未绑定按工单文案中的 SN 尾号匹配
+    # 最近告警：绑定老人按 elder_id + 设备维度；未绑定按工单文案中的 SN 尾号匹配
     alerts_query = select(Alert).where(Alert.community_id == worker.community_id)
     if elder is not None:
         alerts_query = alerts_query.where(Alert.elder_id == elder.id)
+        alerts = [
+            alert
+            for alert in (
+                await db.execute(alerts_query.order_by(desc(Alert.created_at)).limit(50))
+            ).scalars().all()
+            if _alert_matches_device(alert, device)
+        ][:10]
     else:
         alerts_query = alerts_query.where(Alert.message.like(f"%尾号{sn[-4:]}%"))
-    alerts = (
-        await db.execute(alerts_query.order_by(desc(Alert.created_at)).limit(10))
-    ).scalars().all()
+        alerts = (
+            await db.execute(alerts_query.order_by(desc(Alert.created_at)).limit(10))
+        ).scalars().all()
 
     # 设备事件（门磁等硬件上报）与告警合并为「最近记录」
     device_events = []
