@@ -40,8 +40,9 @@ async function bootstrap(userStore) {
   }
   // #endif
 
-  // 未登录时不强制跳登录页：先让用户体验首页与功能介绍，
-  // 需要身份的功能由页面在用户主动点击时引导登录（应用审核要求先体验后授权）
+  // 未登录一律先登录，避免游客态下操作失败
+  if (entryPath === "pages/login/index") return;
+  uni.reLaunch({ url: "/pages/login/index" });
 }
 
 // 分享卡片直达页：允许未完成角色选择的用户直接停留（页面内自行请求与引导）

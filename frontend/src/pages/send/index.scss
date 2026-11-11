@@ -351,6 +351,19 @@
 }
 .ai-button--accent { border-color: rgba($c-accent, 0.8); color: #a87520; }
 
+.phrase-entry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 72rpx;
+  border-radius: 999rpx;
+  border: 2rpx solid rgba($c-primary, 0.68);
+  color: $c-primary;
+  font-size: 26rpx;
+  font-weight: 600;
+  image { width: 30rpx; height: 30rpx; margin-right: 10rpx; }
+}
+
 .send-button {
   height: 86rpx;
   background: $gradient-warm;

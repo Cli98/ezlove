@@ -65,7 +65,7 @@
           :poster="moment.poster_meta?.thumbnail || ''"
         />
         <view class="video-badge">
-          <text class="video-badge-text">AI 视频</text>
+          <text class="video-badge-text">视频</text>
         </view>
       </view>
 

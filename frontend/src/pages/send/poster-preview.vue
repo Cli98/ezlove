@@ -26,7 +26,7 @@
         <view class="loading-poster">
           <view class="loading-shimmer" />
         </view>
-        <text class="loading-text">AI 正在为您生成海报...</text>
+        <text class="loading-text">正在为您生成海报...</text>
         <view class="loading-dots">
           <view class="dot dot-1" />
           <view class="dot dot-2" />
@@ -45,8 +45,8 @@
                 :class="{ selected: selectedIndex === idx }"
                 @tap="selectPoster(idx)"
               >
-                <view v-if="idx === recommendedIndex" class="ai-badge">
-                  <text>AI推荐</text>
+                <view v-if="idx === recommendedIndex" class="rec-badge">
+                  <text>推荐</text>
                 </view>
                 <image :src="getFullUrl(v.poster_url)" mode="aspectFill" class="poster-img" />
                 <view class="poster-select-dot">{{ selectedIndex === idx ? '✓' : '' }}</view>
@@ -395,7 +395,7 @@ async function sendPoster() {
   }
 }
 
-.ai-badge {
+.rec-badge {
   position: absolute;
   top: -12rpx;
   right: 16rpx;
@@ -620,7 +620,7 @@ async function sendPoster() {
   color: white;
   font-weight: 800;
 }
-.ai-badge { top: 22rpx; left: 22rpx; background: $c-accent; }
+.rec-badge { top: 22rpx; left: 22rpx; background: $c-accent; }
 
 .caption-section {
   margin-top: 22rpx;

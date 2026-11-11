@@ -112,6 +112,21 @@
 
     <view class="bottom-bar">
       <view class="bottom-bar__inner">
+        <!-- AI 入口由 features.js 开关控制，默认隐藏 -->
+        <view v-if="FEATURES.aiChat || FEATURES.aiCreation" class="ai-actions">
+          <view v-if="FEATURES.aiChat" class="ai-button" @tap="goAiSuggest">
+            <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/sparkle.png" mode="aspectFit" />
+            <text>{{ FEATURES.aiChatLabel }}</text>
+          </view>
+          <view v-if="FEATURES.aiCreation" class="ai-button ai-button--accent" @tap="goAiMedia">
+            <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/video.png" mode="aspectFit" />
+            <text>{{ FEATURES.aiCreationLabel }}</text>
+          </view>
+        </view>
+        <view class="phrase-entry" @tap="goPhraseLibrary">
+          <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/sparkle.png" mode="aspectFit" />
+          <text>推荐话术</text>
+        </view>
         <view class="send-button" :class="{ 'send-button--disabled': !canGenerate }" @tap="handleGenerate">
           <image src="https://ezlove-assets.ysgy.org.cn/uploads/assets/main-a0f1788/icons/send.png" mode="aspectFit" />
           <text>{{ sendButtonText }}</text>
@@ -130,6 +145,7 @@ import { uploadImage } from "@/api/upload";
 import { requestSubscribe } from "@/utils/subscribe";
 import { getNavigationBarMetrics } from "@/utils/navigation";
 import { getElderAvatar } from "@/utils/avatar";
+import { FEATURES } from "@/config/features";
 
 const relationStore = useRelationStore();
 const momentStore = useMomentStore();
@@ -183,6 +199,13 @@ onShow(() => {
     textContent.value = aiText;
     aiAssisted.value = true;
     uni.removeStorageSync("ai_suggest_text");
+    return;
+  }
+  // 从推荐话术页回填，用户可在此基础上继续修改
+  const phrase = uni.getStorageSync("phrase_text");
+  if (phrase) {
+    textContent.value = phrase;
+    uni.removeStorageSync("phrase_text");
   }
 });
 
@@ -256,6 +279,7 @@ function goBack() { uni.navigateBack(); }
 function goInvite() { uni.navigateTo({ url: "/pages/bind/invite" }); }
 function goAiSuggest() { uni.navigateTo({ url: `/pages/send/ai-suggest?elderId=${selectedElderId.value}` }); }
 function goAiMedia() { uni.navigateTo({ url: `/pages/send/ai-media?elderId=${selectedElderId.value}` }); }
+function goPhraseLibrary() { uni.navigateTo({ url: "/pages/send/phrase-library" }); }
 </script>
 
 <style lang="scss" scoped>
