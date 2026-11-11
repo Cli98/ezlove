@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>易挂念 · 告警规则说明（人人能看懂版） · 2026-11-03</title>
+<style>
+  :root{
+    --terra:#C44D3E; --orange:#FF8C42; --sage:#6B8F71; --green:#06D6A0;
+    --amber:#D4A853; --pink:#EF476F; --ink:#2b2b2b; --muted:#6b7280;
+    --bg:#FFF8F0; --card:#ffffff; --line:#ece3d8; --shadow:0 6px 24px rgba(120,80,50,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Segoe UI",sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.75;font-size:16px}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 80px}
+  header.hero{background:linear-gradient(135deg,#C44D3E 0%,#FF8C42 100%);color:#fff;padding:44px 20px 58px;text-align:center;border-radius:0 0 28px 28px;box-shadow:var(--shadow)}
+  header.hero h1{margin:0 0 8px;font-size:30px;letter-spacing:.5px}
+  header.hero .sub{opacity:.95;font-size:15.5px}
+  header.hero .meta{margin-top:14px;font-size:13px;opacity:.9}
+  .verdict{margin:-34px auto 26px;max-width:1000px;background:var(--card);border-radius:18px;box-shadow:var(--shadow);padding:22px 26px;border:1px solid var(--line)}
+  .verdict .tag{font-size:13px;color:var(--muted);letter-spacing:2px;font-weight:700}
+  .verdict h2{margin:6px 0 10px;font-size:22px;color:var(--terra)}
+  .verdict p{margin:0;color:#444}
+  section{margin-top:38px}
+  h2.sec{font-size:21px;border-left:6px solid var(--orange);padding-left:12px;margin:0 0 18px}
+  h3{font-size:17px;margin:22px 0 10px;color:#3a3a3a}
+  .lights{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+  .light{background:var(--card);border-radius:14px;padding:16px 18px;border:1px solid var(--line);box-shadow:var(--shadow)}
+  .light .n{font-size:17px;font-weight:800;line-height:1.35;color:var(--terra)}
+  .light .l{font-size:13px;color:var(--muted);margin-top:6px}
+  table{width:100%;border-collapse:collapse;background:var(--card);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);font-size:15px}
+  th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#fbeee5;color:#7a3b2e;font-weight:700;font-size:14px}
+  tr:last-child td{border-bottom:none}
+  .pill{display:inline-block;padding:2px 10px;border-radius:999px;font-size:12.5px;font-weight:700;white-space:nowrap}
+  .p-red{background:#fdeaef;color:#c62a54}
+  .p-amber{background:#fbf1dc;color:#a9791f}
+  .p-green{background:#e7f8f1;color:#0a8a63}
+  .p-gray{background:#f2f0ed;color:#6b7280}
+  .card{background:var(--card);border-radius:16px;padding:18px 20px;border:1px solid var(--line);box-shadow:var(--shadow);margin-bottom:16px;border-left:8px solid var(--orange)}
+  .card.red{border-left-color:var(--pink)}
+  .card.green{border-left-color:var(--green)}
+  .card.amber{border-left-color:var(--amber)}
+  .card h3{margin:0 0 6px;font-size:18px}
+  .card .when{font-weight:700;color:var(--terra);margin:8px 0}
+  .card ul{margin:10px 0 0;padding-left:20px}
+  .card li{margin:4px 0}
+  .muted{color:var(--muted)}
+  .kv{display:flex;gap:26px;flex-wrap:wrap;margin-top:10px}
+  .kv div{font-size:14px}
+  .kv b{font-size:22px;display:block;color:var(--terra)}
+  .callout{background:#fff5ef;border:1px solid #f3d8c8;border-radius:12px;padding:14px 16px;font-size:15px;color:#7a3b2e}
+  .ok{background:#eefaf4;border:1px solid #c9eedd;border-radius:12px;padding:14px 16px;font-size:15px;color:#0a6e52}
+  .check{list-style:none;padding:0;margin:0}
+  .check li{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 14px;margin:8px 0;display:flex;gap:11px;align-items:flex-start;box-shadow:var(--shadow);font-size:15px}
+  .box{width:20px;height:20px;border-radius:5px;border:2px solid #c9bcae;flex:0 0 auto;margin-top:3px}
+  .box.on{background:var(--green);border-color:var(--green);position:relative}
+  .box.on:after{content:"✓";color:#fff;position:absolute;left:3px;top:-3px;font-weight:900}
+  details.embed{margin:14px 0;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;box-shadow:var(--shadow)}
+  details.embed>summary{cursor:pointer;padding:14px 16px;font-weight:700;color:var(--terra);list-style:none;background:#fbeee5;font-size:15px}
+  details.embed>summary::-webkit-details-marker{display:none}
+  details.embed>summary:before{content:"▸  "}
+  details.embed[open]>summary:before{content:"▾  "}
+  details.embed .body{padding:16px 20px}
+  .foot{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;color:var(--muted)}
+  @media print{header.hero{border-radius:0}.wrap{max-width:none}.card,table,.light{box-shadow:none}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>易挂念 · 告警规则说明</h1>
+  <div class="sub">什么情况会提醒、等多久、提醒谁 —— 全部用大白话讲清</div>
+  <div class="meta">整理日期：2026-11-03 ｜ 依据：系统当前实际运行代码 ｜ 面向：社区管理员、网格员、家属</div>
+</header>
+
+<div class="wrap">
+
+  <div class="verdict">
+    <div class="tag">先用一句话说清楚</div>
+    <h2>这套系统不是"监控老人"，而是替家人和社区"多问一句"</h2>
+    <p>
+      它只做一件事：<b>看老人有没有正常生活的痕迹</b>。看到消息、开过门、在屋里走动、去食堂吃饭、网格员上门，
+      任何一样发生，就认为"一切正常"，重新计时。如果这些痕迹长时间都没有，才发出一条提醒，让人去看看。
+      提醒不等于出事，只是"该打个电话问问了"。
+    </p>
+  </div>
+
+  <section>
+    <h2 class="sec">一、四条主线，各管什么</h2>
+    <div class="lights">
+      <div class="light">
+        <div class="n">① 牵挂没被看到</div>
+        <div class="l">子女发的内容，老人一直没点开 → 提醒子女（也可提醒社区）</div>
+      </div>
+      <div class="light">
+        <div class="n">② 社区关怀缺位</div>
+        <div class="l">长时间没看消息、连续没去食堂 → 提醒网格员</div>
+      </div>
+      <div class="light">
+        <div class="n">③ 家里太安静</div>
+        <div class="l">门磁不开、红外没动静 → 提醒网格员（可能跌倒或身体不适）</div>
+      </div>
+      <div class="light">
+        <div class="n">④ 紧急求助</div>
+        <div class="l">老人按下报警器按钮 → 立刻通知家属和网格员</div>
+      </div>
+    </div>
+    <div class="callout" style="margin-top:16px">
+      <b>为什么要分这四条？</b> 因为"没看消息"和"家里没人动"是两种完全不同的情况。
+      前者可能是手机没电，后者可能是摔倒。分开管，才不会把小事报成大事，也不会把大事漏掉。
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">二、一张总表（先看结论）</h2>
+    <table>
+      <thead>
+        <tr><th style="width:20%">规则</th><th style="width:30%">什么情况会触发</th><th style="width:20%">等多久</th><th style="width:18%">提醒谁</th><th style="width:12%">紧急度</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>牵挂未被查看</td>
+          <td>子女发了一条牵挂，老人一直没点开</td>
+          <td>默认 12 小时（可调）</td>
+          <td>发送的子女</td>
+          <td><span class="pill p-amber">提醒</span></td>
+        </tr>
+        <tr>
+          <td>长时间未看消息（社区）</td>
+          <td>老人超过设定时长没有任何查看行为</td>
+          <td>A 类 6h / B 类 12h / C 类 24h</td>
+          <td>网格员</td>
+          <td><span class="pill p-amber">按等级</span></td>
+        </tr>
+        <tr>
+          <td>连续未到食堂</td>
+          <td>连续几餐点名"未到"</td>
+          <td>A 6h / B 12h / C 18h<br><span class="muted">（约 1 / 2 / 3 餐）</span></td>
+          <td>网格员</td>
+          <td><span class="pill p-amber">按等级</span></td>
+        </tr>
+        <tr>
+          <td>长时间无任何信号</td>
+          <td>看消息、食堂、走访、设备活动全都没有</td>
+          <td>A 12h / B 24h / C 48h</td>
+          <td>网格员</td>
+          <td><span class="pill p-amber">按等级</span></td>
+        </tr>
+        <tr>
+          <td>短时静止（可选，默认关闭）</td>
+          <td>红外短时没检测到人活动，<b>仅白天 7:00–22:00</b>；已并入 12 小时无活动口径，默认关闭</td>
+          <td>原 1 小时，现仅在后台手动开启后生效</td>
+          <td>网格员（平台展示）</td>
+          <td><span class="pill p-gray">默认关闭</span></td>
+        </tr>
+        <tr>
+          <td>无活动提醒</td>
+          <td>12 小时内家里完全没有活动迹象，全天判定；仍未活动则每 12 小时再提醒一次</td>
+          <td>12 小时</td>
+          <td>网格员（平台展示）</td>
+          <td><span class="pill p-gray">提示（最低级）</span></td>
+        </tr>
+        <tr>
+          <td>长时间没出门</td>
+          <td>门磁 24 小时没有一次开关门</td>
+          <td>24 小时，每天 8:00 检查</td>
+          <td>网格员（平台展示）</td>
+          <td><span class="pill p-gray">提示</span></td>
+        </tr>
+        <tr>
+          <td>早间没起床</td>
+          <td>A/B 类老人从前一天下午起一直没动静</td>
+          <td>每天 8:00 检查，A 18h / B 24h</td>
+          <td>网格员</td>
+          <td><span class="pill p-amber">按等级</span></td>
+        </tr>
+        <tr>
+          <td>设备坏了 / 离线</td>
+          <td>门磁或红外离线超过 1 小时</td>
+          <td>每 30 分钟检查</td>
+          <td>网格员</td>
+          <td><span class="pill p-amber">提醒核实</span></td>
+        </tr>
+        <tr>
+          <td>门磁装好却没记录</td>
+          <td>装好超过 24 小时，一次开关门记录都没有</td>
+          <td>一次性提醒</td>
+          <td>网格员</td>
+          <td><span class="pill p-gray">核实设备</span></td>
+        </tr>
+        <tr>
+          <td>紧急按钮（SOS）</td>
+          <td>老人按下报警器按键</td>
+          <td>立刻</td>
+          <td>所有家属 + 网格员</td>
+          <td><span class="pill p-red">最紧急</span></td>
+        </tr>
+        <tr>
+          <td>设备电量低</td>
+          <td>门磁或红外电池电量不足</td>
+          <td>24 小时内只提醒一次</td>
+          <td>网格员</td>
+          <td><span class="pill p-gray">维护提醒</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2 class="sec">三、逐条讲清：什么时候会响，什么时候不会</h2>
+
+    <div class="card">
+      <h3>① 牵挂一直没被看到 → 提醒子女</h3>
+      <div class="when">触发条件：子女发出牵挂后，超过设定时间老人仍未点开</div>
+      <ul>
+        <li>只看<b>最老的那条未读</b>：只要有一条很久没看，就算数，不会因为后面又发了新的而重新计时。</li>
+        <li><b>一旦老人看过任何内容，就不再提醒</b>——说明人还在、手机在用。</li>
+        <li>紧急度随时间升高：未读 24 小时以上为「较紧急」，48 小时以上为「紧急」，其余为「提示」。</li>
+        <li>同一段关系 24 小时内只提醒一次，不会刷屏。</li>
+        <li>家属可以手动"暂停提醒"，暂停期间不判定。</li>
+        <li><span class="muted">默认阈值 12 小时，每条绑定关系可单独设置。</span></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>② 老人长时间没有任何"生活信号" → 提醒网格员</h3>
+      <div class="when">触发条件：在设定时长内，以下信号一个都没有出现</div>
+      <ul>
+        <li>打开小程序看过内容；</li>
+        <li>去食堂吃过饭（点名"已到"）；</li>
+        <li>网格员上门走访或人工确认过；</li>
+        <li>门磁开合、红外检测到有人活动。</li>
+      </ul>
+      <ul>
+        <li>出现任何一条，计时<b>立刻重置</b>。</li>
+        <li>同一老人在 24 小时内只报一次同类提醒。</li>
+        <li>护理等级越高，等待时间越短（A 类 12 小时就开始问）。</li>
+      </ul>
+    </div>
+
+    <div class="card amber">
+      <h3>③ 连续没去食堂 → 提醒网格员</h3>
+      <div class="when">触发条件：食堂点名记录里，连续"未到"达到设定餐数</div>
+      <ul>
+        <li>A 类约 1 餐、B 类约 2 餐、C 类约 3 餐未到即提醒。</li>
+        <li>只统计点名成功的记录；点名表本身没导入的那天不判定，避免误报。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>④ 短时静止（可选，默认关闭）</h3>
+      <div class="when">触发条件：红外探测器连续超过阈值没有检测到人在活动</div>
+      <ul>
+        <li>2026-11-11 起并入下一条“无活动提醒”，默认关闭；社区确有需要时可在管理后台「告警规则」页重新开启。</li>
+        <li>开启后仍只在白天 7:00–22:00 判定，同一老人按重复间隔只报一次。</li>
+        <li><b>设备离线时不判定</b>——先把“设备坏了”排除掉，再谈“人没动”。</li>
+      </ul>
+    </div>
+
+    <div class="card amber">
+      <h3>⑤ 12 小时没有活动迹象 → 提醒网格员</h3>
+      <div class="when">触发条件：连续 12 小时没有任何活动迹象，全天生效</div>
+      <ul>
+        <li>判定口径与“生活信号”完全一致：看消息、食堂、走访、门磁、红外，任一出现即重新计时。</li>
+        <li><b>最低级提醒</b>，只做平台展示，不自动升级为电话或上门告警。</li>
+        <li>满 12 小时报一次；仍未检测到活动，再过 12 小时再报一次，如此循环。即使上一条已被标记处理，也要等满 12 小时才会再报。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>⑥ 24 小时没开过门 → 提示网格员</h3>
+      <div class="when">触发条件：每天 8:00 检查，过去 24 小时门磁一次开关门记录都没有</div>
+      <ul>
+        <li>开门、关门都算，哪怕只是开一下门拿快递。</li>
+        <li>24 小时内只报一次。</li>
+        <li><b>从没记录过的门磁不判定</b>——无法区分"不出门"和"设备刚装上/没装好"。</li>
+        <li>这种情况改为提醒<b>核实设备</b>：装好超过 24 小时仍零记录，就提醒网格员检查安装和电池，同一位老人只提醒一次。</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h3>⑦ 早上 8 点没起床 → 提醒网格员</h3>
+      <div class="when">触发条件：A/B 类老人从前一天下午起，一直没有任何活动信号</div>
+      <ul>
+        <li>A 类等 18 小时、B 类等 24 小时后仍未出现信号，就在早上 8 点报出。</li>
+        <li>只针对 A/B 类（重点关怀对象），C 类不参与。</li>
+        <li>如果 24 小时内已经有"静止 / 无活动 / 晨间"的未解决提醒，不重复报。</li>
+      </ul>
+    </div>
+
+    <div class="card green">
+      <h3>⑧ 设备离线 / 设备核实 → 提醒网格员</h3>
+      <div class="when">触发条件：门磁或红外超过 1 小时不在线</div>
+      <ul>
+        <li>离线期间<b>自动暂停这台设备的所有活跃类提醒</b>，避免把"设备坏了"报成"老人没活动"。</li>
+        <li>同时生成一条"设备离线，请检查供电和网络"的提醒，同一老人未处理前不重复。</li>
+        <li>设备恢复在线后，这条提醒<b>自动解除</b>，规则恢复正常判定。</li>
+        <li>平台接口本身故障时不做任何判定，防止大规模误停。</li>
+      </ul>
+    </div>
+
+    <div class="card red">
+      <h3>⑨ 紧急按钮（SOS）→ 立刻通知家属和网格员</h3>
+      <div class="when">触发条件：老人按下报警器按键</div>
+      <ul>
+        <li>这是<b>唯一会立刻推送</b>的类型，不经过任何等待时间。</li>
+        <li>系统会给<b>每一位绑定的家属</b>各生成一条紧急提醒，同时给网格员生成待办。</li>
+        <li>10 分钟内重复按只算一次，避免连按刷屏。</li>
+        <li>如果这台设备还没绑定老人，也会报警：提示"未绑定设备触发紧急报警，请核实归属"。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">四、护理等级 A / B / C 的区别</h2>
+    <p class="muted" style="margin-top:-6px">等级由社区根据老人情况评定，等级越高，等待时间越短、提醒越紧急。</p>
+    <table>
+      <thead>
+        <tr><th>规则</th><th>A 类（重点关怀）</th><th>B 类</th><th>C 类</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>多久没看消息就提醒</td><td>6 小时</td><td>12 小时</td><td>24 小时</td></tr>
+        <tr><td>连续几餐没去食堂就提醒</td><td>约 1 餐（6h）</td><td>约 2 餐（12h）</td><td>约 3 餐（18h）</td></tr>
+        <tr><td>多久没有任何信号就提醒</td><td>12 小时</td><td>24 小时</td><td>48 小时</td></tr>
+        <tr><td>1 小时没动静的紧急度</td><td>紧急</td><td>较紧急</td><td>提示</td></tr>
+        <tr><td>12 小时无轨迹的紧急度</td><td>紧急</td><td>较紧急</td><td>较紧急</td></tr>
+        <tr><td>24 小时没开门的紧急度</td><td>较紧急</td><td>提示</td><td>提示</td></tr>
+        <tr><td>是否参与早间 8 点检查</td><td>是（等 18 小时）</td><td>是（等 24 小时）</td><td>否</td></tr>
+      </tbody>
+    </table>
+    <div class="callout" style="margin-top:14px">
+      提示：等级不是"标签"，而是"多久问一次"的参数。等级调整后，所有阈值立即按新等级生效。
+    </div>
+  </section>
+
+  <section>
+    <h2 class="sec">五、为什么不会天天误报（五道防线）</h2>
+    <ul class="check">
+      <li><span class="box on"></span><div><b>白天才看静止。</b>红外"1 小时没动"只在 7:00–22:00 判定，夜里睡觉不打扰。</div></li>
+      <li><span class="box on"></span><div><b>同一件事不反复说。</b>每条规则都有 6–24 小时的静默期，同一老人同一类提醒只报一次；未处理前不会叠加。</div></li>
+      <li><span class="box on"></span><div><b>设备坏了先排除设备。</b>离线超过 1 小时就暂停这台设备的活跃判定，避免把"没电/断网"报成"人没动"。</div></li>
+      <li><span class="box on"></span><div><b>有人来过就重新计时。</b>看消息、食堂吃饭、网格员走访、门磁开合，任何一样出现都算"人在正常生活"。</div></li>
+      <li><span class="box on"></span><div><b>拿不准就不报。</b>食堂点名没导入、平台接口故障、门磁从未有过记录，这些"说不清"的情况一律不判定。</div></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="sec">六、提醒发到哪里，多久要处理</h2>
+    <div class="kv">
+      <div><b>30 分钟</b>每条新提醒的响应时限</div>
+      <div><b>15 分钟</b>系统检查一次是否超时</div>
+      <div><b>2 级</b>超时最多自动升级到第 2 级</div>
+      <div><b>24 小时</b>同一类提醒的静默期</div>
+    </div>
+    <h3>发送渠道</h3>
+    <table>
+      <thead><tr><th style="width:26%">类型</th><th style="width:30%">平台内显示</th><th style="width:44%">是否额外发微信消息</th></tr></thead>
+      <tbody>
+        <tr><td>牵挂未读</td><td>是（家属提醒列表）</td><td>是，按总开关控制</td></tr>
+        <tr><td>社区关怀类</td><td>是（管理员告警列表）</td><td>是，通知网格员</td></tr>
+        <tr><td>短时静止 / 无轨迹 / 未外出 / 设备核实</td><td>是</td><td><b>默认不发</b>，只在平台展示；需要时由管理员统一开启</td></tr>
+        <tr><td>紧急按钮 SOS</td><td>是</td><td><b>始终发</b>，不受开关影响</td></tr>
+        <tr><td>设备离线 / 电量低</td><td>是</td><td>跟随设备类开关</td></tr>
+      </tbody>
+    </table>
+    <div class="callout" style="margin-top:14px">
+      <b>为什么有的只显示不推送？</b> 设备类的"没动静"存在误报可能，先让网格员在后台看到、判断后再决定是否上门，
+      比直接给家属发消息更稳妥。家属最需要立刻知道的是<b>老人主动按下的紧急求助</b>。
+    </div>
+    <h3>超时会怎样</h3>
+    <ul>
+      <li>提醒生成时会设定一个 30 分钟的响应期限。</li>
+      <li>超时未处理 → 自动升级一级，并再给 1 小时处理时间。</li>
+      <li>再次超时 → 升到第 2 级（上限），不再继续升级，但会一直保留在未处理列表里。</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2 class="sec">七、哪些数字可以改</h2>
+    <p class="muted" style="margin-top:-6px">以下参数都存在后台「告警规则」页，改完立即生效，不需要重启系统。</p>
+    <table>
+      <thead><tr><th style="width:34%">可调整项</th><th style="width:30%">默认值</th><th style="width:36%">调整后会怎样</th></tr></thead>
+      <tbody>
+        <tr><td>各类规则的触发时长</td><td>见上表</td><td>等待时间变长/变短</td></tr>
+        <tr><td>规则总开关</td><td>全部开启</td><td>关闭后该规则完全停止判定</td></tr>
+        <tr><td>静止判定的生效时段</td><td>7:00–22:00</td><td>例如改成 6:00–23:00</td></tr>
+        <tr><td>静止判定的重复间隔</td><td>6 小时</td><td>同一老人多久才能再报一次</td></tr>
+        <tr><td>无轨迹判定的重复间隔</td><td>12 小时</td><td>同上</td></tr>
+        <tr><td>未外出检查的时点</td><td>每天 8:00</td><td>改到其他整点检查</td></tr>
+        <tr><td>未外出判定的重复间隔</td><td>24 小时</td><td>同上</td></tr>
+        <tr><td>设备离线的判定时长</td><td>1 小时</td><td>环境变量控制，需重启后端</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2 class="sec">八、常见疑问</h2>
+    <details class="embed" open>
+      <summary>老人只是手机没电，会不会被当成出事？</summary>
+      <div class="body">
+        不会直接下结论。系统看到"没看消息"，会先等设定时长，同时检查门磁、红外、食堂、走访记录。
+        只要其中任何一项出现，就认为老人正常生活，只是没看手机。只有<b>所有痕迹都没有</b>，才会报"无任何信号"。
+      </div>
+    </details>
+    <details class="embed">
+      <summary>为什么夜里摔倒了不一定马上报？</summary>
+      <div class="body">
+        "1 小时没动静"这条规则只在 7:00–22:00 生效，因为夜间睡觉本身就不动，全天判定会产生大量误报。
+        夜间依靠另一条规则兜底：<b>12 小时无任何生活轨迹</b>全天生效，最迟第二天早上一定会报出来。
+        如果家里有紧急按钮，老人主动按下会立刻通知家属。
+      </div>
+    </details>
+    <details class="embed">
+      <summary>设备坏了，会不会一直报"老人没活动"？</summary>
+      <div class="body">
+        不会。设备离线超过 1 小时，系统就暂停这台设备的活跃类提醒，并单独生成一条"设备离线，请检查供电和网络"的提醒。
+        设备修好重新上线后，这条提醒自动解除，规则恢复。
+      </div>
+    </details>
+    <details class="embed">
+      <summary>为什么网格员没收到微信提醒，后台却有记录？</summary>
+      <div class="body">
+        设备关怀类（静止、无轨迹、未外出、设备核实）默认<b>只在平台展示</b>，不主动发微信。这是刻意设计的：
+        这类判断有一定误报概率，先由网格员在后台筛选，避免打扰家属。
+        需要开启时，由管理员统一打开设备关怀通知开关，所有设备类提醒随即开始推送。
+      </div>
+    </details>
+    <details class="embed">
+      <summary>一条提醒会一直报下去吗？</summary>
+      <div class="body">
+        不会。每条规则都有静默期（6–24 小时），同一老人同一类提醒在静默期内只报一次；
+        已经被标记"已处理"的，不会重新出现。只有情况持续恶化（例如从"未读 12 小时"变成"未读 48 小时"），
+        紧急度才会提升，但仍然不会刷屏。
+      </div>
+    </details>
+    <details class="embed">
+      <summary>家属能自己调整提醒时间吗？</summary>
+      <div class="body">
+        可以。每条"子女—老人"绑定关系都有一个独立的未读提醒阈值（默认 12 小时），也可以临时开启"暂停提醒"。
+        社区侧的规则阈值由管理员在后台统一设置。
+      </div>
+    </details>
+    <details class="embed">
+      <summary>为什么"没去食堂"要报，但"没看消息"也要报，不是重复了吗？</summary>
+      <div class="body">
+        两条规则看的是不同侧面：食堂看"出门吃饭"这件具体的事，没看消息看"用手机"这件事。
+        食堂可能没开门、老人可能自己做饭，所以食堂规则只按餐数报；没看消息则和走访、设备活动一起综合判断。
+        同时出现时，24 小时静默期会避免两条一起炸。
+      </div>
+    </details>
+    <details class="embed">
+      <summary>老人按下按钮后，多久会有人知道？</summary>
+      <div class="body">
+        立刻。SOS 是唯一不经过等待时间的类型：系统收到按键后，立即给每一位绑定家属各生成一条紧急提醒，
+        同时给网格员生成待办，响应时限 30 分钟。10 分钟内重复按只算一次。
+      </div>
+    </details>
+  </section>
+
+  <section>
+    <h2 class="sec">九、系统多久检查一次（技术附录）</h2>
+    <details class="embed">
+      <summary>给运维/技术同事看的调度频率</summary>
+      <div class="body">
+        <table>
+          <thead><tr><th>任务</th><th>频率</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>社区规则引擎</td><td>每 5 分钟</td><td>未读、食堂、无信号三类</td></tr>
+            <tr><td>家属未读检测</td><td>每 5 分钟</td><td>按绑定关系阈值判定</td></tr>
+            <tr><td>告警同步到社区</td><td>每 30 分钟</td><td>家属侧提醒同步为社区待办</td></tr>
+            <tr><td>超时升级检查</td><td>每 15 分钟</td><td>最多升级到 2 级</td></tr>
+            <tr><td>风险分重算</td><td>每小时</td><td>用于工作台排序</td></tr>
+            <tr><td>晨间静默</td><td>每天 8:00</td><td>仅 A/B 类</td></tr>
+            <tr><td>短时静止</td><td>每小时</td><td>默认关闭，手动开启后仅 7:00–22:00 生效</td></tr>
+            <tr><td>无活动提醒</td><td>每 2 小时</td><td>全天生效，满 12 小时报一次并每 12 小时循环</td></tr>
+            <tr><td>未外出</td><td>每小时</td><td>仅在 8:00 那个整点执行判定</td></tr>
+            <tr><td>设备离线</td><td>每 30 分钟</td><td>查询平台在线状态</td></tr>
+          </tbody>
+        </table>
+        <p class="muted" style="font-size:14px;margin-top:12px">
+          判定与触达解耦：规则只负责生成提醒，是否发微信由通知开关控制，电话告警走独立通道。
+          因此调整阈值不会改变通知方式，接入电话通道也不需要改规则代码。
+        </p>
+      </div>
+    </details>
+  </section>
+
+  <div class="foot">
+    易挂念 · 告警规则说明 ｜ 2026-11-03（2026-11-11 更新无活动提醒口径）｜ 本文件依据系统当前代码整理，如阈值有调整请以管理后台「告警规则」页为准。
+  </div>
+
+</div>
+</body>
+</html>
