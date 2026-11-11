@@ -9,8 +9,8 @@ const ALERT_TYPE_LABELS = {
   canteen_absence: '食堂用餐提醒',
   no_signal: '日常动态提醒',
   stillness: '活动静止提醒',
-  no_activity: '无生活轨迹提醒',        // alerts.alert_type 短名（设备页按此取文案）
-  no_activity_trace: '无生活轨迹提醒',  // trigger_rule / rule_type 全名
+  no_activity: '无活动提醒',        // alerts.alert_type 短名（设备页按此取文案）
+  no_activity_trace: '无活动提醒',  // trigger_rule / rule_type 全名
   no_outing: '长时间未外出提醒',
   device_check: '设备核实提醒',
   device_offline: '设备离线提醒',

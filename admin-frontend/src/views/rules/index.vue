@@ -3,7 +3,7 @@
     <header class="rules-head">
       <div>
         <h1>告警规则</h1>
-        <p>三条设备规则默认三个等级同一口径，可按需分别微调；保存后最长一个检查周期内生效。</p>
+        <p>设备规则默认同一口径，可按需分别微调；保存后最长一个检查周期内生效。</p>
       </div>
       <button class="rules-reload" :disabled="loading" @click="load">
         <span class="material-symbols-outlined">refresh</span>重新读取
@@ -114,11 +114,11 @@ const LEVELS = ['A', 'B', 'C']
 const RULE_META = [
   {
     type: 'stillness', name: '红外短时静止', scope: '绑定红外设备',
-    desc: '超过阈值没有活动迹象即提醒（可能跌倒），夜间睡眠时段不判',
+    desc: '已并入 12 小时无活动提醒，默认关闭；开启后超过阈值没有活动迹象即提醒',
   },
   {
-    type: 'no_activity_trace', name: '长时间无生活轨迹', scope: '绑定红外设备',
-    desc: '超过阈值没有任何活动迹象即提醒，全天生效',
+    type: 'no_activity_trace', name: '无活动提醒', scope: '绑定红外设备',
+    desc: '超过阈值没有任何活动迹象即提醒（最低级），仍未活动则每隔重复间隔再提醒，全天生效',
   },
   {
     type: 'no_outing', name: '门磁长时间未触发', scope: '绑定门磁',
@@ -139,8 +139,8 @@ const RULE_META = [
 ]
 
 const ADVANCED_META = [
-  { type: 'stillness', name: '红外短时静止', window: true, hour: false, dedupeDefault: 6 },
-  { type: 'no_activity_trace', name: '长时间无生活轨迹', window: true, hour: false, dedupeDefault: 12 },
+  { type: 'stillness', name: '红外短时静止', window: true, hour: false, dedupeDefault: 12 },
+  { type: 'no_activity_trace', name: '无活动提醒', window: true, hour: false, dedupeDefault: 12 },
   { type: 'no_outing', name: '门磁长时间未触发', window: false, hour: true, dedupeDefault: 24 },
 ]
 
