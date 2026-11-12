@@ -16,6 +16,7 @@
         :loading="store.loading && !store.data"
         @all="router.push('/events')"
         @view="viewElder"
+        @handle="handlingAlert = $event.raw"
       />
       <div class="dashboard-side">
         <AreaCareOverview :areas="areaOverview" @all="router.push('/elders')" />
@@ -23,6 +24,12 @@
       </div>
     </div>
 
+    <AlertHandleDialog
+      :open="!!handlingAlert"
+      :alert="handlingAlert"
+      @close="handlingAlert = null"
+      @done="store.load()"
+    />
   </div>
 </template>
 
@@ -36,6 +43,7 @@ import AppStatBar from '@/components/AppStatBar.vue'
 import PriorityCareList from './components/PriorityCareList.vue'
 import AreaCareOverview from './components/AreaCareOverview.vue'
 import GoodNewsCard from './components/GoodNewsCard.vue'
+import AlertHandleDialog from '@/components/AlertHandleDialog.vue'
 import { getElderAvatar } from '@/utils/avatar'
 import { alertTypeLabel } from '@/utils/alert-labels'
 
@@ -43,6 +51,7 @@ const router = useRouter()
 const store = useDashboardStore()
 const userStore = useUserStore()
 const searchKeyword = ref('')
+const handlingAlert = ref(null)
 let refreshTimer
 onMounted(() => {
   store.load()
@@ -80,6 +89,8 @@ const priorityItems = computed(() => {
   }))
   const alertItems = pendingAlerts.value.map((alert, index) => ({
     id: alert.id,
+    alertId: alert.id,
+    raw: alert,
     avatar: getElderAvatar(alert, confirmationItems.length + index),
     name: alert.elder_name,
     address: '社区居民',

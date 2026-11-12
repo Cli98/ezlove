@@ -12,7 +12,8 @@
             <div class="care-tip"><span :class="`tag tag--${item.careLevel}`">{{ item.careLevel }}类</span><p>{{ item.message }}</p></div>
             <time>{{ item.time }}</time>
             <div class="source"><DashboardIcon :name="item.icon" :class="`source--${item.tone}`" /><div>{{ item.source }}<small>{{ item.sourceDetail }}</small></div></div>
-            <button class="view-button" @click="$emit('view', item.elderId)">{{ item.elderId ? '查看档案' : '查看事件' }}</button>
+            <button v-if="item.alertId" class="view-button" @click="$emit('handle', item)">处理</button>
+            <button v-else class="view-button" @click="$emit('view', item.elderId)">{{ item.elderId ? '查看档案' : '查看事件' }}</button>
           </article>
         </template>
       </div>
@@ -23,7 +24,7 @@
 <script setup>
 import DashboardIcon from '@/components/DashboardIcon.vue'
 
-defineEmits(['all', 'view'])
+defineEmits(['all', 'view', 'handle'])
 defineProps({ items: { type: Array, default: () => [] }, loading: Boolean })
 
 function initialOf(name) {

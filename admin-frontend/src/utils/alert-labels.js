@@ -19,3 +19,17 @@ const ALERT_TYPE_LABELS = {
 export function alertTypeLabel(type) {
   return ALERT_TYPE_LABELS[type] || '关怀记录'
 }
+
+// 人工确认结论以固定前缀存进 response_note（alerts 表无独立字段，见后端 RESOLUTION_PREFIX）
+const RESOLUTION_PREFIX = { false_alarm: '【误报】', valid: '【有效】' }
+
+export function parseAlertResolution(note) {
+  const text = String(note || '')
+  if (text.startsWith(RESOLUTION_PREFIX.false_alarm)) {
+    return { conclusion: 'false_alarm', label: '误报', detail: text.slice(RESOLUTION_PREFIX.false_alarm.length).trim() }
+  }
+  if (text.startsWith(RESOLUTION_PREFIX.valid)) {
+    return { conclusion: 'valid', label: '有效', detail: text.slice(RESOLUTION_PREFIX.valid.length).trim() }
+  }
+  return { conclusion: null, label: '', detail: text }
+}

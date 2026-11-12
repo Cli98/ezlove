@@ -75,16 +75,19 @@
               <div v-if="detail.records && detail.records.length" class="alert-list">
                 <div v-for="record in detail.records" :key="record.id" class="alert-item">
                   <span :class="['alert-dot', record.kind === 'device' ? 'info' : (record.is_resolved ? 'resolved' : record.level)]"></span>
-                  <div>
+                  <div class="alert-item__main">
                     <p>{{ record.message }}</p>
-                    <small>{{ formatTime(record.created_at) }} · {{ record.kind === 'device' ? '设备事件' : (record.is_resolved ? '已处理' : '待处理') }}</small>
+                    <small>{{ formatTime(record.created_at) }} · {{ recordMeta(record) }}</small>
                   </div>
+                  <button v-if="record.kind === 'alert' && !record.is_resolved" class="alert-handle" @click="handling = record">处理</button>
                 </div>
               </div>
               <p v-else class="drawer-hint">暂无记录</p>
             </section>
           </template>
         </div>
+
+        <AlertHandleDialog :open="!!handling" :alert="handling" @close="handling = null" @done="onHandled" />
       </aside>
     </Transition>
   </Teleport>
@@ -93,6 +96,8 @@
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { getDeviceDetail } from '@/api/devices'
+import { parseAlertResolution } from '@/utils/alert-labels'
+import AlertHandleDialog from '@/components/AlertHandleDialog.vue'
 
 const props = defineProps({ sn: { type: String, default: null } })
 const emit = defineEmits(['close'])
@@ -100,23 +105,43 @@ const emit = defineEmits(['close'])
 const loading = ref(false)
 const error = ref('')
 const detail = ref(null)
+const handling = ref(null)
 
-watch(() => props.sn, async (sn) => {
-  if (!sn) {
-    detail.value = null
-    return
-  }
+async function loadDetail() {
+  if (!props.sn) return
   loading.value = true
   error.value = ''
-  detail.value = null
   try {
-    detail.value = await getDeviceDetail(sn)
+    detail.value = await getDeviceDetail(props.sn)
   } catch (e) {
     error.value = e.response?.data?.detail || e.message || '设备详情读取失败'
   } finally {
     loading.value = false
   }
+}
+
+watch(() => props.sn, (sn) => {
+  handling.value = null
+  if (!sn) {
+    detail.value = null
+    return
+  }
+  detail.value = null
+  loadDetail()
 }, { immediate: true })
+
+// 处理完成后留在抽屉里，重新拉一次记录让状态和结论即时更新
+async function onHandled() {
+  handling.value = null
+  await loadDetail()
+}
+
+function recordMeta(record) {
+  if (record.kind === 'device') return '设备事件'
+  if (!record.is_resolved) return '待处理'
+  const { label } = parseAlertResolution(record.response_note)
+  return label ? `已处理 · ${label}` : '已处理'
+}
 
 const attrs = computed(() => detail.value?.platform?.attributes || {})
 
@@ -185,6 +210,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleEscape))
 .drawer-hint { margin: 0; color: #8d8a86; font-size: 12.5px; line-height: 1.6; }
 .alert-list { display: grid; gap: 10px; }
 .alert-item { display: flex; gap: 10px; }
+.alert-item__main { flex: 1; min-width: 0; }
+.alert-handle { height: 28px; flex: none; align-self: center; padding: 0 10px; border: 1px solid #cf624d; border-radius: 7px; color: #c6533d; background: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
 .alert-dot { width: 8px; height: 8px; flex: none; margin-top: 5px; border-radius: 50%; background: #b8ac9e; }
 .alert-dot.urgent { background: #c75a3d; }.alert-dot.warning { background: #d68f30; }.alert-dot.info { background: #7f95b5; }.alert-dot.resolved { background: #c4bcb2; }
 .alert-item p { margin: 0; color: #3c465a; font-size: 12.5px; line-height: 1.55; }
