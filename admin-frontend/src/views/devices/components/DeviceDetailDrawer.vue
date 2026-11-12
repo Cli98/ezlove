@@ -74,10 +74,10 @@
               <h3>最近记录</h3>
               <div v-if="detail.records && detail.records.length" class="alert-list">
                 <div v-for="record in detail.records" :key="record.id" class="alert-item">
-                  <span :class="['alert-dot', record.kind === 'device' ? 'info' : (record.is_resolved ? 'resolved' : record.level)]"></span>
+                  <span :class="['alert-dot', dotTone(record)]"></span>
                   <div class="alert-item__main">
-                    <p>{{ record.message }}</p>
-                    <small>{{ formatTime(record.created_at) }} · {{ recordMeta(record) }}</small>
+                    <p :class="{ 'is-muted': isFalseAlarm(record) }">{{ record.message }}</p>
+                    <small>{{ formatTime(record.created_at) }} · <span v-if="conclusionTag(record)" :class="['alert-tag', conclusionTag(record).tone]">{{ conclusionTag(record).text }}</span><template v-else>{{ record.kind === 'device' ? '设备事件' : (record.is_resolved ? '已处理' : '待处理') }}</template></small>
                   </div>
                   <button v-if="record.kind === 'alert' && !record.is_resolved" class="alert-handle" @click="handling = record">处理</button>
                 </div>
@@ -96,7 +96,7 @@
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { getDeviceDetail } from '@/api/devices'
-import { parseAlertResolution } from '@/utils/alert-labels'
+import { parseAlertResolution, alertTypeLabel } from '@/utils/alert-labels'
 import AlertHandleDialog from '@/components/AlertHandleDialog.vue'
 
 const props = defineProps({ sn: { type: String, default: null } })
@@ -136,13 +136,31 @@ async function onHandled() {
   await loadDetail()
 }
 
-function recordMeta(record) {
-  if (record.kind === 'device') return '设备事件'
-  if (!record.is_resolved) return '待处理'
-  const { label } = parseAlertResolution(record.response_note)
-  return label ? `已处理 · ${label}` : '已处理'
+// 已处理记录的视觉区分：误报弱化为灰色，真实有效用红色强调
+function resolutionOf(record) {
+  if (record.kind !== 'alert' || !record.is_resolved) return null
+  const parsed = parseAlertResolution(record.response_note)
+  return parsed.conclusion ? parsed : null
 }
 
+function isFalseAlarm(record) {
+  return resolutionOf(record)?.conclusion === 'false_alarm'
+}
+
+function dotTone(record) {
+  if (record.kind === 'device') return 'info'
+  if (!record.is_resolved) return record.level
+  return isFalseAlarm(record) ? 'resolved' : 'urgent'
+}
+
+function conclusionTag(record) {
+  const parsed = resolutionOf(record)
+  if (!parsed) return null
+  return {
+    text: `${alertTypeLabel(record.alert_type)}（${parsed.label}）`,
+    tone: parsed.conclusion === 'valid' ? 'valid' : 'false-alarm',
+  }
+}
 const attrs = computed(() => detail.value?.platform?.attributes || {})
 
 const batteryText = computed(() => {
@@ -211,6 +229,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleEscape))
 .alert-list { display: grid; gap: 10px; }
 .alert-item { display: flex; gap: 10px; }
 .alert-item__main { flex: 1; min-width: 0; }
+.alert-item p.is-muted { color: #a49b92; }
+.alert-tag { display: inline-flex; height: 18px; align-items: center; padding: 0 7px; border-radius: 4px; font-size: 10.5px; font-weight: 700; }
+.alert-tag.valid { color: #fff; background: #c6533d; }
+.alert-tag.false-alarm { color: #8d8a86; background: #efeae4; }
 .alert-handle { height: 28px; flex: none; align-self: center; padding: 0 10px; border: 1px solid #cf624d; border-radius: 7px; color: #c6533d; background: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
 .alert-dot { width: 8px; height: 8px; flex: none; margin-top: 5px; border-radius: 50%; background: #b8ac9e; }
 .alert-dot.urgent { background: #c75a3d; }.alert-dot.warning { background: #d68f30; }.alert-dot.info { background: #7f95b5; }.alert-dot.resolved { background: #c4bcb2; }
