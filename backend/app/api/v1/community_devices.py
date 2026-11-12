@@ -184,6 +184,7 @@ async def list_devices(
                 "alert_type": alert.alert_type,
                 "alert_level": alert.alert_level,
                 "is_resolved": alert.is_resolved,
+                "response_note": alert.response_note,
                 "created_at": _iso_utc(alert.created_at),
             }))
         if device_event is not None:

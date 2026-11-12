@@ -102,7 +102,7 @@ import AppTable from '@/components/AppTable.vue'
 import PageTopbar from '@/components/PageTopbar.vue'
 import DeviceDetailDrawer from './components/DeviceDetailDrawer.vue'
 import DeviceTypeIcon from '@/components/DeviceTypeIcon.vue'
-import { alertTypeLabel } from '@/utils/alert-labels'
+import { alertTypeLabel, parseAlertResolution } from '@/utils/alert-labels'
 
 const route = useRoute()
 const router = useRouter()
@@ -153,17 +153,16 @@ function recordLabel(record) {
       motion_end: '红外暂无活动',
     }[record.event_type] || '设备记录'
   }
-  return alertTypeLabel(record.alert_type)
+  const label = alertTypeLabel(record.alert_type)
+  const parsed = record.is_resolved ? parseAlertResolution(record.response_note) : null
+  return parsed?.conclusion ? `${label}（${parsed.label}）` : label
 }
 
 function recordTone(record) {
   if (record.kind === 'device') return 'info'
-  return alertTagTone(record)
-}
-
-function alertTagTone(alert) {
-  if (alert.is_resolved) return 'resolved'
-  return { urgent: 'urgent', warning: 'warning' }[alert.alert_level] || 'info'
+  if (!record.is_resolved) return { urgent: 'urgent', warning: 'warning' }[record.alert_level] || 'info'
+  // 已处理：误报弱化为灰色，真实有效用红色强调
+  return parseAlertResolution(record.response_note).conclusion === 'valid' ? 'valid' : 'resolved'
 }
 
 function formatAgo(value) {
@@ -221,6 +220,6 @@ onMounted(() => {
 .battery-value { font-size: 13px; font-weight: 800; }.battery-value.ok { color: #56826a; }.battery-value.low { color: #c75a3d; }
 .cell-sub { display: block; margin-top: 2px; color: #9a9188; font-size: 10.5px; }
 .alert-tag { display: inline-flex; height: 24px; align-items: center; padding: 0 9px; border-radius: 6px; font-size: 11.5px; font-weight: 700; }
-.alert-tag.urgent { color: #c75a3d; background: #fae7df; }.alert-tag.warning { color: #d1842b; background: #fbedd9; }.alert-tag.info { color: #617087; background: #eef0f3; }.alert-tag.resolved { color: #8d8a86; background: #f2eee9; }
+.alert-tag.urgent { color: #c75a3d; background: #fae7df; }.alert-tag.warning { color: #d1842b; background: #fbedd9; }.alert-tag.info { color: #617087; background: #eef0f3; }.alert-tag.resolved { color: #8d8a86; background: #f2eee9; }.alert-tag.valid { color: #fff; background: #c6533d; }
 @media (max-width: 1050px) { .devices-page { height: auto; min-height: 100%; }.devices-table-panel { min-height: 540px; } }
 </style>
