@@ -303,6 +303,7 @@ async def device_detail(
             "level": alert.alert_level,
             "message": alert.message,
             "is_resolved": alert.is_resolved,
+            "response_note": alert.response_note,
             "created_at": _iso_utc(alert.created_at),
         }
         for alert in alerts
@@ -357,6 +358,7 @@ async def device_detail(
                 "alert_level": alert.alert_level,
                 "message": alert.message,
                 "is_resolved": alert.is_resolved,
+                "response_note": alert.response_note,
                 "created_at": _iso_utc(alert.created_at),
             }
             for alert in alerts

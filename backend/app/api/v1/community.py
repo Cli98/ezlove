@@ -24,6 +24,9 @@ from app.services import timeline as timeline_service
 
 router = APIRouter(prefix="/community", tags=["community"])
 
+# 人工确认结论写进 response_note 的固定前缀（alerts 表无独立字段，前端按前缀解析）
+RESOLUTION_PREFIX = {"false_alarm": "【误报】", "valid": "【有效】"}
+
 
 @router.get("/elders")
 async def list_elders(
@@ -307,8 +310,9 @@ async def respond_alert(
     if not alert:
         raise HTTPException(status_code=404, detail="提醒不存在")
 
+    note = (data.response_note or "").strip()
     alert.responded_at = datetime.now()
-    alert.response_note = data.response_note
+    alert.response_note = f"{RESOLUTION_PREFIX.get(data.conclusion or '', '')}{note}" or None
     alert.is_resolved = True
     alert.resolved_at = datetime.now()
     await db.commit()

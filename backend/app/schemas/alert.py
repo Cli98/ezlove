@@ -1,3 +1,4 @@
+from typing import Literal
 from uuid import UUID
 from datetime import datetime
 from pydantic import BaseModel, Field
@@ -27,7 +28,14 @@ class AlertResponse(BaseModel):
 
 
 class AlertRespondRequest(BaseModel):
-    response_note: str
+    """处理提醒：人工确认是误报还是真实有效。
+
+    线上不走数据库迁移，alerts 表暂无独立结论文段，
+    结论以固定前缀写进 response_note（【误报】/【有效】），前端按前缀解析展示。
+    """
+
+    conclusion: Literal["false_alarm", "valid"] | None = None
+    response_note: str | None = None
 
 
 class AlertRuleResponse(BaseModel):
