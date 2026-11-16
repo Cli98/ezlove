@@ -11,6 +11,11 @@ from app.schemas.pagination import PaginatedResponse
 
 router = APIRouter(prefix="/community/events", tags=["community-events"])
 
+# 关怀事项列表只承载需要人工跟进的事项：
+# - device：门磁/红外活动只是老人在家轨迹，不需要社工逐条确认
+# - alert：告警已在 alerts 侧用「误报/有效」确认（同步事件会与那边重复）
+EXCLUDED_TODO_SOURCES = ("device", "alert")
+
 
 class EventCreate(BaseModel):
     elder_id: UUID
@@ -28,17 +33,21 @@ async def list_events(
     severity: str | None = None,
     event_type: str | None = None,
     is_resolved: bool | None = None,
+    include_activity: bool = False,
     pagination: dict = Depends(get_pagination),
     worker: CommunityWorker = Depends(get_current_worker),
     db: AsyncSession = Depends(get_db),
 ):
+    exclude_sources = None if include_activity else EXCLUDED_TODO_SOURCES
     total = await event_service.count_events(
         db, worker.community_id,
         severity=severity, event_type=event_type, is_resolved=is_resolved,
+        exclude_sources=exclude_sources,
     )
     events = await event_service.list_events(
         db, worker.community_id,
         severity=severity, event_type=event_type, is_resolved=is_resolved,
+        exclude_sources=exclude_sources,
         offset=pagination["offset"], limit=pagination["limit"],
     )
     items = [

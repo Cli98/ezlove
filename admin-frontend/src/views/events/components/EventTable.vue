@@ -1,7 +1,7 @@
 <template>
   <AppPanel class="event-table-panel">
     <header class="event-table-panel__head"><h2>关怀事项列表 <span>共 {{ total }} 条</span></h2></header>
-    <AppTable :columns="columns" :rows="rows" :loading="loading" min-width="1040px" class="event-table" loading-text="正在整理关怀事项…" empty-text="暂无符合条件的关怀事项">
+    <AppTable :columns="columns" :rows="rows" :loading="loading" min-width="1040px" class="event-table" loading-text="正在整理关怀事项…" empty-text="当前没有需要人工跟进的事项">
       <template #cell-elder="{ row }">
         <div class="elder-cell"><img v-if="row.avatar_url" :src="row.avatar_url" :alt="row.elder_name" /><span v-else class="avatar-fallback" aria-hidden="true">{{ initialOf(row.elder_name) }}</span><div><b>{{ row.elder_name }}</b><small>{{ row.elder_address }}</small></div></div>
       </template>

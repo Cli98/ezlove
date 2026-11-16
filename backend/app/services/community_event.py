@@ -15,10 +15,13 @@ async def list_events(
     severity: str | None = None,
     event_type: str | None = None,
     is_resolved: bool | None = None,
+    exclude_sources: tuple[str, ...] | None = None,
     offset: int = 0,
     limit: int = 20,
 ) -> list[CommunityEvent]:
     stmt = select(CommunityEvent).where(CommunityEvent.community_id == community_id)
+    if exclude_sources:
+        stmt = stmt.where(CommunityEvent.source.notin_(exclude_sources))
     if severity:
         stmt = stmt.where(CommunityEvent.severity == severity)
     if event_type:
@@ -37,8 +40,11 @@ async def count_events(
     severity: str | None = None,
     event_type: str | None = None,
     is_resolved: bool | None = None,
+    exclude_sources: tuple[str, ...] | None = None,
 ) -> int:
     stmt = select(func.count(CommunityEvent.id)).where(CommunityEvent.community_id == community_id)
+    if exclude_sources:
+        stmt = stmt.where(CommunityEvent.source.notin_(exclude_sources))
     if severity:
         stmt = stmt.where(CommunityEvent.severity == severity)
     if event_type:

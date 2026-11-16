@@ -89,7 +89,11 @@ async def export_events(
     start_date: date | None = None,
     end_date: date | None = None,
 ) -> bytes:
-    stmt = select(CommunityEvent).where(CommunityEvent.community_id == community_id)
+    # 与关怀事项列表同口径：设备活动是轨迹、告警类走误报/有效确认，不作为人工待办导出
+    stmt = select(CommunityEvent).where(
+        CommunityEvent.community_id == community_id,
+        CommunityEvent.source.notin_(("device", "alert")),
+    )
     if start_date:
         stmt = stmt.where(CommunityEvent.created_at >= datetime.combine(start_date, datetime.min.time()))
     if end_date:

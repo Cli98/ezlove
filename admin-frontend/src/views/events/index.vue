@@ -9,7 +9,7 @@
     />
 
     <header class="events-heading">
-      <div><h1>关怀事件</h1><p>把需要回应的关怀事项安排清楚</p></div>
+      <div><h1>关怀事件</h1><p>只列出需要人工跟进的事项，设备活动记录请在老人档案中查看</p></div>
       <div class="events-actions">
         <AppButton variant="outline" wide @click="handleExport"><span class="material-symbols-outlined">ios_share</span>导出 Excel</AppButton>
         <AppButton wide @click="openCreate"><span class="material-symbols-outlined">add_circle</span>手动新增</AppButton>
@@ -109,7 +109,7 @@ function decorateRow(row, index) {
     elder_name: row.elder_name || elder.elder_name || elder.name || '老人档案',
     elder_address: row.elder_address || elder.address || '地址待补充',
     avatar_url: getElderAvatar({ ...elder, ...row, avatar_url: row.avatar_url || elder.avatar_url }, index),
-    source_label: { canteen: '食堂到场', alert: '家属来电', manual: '上门探访' }[row.source] || '社区记录',
+    source_label: { canteen: '食堂到场', manual: '人工登记', device: '设备活动' }[row.source] || '社区记录',
     created_label: formatTime(row.created_at),
     deadline_label: row.deadline || (statusKey === 'done' ? '已完成' : row.severity === 'urgent' ? '尽快处理' : '持续跟进'),
     assignee: row.assignee || (row.is_resolved ? workerName.value : '待分配'),
