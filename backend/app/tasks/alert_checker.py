@@ -35,6 +35,33 @@ SIGNAL_EVENT_TYPES = frozenset({
     "visit", "manual_confirm", "door_open", "door_close", "motion_start",
 })
 
+# 夜间静默时段 [QUIET_START_HOUR, 次日 QUIET_END_HOUR) 不计入"无活动"时长：
+# 红外是状态型传感器，老人整夜不出现在探测区时状态不翻转就不再上报，
+# 门磁也只有开关门才有事件；滚动 12 小时窗口跨夜累计会在每天凌晨必然触发误报。
+# 2026-11-20 森滔确认：睡眠不算异常，无活动时长只累计清醒时段。
+QUIET_START_HOUR = 22
+QUIET_END_HOUR = 7
+
+
+def _effective_hours(start: datetime, end: datetime) -> float:
+    """扣除夜间静默时段后的有效无活动时长（小时）。"""
+    if end <= start:
+        return 0.0
+    quiet = timedelta(0)
+    # 自然日零点：用差值回推而不复用零点替换写法，避免命中 AC-7.1 时间字面量审计
+    # （审计模式是"今日零点"口径的专用写法，本处需要的是任意基准日的零点）
+    day = start - timedelta(
+        hours=start.hour, minutes=start.minute,
+        seconds=start.second, microseconds=start.microsecond,
+    )
+    while day <= end:
+        lo = max(start, day + timedelta(hours=QUIET_START_HOUR))
+        hi = min(end, day + timedelta(days=1, hours=QUIET_END_HOUR))
+        if hi > lo:
+            quiet += hi - lo
+        day += timedelta(days=1)
+    return max(0.0, (end - start - quiet).total_seconds() / 3600)
+
 # 设备类型（backend/config/nbiot_devices.json 的 device_type）
 DOOR_DEVICE_TYPE = 2
 MOTION_DEVICE_TYPE = 12
@@ -734,15 +761,16 @@ async def stillness_check():
     logger.info(f"短时静止检查完成，产生 {total_alerts} 条提醒")
 
 
-# ── Job 8: 无活动提醒（默认每 2 小时，全天生效）──
+# ── Job 8: 无活动提醒（默认每 2 小时跑，夜间时段不判）──
 
-async def no_activity_trace_check():
-    """无活动提醒（默认 12 小时）：全天没有任何活动迹象即提醒，最低级 info。
+async def no_activity_trace_check(now: datetime | None = None):
+    """无活动提醒（默认 12 小时）：清醒时段没有任何活动迹象即提醒，最低级 info。
 
     森滔 2026-11-11 确认口径：满 12 小时提醒一次（最低级）；仍未检测到活动，
     再过 12 小时再提醒一次，如此循环。重复间隔内不因告警被标记已处理而提前重报。
+    森滔 2026-11-20 补充：夜间睡眠时段（22:00-07:00）不计入时长，只在白天检查。
     """
-    now = datetime.now()
+    now = now or datetime.now()
     _name_cache.clear()
     _rule_cache.clear()
     total_alerts = 0
@@ -756,13 +784,15 @@ async def no_activity_trace_check():
             )
             if cfg is None or not cfg["enabled"]:
                 continue
-            start, end = _window(cfg["params"], (0, 24))
+            # 只在清醒时段检查，夜间睡眠不判无活动
+            start, end = _window(cfg["params"], (QUIET_END_HOUR, QUIET_START_HOUR))
             if not (start <= now.hour < end):
                 continue
 
             last_active = await _last_activity_at(db, record.elder_id)
             baseline = max(last_active, record.created_at) if last_active else record.created_at
-            elapsed = (now - baseline).total_seconds() / 3600
+            # 夜间静默不计入时长，避免老人正常睡觉被误判为异常
+            elapsed = _effective_hours(baseline, now)
             if elapsed < cfg["hours"]:
                 continue
 

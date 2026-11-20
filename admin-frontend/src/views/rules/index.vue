@@ -69,7 +69,7 @@
             <label v-if="item.window">
               <span>生效时段</span>
               <el-input-number
-                :model-value="item.config.check_hours?.[0] ?? 0"
+                :model-value="item.config.check_hours?.[0] ?? 7"
                 :min="0" :max="23" size="small" :controls="false"
                 @change="value => saveConfig(item, { check_hours: [value, item.config.check_hours?.[1] ?? 22] })"
               />
@@ -118,7 +118,7 @@ const RULE_META = [
   },
   {
     type: 'no_activity_trace', name: '无活动提醒', scope: '绑定红外设备',
-    desc: '超过阈值没有任何活动迹象即提醒（最低级），仍未活动则每隔重复间隔再提醒，全天生效',
+    desc: '超过阈值没有任何活动迹象即提醒（最低级），仍未活动则每隔重复间隔再提醒；夜间 22:00-07:00 不计时、不提醒',
   },
   {
     type: 'no_outing', name: '门磁长时间未触发', scope: '绑定门磁',

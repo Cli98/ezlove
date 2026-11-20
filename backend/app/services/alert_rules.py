@@ -34,7 +34,8 @@ DEFAULTS = [
 # check_hours：生效时段 [起, 止)，夜间睡眠不判静止；check_hour：每日检查时点
 RULE_DEFAULTS = {
     "stillness": {"check_hours": [7, 22], "dedupe_hours": 12},
-    "no_activity_trace": {"check_hours": [0, 24], "dedupe_hours": 12},
+    # 夜间 22:00-07:00 静默不判无活动（红外整夜不翻转、夜间不开关门都是正常的）
+    "no_activity_trace": {"check_hours": [7, 22], "dedupe_hours": 12},
     "no_outing": {"check_hour": 8, "dedupe_hours": 24},
 }
 
