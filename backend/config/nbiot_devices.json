@@ -43,6 +43,279 @@
       "label": "红外探测器",
       "elder_record_id": "74c27cbe-41eb-4604-9f3b-187ce4c9af72",
       "elder_note": "E01"
+    },
+    {
+      "sn": "862361073498282",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "3a71928d-32d7-437c-9cbf-adaed1f7eefb",
+      "elder_note": "E02"
+    },
+    {
+      "sn": "869986082328246",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "3a71928d-32d7-437c-9cbf-adaed1f7eefb",
+      "elder_note": "E02"
+    },
+    {
+      "sn": "862498089934692",
+      "device_type": 6,
+      "label": "语音报警器",
+      "elder_record_id": "3a71928d-32d7-437c-9cbf-adaed1f7eefb",
+      "elder_note": "E02"
+    },
+    {
+      "sn": "862361073555420",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "0141d87a-e636-4435-9de8-8dfa578731d3",
+      "elder_note": "E03"
+    },
+    {
+      "sn": "869986082709239",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "0141d87a-e636-4435-9de8-8dfa578731d3",
+      "elder_note": "E03"
+    },
+    {
+      "sn": "862498089990924",
+      "device_type": 6,
+      "label": "语音报警器",
+      "elder_record_id": "",
+      "elder_note": "E03 语音：平台无此 SN，待核实"
+    },
+    {
+      "sn": "862361073570668",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "bf697409-ab67-4b44-ae94-1c551e3ef6c8",
+      "elder_note": "E04"
+    },
+    {
+      "sn": "869986082400425",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "bf697409-ab67-4b44-ae94-1c551e3ef6c8",
+      "elder_note": "E04"
+    },
+    {
+      "sn": "862498089984937",
+      "device_type": 6,
+      "label": "语音报警器",
+      "elder_record_id": "bf697409-ab67-4b44-ae94-1c551e3ef6c8",
+      "elder_note": "E04"
+    },
+    {
+      "sn": "862361073555941",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "2e383d92-1a5f-4750-a68e-cf7b3f316445",
+      "elder_note": "E05"
+    },
+    {
+      "sn": "869986082709080",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "2e383d92-1a5f-4750-a68e-cf7b3f316445",
+      "elder_note": "E05"
+    },
+    {
+      "sn": "862498089997301",
+      "device_type": 6,
+      "label": "语音报警器",
+      "elder_record_id": "2e383d92-1a5f-4750-a68e-cf7b3f316445",
+      "elder_note": "E05"
+    },
+    {
+      "sn": "862361073559356",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "8196f29d-818c-4920-b801-ddd3bc88431f",
+      "elder_note": "E06"
+    },
+    {
+      "sn": "869986082490376",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "8196f29d-818c-4920-b801-ddd3bc88431f",
+      "elder_note": "E06"
+    },
+    {
+      "sn": "862498089942976",
+      "device_type": 6,
+      "label": "语音报警器",
+      "elder_record_id": "8196f29d-818c-4920-b801-ddd3bc88431f",
+      "elder_note": "E06"
+    },
+    {
+      "sn": "862361073498365",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "2dafa17d-11a5-46ab-8fea-93a76be8b400",
+      "elder_note": "E07"
+    },
+    {
+      "sn": "869986082710062",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "2dafa17d-11a5-46ab-8fea-93a76be8b400",
+      "elder_note": "E07"
+    },
+    {
+      "sn": "862498089968435",
+      "device_type": 6,
+      "label": "语音报警器",
+      "elder_record_id": "2dafa17d-11a5-46ab-8fea-93a76be8b400",
+      "elder_note": "E07"
+    },
+    {
+      "sn": "862361073536693",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "a45b31dc-bb36-40ab-879b-0ff8f5273b72",
+      "elder_note": "E08"
+    },
+    {
+      "sn": "869986082709535",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "",
+      "elder_note": "E08 门磁：平台无此 SN，待核实（邻居档 869986082709536 存在）"
+    },
+    {
+      "sn": "862498089988037",
+      "device_type": 6,
+      "label": "语音报警器",
+      "elder_record_id": "a45b31dc-bb36-40ab-879b-0ff8f5273b72",
+      "elder_note": "E08"
+    },
+    {
+      "sn": "862361073554902",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "b2f06444-30e5-4d3c-95d4-b833bb1ea3ce",
+      "elder_note": "E09"
+    },
+    {
+      "sn": "869986082709593",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "b2f06444-30e5-4d3c-95d4-b833bb1ea3ce",
+      "elder_note": "E09"
+    },
+    {
+      "sn": "862498089991312",
+      "device_type": 6,
+      "label": "语音报警器",
+      "elder_record_id": "b2f06444-30e5-4d3c-95d4-b833bb1ea3ce",
+      "elder_note": "E09"
+    },
+    {
+      "sn": "862361073630595",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "e57fa161-a5dd-4cc3-9216-94b97630e6ad",
+      "elder_note": "E10"
+    },
+    {
+      "sn": "869986082709924",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "e57fa161-a5dd-4cc3-9216-94b97630e6ad",
+      "elder_note": "E10"
+    },
+    {
+      "sn": "862498089968344",
+      "device_type": 6,
+      "label": "语音报警器",
+      "elder_record_id": "e57fa161-a5dd-4cc3-9216-94b97630e6ad",
+      "elder_note": "E10"
+    },
+    {
+      "sn": "862361073561766",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "addae843-673c-4397-9833-d8508f9ed242",
+      "elder_note": "E11"
+    },
+    {
+      "sn": "869986082709536",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "addae843-673c-4397-9833-d8508f9ed242",
+      "elder_note": "E11"
+    },
+    {
+      "sn": "862498089981974",
+      "device_type": 6,
+      "label": "语音报警器",
+      "elder_record_id": "addae843-673c-4397-9833-d8508f9ed242",
+      "elder_note": "E11"
+    },
+    {
+      "sn": "862361073561154",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "bc9ebe1f-781f-4fc1-ad59-59178a5852db",
+      "elder_note": "E12"
+    },
+    {
+      "sn": "869986082490335",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "bc9ebe1f-781f-4fc1-ad59-59178a5852db",
+      "elder_note": "E12"
+    },
+    {
+      "sn": "862498089983970",
+      "device_type": 6,
+      "label": "语音报警器",
+      "elder_record_id": "bc9ebe1f-781f-4fc1-ad59-59178a5852db",
+      "elder_note": "E12"
+    },
+    {
+      "sn": "862361073562608",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "afd71bbc-3063-457e-9858-bed57140b501",
+      "elder_note": "E13"
+    },
+    {
+      "sn": "869986082490012",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "afd71bbc-3063-457e-9858-bed57140b501",
+      "elder_note": "E13"
+    },
+    {
+      "sn": "862498089968252",
+      "device_type": 6,
+      "label": "语音报警器",
+      "elder_record_id": "afd71bbc-3063-457e-9858-bed57140b501",
+      "elder_note": "E13"
+    },
+    {
+      "sn": "862361073560875",
+      "device_type": 12,
+      "label": "红外探测器",
+      "elder_record_id": "f49bdc2c-d406-4cca-ab9a-6f461dae6a93",
+      "elder_note": "E14"
+    },
+    {
+      "sn": "869986082708611",
+      "device_type": 2,
+      "label": "门磁传感器",
+      "elder_record_id": "f49bdc2c-d406-4cca-ab9a-6f461dae6a93",
+      "elder_note": "E14"
+    },
+    {
+      "sn": "862498089995222",
+      "device_type": 6,
+      "label": "语音报警器",
+      "elder_record_id": "f49bdc2c-d406-4cca-ab9a-6f461dae6a93",
+      "elder_note": "E14"
     }
   ]
 }
