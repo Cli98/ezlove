@@ -180,9 +180,13 @@ async def test_stillness_escalated_to_no_activity_trace(db, monkeypatch):
 # ── 红外无活动提醒（默认 12 小时、最低级 info、每 12 小时循环，全天生效）──
 
 async def test_no_activity_trace_alert(db, monkeypatch):
-    """全天没有任何活动迹象 → 无活动提醒（最低级 info）。"""
-    community, _, record = await _motion_elder(db, "trace-1", idle_hours=20)
-    await _set_rule(db, community.id, "no_activity_trace", hours=12)  # 默认时段即全天
+    """长时间没有任何活动迹象 → 无活动提醒（最低级 info）。
+
+    FULL_DAY 让用例任何时刻都能跑；26 小时扣除夜间睡眠时段后仍超过 12 小时阈值
+    （夜间不计时的口径见 test_no_activity_quiet_hours.py）。
+    """
+    community, _, record = await _motion_elder(db, "trace-1", idle_hours=26)
+    await _set_rule(db, community.id, "no_activity_trace", hours=12, **FULL_DAY)
     _patch_registry(monkeypatch, record.id, alert_checker.MOTION_DEVICE_TYPE, "PIR-TRACE-1")
 
     await alert_checker.no_activity_trace_check()
@@ -207,8 +211,8 @@ async def test_no_activity_trace_recent_activity_suppresses(db, monkeypatch):
 
 async def test_no_activity_trace_dedupes_resolved_within_interval(db, monkeypatch):
     """重复间隔内即使上一条已处理（已解决），也不再重复提醒。"""
-    community, elder, record = await _motion_elder(db, "trace-3", idle_hours=13)
-    await _set_rule(db, community.id, "no_activity_trace", hours=12, dedupe_hours=12)
+    community, elder, record = await _motion_elder(db, "trace-3", idle_hours=26)
+    await _set_rule(db, community.id, "no_activity_trace", hours=12, dedupe_hours=12, **FULL_DAY)
     db.add(Alert(
         elder_id=elder.id, community_id=community.id, alert_type="no_activity",
         alert_level="info", message="上一次无活动提醒", trigger_rule="no_activity_trace",
@@ -224,7 +228,7 @@ async def test_no_activity_trace_dedupes_resolved_within_interval(db, monkeypatc
 async def test_no_activity_trace_repeats_every_interval(db, monkeypatch):
     """超过重复间隔仍无活动 → 再提醒一次（每 12 小时循环）。"""
     community, elder, record = await _motion_elder(db, "trace-4", idle_hours=26)
-    await _set_rule(db, community.id, "no_activity_trace", hours=12, dedupe_hours=12)
+    await _set_rule(db, community.id, "no_activity_trace", hours=12, dedupe_hours=12, **FULL_DAY)
     db.add(Alert(
         elder_id=elder.id, community_id=community.id, alert_type="no_activity",
         alert_level="info", message="12小时前的无活动提醒", trigger_rule="no_activity_trace",
